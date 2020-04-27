@@ -1,0 +1,304 @@
+<html class="cye-disabled cye-lm"><head><meta charset="utf-8"><meta name="Keywords" content="极客时间,极客邦,极客邦科技,极客邦控股,极客时间App,专栏订阅,极客新闻,二叉树,极客Live,QCon,左耳听风,AI技术内参,大航海时代,陈皓,徐飞,洪亮劼,霍泰稳,池建强,Selina,Gary,InfoQ,极客搜索"><meta name="description" content="极客时间是极客邦科技出品的一款 IT 内容知识服务 App，内容包含专栏订阅、极客新闻、热点专题、直播、视频和音频等多形式的知识内容，并设有陈皓专栏、徐飞专栏、洪亮劼专栏等专栏供订阅。"><link rel="apple-touch-icon" sizes="180x180" href="http://static001.geekbang.org/static/icon/time/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="http://static001.geekbang.org/static/icon/time/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="http://static001.geekbang.org/static/icon/time/favicon-16x16.png"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="format-detection" content="telephone=no"><title>11 | 微服务 API 服务网关（二）开源网关 Zuul</title><link href="https://static001.geekbang.org/static/time/css/app.b230db929e53af87acd535637f5011b8.css" rel="stylesheet"><style type="text/css">        @font-face {            font-family: player-font;            src: url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.eot");            src: url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.eot?#iefix") format("embedded-opentype"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.woff") format("woff"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.ttf") format("truetype"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.svg#player-font") format("svg")        }        .player-font {            font-family: player-font !important;            font-size: 16px;            font-style: normal;            -webkit-font-smoothing: antialiased;            -webkit-text-stroke-width: .2px;            -moz-osx-font-smoothing: grayscale        }        .vplayer {            position: relative;            overflow: hidden        }        .vplayer,        .vplayer video {            width: 100%        }        .vplayer .title {            position: absolute;            top: 1rem;            left: 1rem;            right: 1rem;            color: #fff;            font-weight: 400;            font-size: .875rem;            word-break: break-all;            display: -webkit-box;            overflow: hidden;            text-overflow: ellipsis;            -webkit-box-orient: vertical;            -webkit-line-clamp: 1        }        .vplayer .finish-control,        .vplayer .loading {            position: absolute;            top: 0;            left: 0;            background: rgba(0, 0, 0, .5);            color: #fff;            width: 100%;            height: 100%;            z-index: 2;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center        }        .vplayer .finish-control h3,        .vplayer .loading h3 {            position: absolute;            color: #fff;            top: 1rem;            left: 50%;            font-size: 1rem;            font-weight: 400;            -webkit-transform: translate(-50%);            transform: translate(-50%)        }        .vplayer .finish-control p,        .vplayer .loading p {            cursor: pointer;            max-height: 6rem;            text-align: center        }        .vplayer .finish-control .cancel-next,        .vplayer .loading .cancel-next {            margin-left: 4rem        }        .vplayer .finish-control .cancel-next .icon-cancel-next,        .vplayer .loading .cancel-next .icon-cancel-next {            height: 4rem;            line-height: 4rem;            cursor: pointer;            font-size: 3.5rem        }        .vplayer .finish-control .cancel-next .icon-cancel-next i,        .vplayer .loading .cancel-next .icon-cancel-next i {            position: absolute;            top: 0;            left: 0;            margin-left: 8px        }        .vplayer .finish-control .icon-replay,        .vplayer .loading .icon-replay {            height: 4rem;            cursor: pointer;            line-height: 4rem;            font-size: 3rem        }        .vplayer .finish-control {            background: #000        }        .vplayer .no-wifi {            width: 70%;            position: absolute;            left: 50%;            top: 50%;            padding: 1rem;            background: rgba(0, 0, 0, .8);            -webkit-transform: translate(-50%, -50%);            transform: translate(-50%, -50%);            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: vertical;            -webkit-box-direction: normal;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            z-index: 3        }        .vplayer .no-wifi p {            line-height: 1.5rem;            margin: 0 auto;            width: 60%;            color: #fff;            font-size: 1rem;            text-align: center        }        .vplayer .no-wifi p span {            font-size: .875rem        }        .vplayer .no-wifi div {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            margin-top: 1rem        }        .vplayer .no-wifi div a {            color: #fff;            background: #ff5a05;            padding: .3rem .5rem        }        .vplayer .no-wifi div a:last-child {            margin-left: 1rem        }        .vplayer .buy {            position: absolute;            z-index: 4;            top: 0;            left: 0;            width: 100%;            height: 100%;            color: #fff;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: vertical;            -webkit-box-direction: normal;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            background: #000        }        .vplayer .buy p {            text-align: center        }        .vplayer .buy p span {            color: #ff5a05        }        .vplayer .buy .btn {            margin-top: 1rem;            color: #fff;            background: #ff5a05;            padding: .3rem 1.5rem        }        .android .dplayer .dplayer-controller .dplayer-icons .dplayer-full,        .dplayer-setting-item.dplayer-setting-loop {            display: none        }</style><style type="text/css">        .MathJax_Display {            overflow: auto        }        .poster {            position: fixed;            left: -10000px;            top: -10000px;            overflow: hidden;            padding: 1rem;            background: #ececec        }        .richcontent-pre-copy {            font-size: 13px;            color: #888;            position: absolute;            right: 1em;            top: .2em;            cursor: pointer;            -webkit-user-select: none;            -moz-user-select: none;            -ms-user-select: none;            user-select: none        }        .richcontent-pre-copy .iconfont {            font-size: 12px;            margin-right: .2em        }</style><style type="text/css">        .bottom {            width: 100%;            background-color: #f5f5f5;            position: fixed;            bottom: 0;            left: 0;            z-index: 10        }        .bottom,        .bottom .bottom-wrapper {            height: 67px;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row        }        .bottom .bottom-wrapper {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            padding-left: 20px;            padding-right: 20px;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between        }        .bottom .bottom-wrapper a {            height: 48px;            line-height: 51px;            -webkit-box-sizing: border-box;            box-sizing: border-box        }</style><style type="text/css">        .breadcrumb {            padding: 30px 0;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -ms-flex-wrap: wrap;            flex-wrap: wrap;            background: #fff        }        .breadcrumb a.title {            color: #e57c39;            font-size: 15px;            font-weight: 400        }        .breadcrumb span.title {            color: #888;            font-size: 15px;            font-weight: 400        }        .breadcrumb .split {            color: #ccc;            font-size: 10px;            margin-right: 5px        }</style><style type="text/css">        .course-detail[data-v-4e11b9bf] {            max-width: 46.25rem;            margin: 0 auto;            background: #f5f5f5        }        .course-detail .course-main[data-v-4e11b9bf] {            background-color: #fff;            width: 100%;            z-index: 10;            top: 0;            left: 0        }        .course-detail .course-info[data-v-4e11b9bf] {            background: #fff;            cursor: pointer        }        .course-detail .course-info .course-info-top[data-v-4e11b9bf] {            padding: 1rem 0 .4rem .78125rem;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .course-detail .course-info .course-info-top h1[data-v-4e11b9bf] {            font-size: 1.03125rem;            font-weight: 400;            text-align: justify-content        }        .course-detail .course-info .course-info-top i[data-v-4e11b9bf] {            font-weight: 400;            width: 40px;            padding-right: .78125rem;            -ms-flex-negative: 0;            flex-shrink: 0;            text-align: right;            color: #dadada        }        .course-detail .course-info .course-info-bottom[data-v-4e11b9bf] {            padding: 0 54px .5rem .78125rem;            border-bottom: 1px solid #e8e8e8;            color: #888;            font-size: .78125rem        }        .course-detail .course-info .course-info-bottom .icon-course-play[data-v-4e11b9bf] {            color: #d9d9d9;            font-size: .75rem        }        .course-detail .video-list[data-v-4e11b9bf] {            background: #fff;            width: 100%;            overflow: hidden;            overflow: auto;            -webkit-overflow-scrolling: touch        }        .course-detail .video-list ul[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            padding: .875rem 0        }        .course-detail .video-list ul li[data-v-4e11b9bf] {            margin-left: .71875rem;            position: relative;            border: 1px solid #e8e8e8;            border-radius: 3px;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            height: 4.0625rem;            overflow: hidden;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            font-size: .78125rem;            -ms-flex-negative: 0;            flex-shrink: 0;            line-height: 1rem;            -webkit-transition: border .5s ease;            transition: border .5s ease        }        .course-detail .video-list ul li img[data-v-4e11b9bf] {            width: 1.78125rem;            height: .84375rem;            position: absolute;            top: 0;            left: 0        }        .course-detail .video-list ul li a[data-v-4e11b9bf] {            -webkit-transition: color .5s ease;            transition: color .5s ease;            padding: 0 .5rem        }        .course-detail .video-list ul li a[data-v-4e11b9bf]:link,        .course-detail .video-list ul li a[data-v-4e11b9bf]:visited {            color: #353535        }        .course-detail .video-list ul li.on[data-v-4e11b9bf] {            border-color: #ff5a05        }        .course-detail .video-list ul li.on a[data-v-4e11b9bf]:link,        .course-detail .video-list ul li.on a[data-v-4e11b9bf]:visited {            color: #ff5a05        }        .article-title[data-v-4e11b9bf] {            color: #353535;            font-weight: 400;            line-height: 1.65rem;            font-size: 1.34375rem        }        .article-info[data-v-4e11b9bf] {            color: #888;            font-size: .9375rem;            margin-top: 1.0625rem        }        .article-content[data-v-4e11b9bf] {            margin-top: 1.0625rem        }        .audio-player[data-v-4e11b9bf] {            width: 100%;            margin: 20px 0        }        .content-box[data-v-4e11b9bf] {            padding: 1px 1.3125rem;            background-color: #fff;            margin-top: .46875rem        }        .to-comment[data-v-4e11b9bf] {            overflow: hidden;            padding-top: 20px;            margin: 0 1.3125rem -10px        }        .to-comment a.button-primary[data-v-4e11b9bf] {            float: right;            height: 20px;            font-size: 12px;            line-height: 20px;            padding: 4px 8px;            cursor: pointer        }        .extra[data-v-4e11b9bf] {            margin-top: .46875rem;            margin-bottom: 67px;            background: #fff;            position: relative        }        .extra .video-comment-box[data-v-4e11b9bf] {            position: absolute;            width: 100%;            top: 0;            left: 0;            z-index: 3;            -webkit-box-sizing: border-box;            box-sizing: border-box;            background: #fff;            padding-left: 1rem;            padding-right: 1rem;            padding-top: .5rem        }        .extra .video-comment-box h3[data-v-4e11b9bf] {            color: #353535;            font-size: .875rem;            line-height: 2rem;            font-weight: 400        }        .extra .comments[data-v-4e11b9bf] {            margin: 0 1.3125rem;            padding-bottom: 50px        }        .extra .comments h2[data-v-4e11b9bf] {            text-align: center;            color: #888;            position: relative;            z-index: 1;            margin-bottom: 14px        }        .extra .comments h2[data-v-4e11b9bf]:before {            border-top: 1px dotted #e8e8e8;            content: "";            position: absolute;            top: 50%;            left: 0;            width: 100%;            z-index: -1        }        .extra .comments h2 span[data-v-4e11b9bf] {            font-size: 15.25px;            font-weight: 400;            padding: 16px 1rem;            background: #fff;            display: inline-block        }        .extra .comments .no-comment[data-v-4e11b9bf] {            text-align: center        }        .extra .comments .no-comment i.icon-cat[data-v-4e11b9bf] {            color: #f5f5f5;            font-size: 100px;            line-height: 1.2;            margin-right: 12px        }        .extra .comments .no-comment .no-comment-text[data-v-4e11b9bf] {            color: #e8e8e8;            font-size: 12.5px;            line-height: 1.6        }        .bottom[data-v-4e11b9bf] {            position: fixed;            bottom: 0;            left: 0;            width: 100%;            height: 67px;            background: #fff;            background-color: #f5f5f5;            z-index: 10        }        .bottom .buy-join[data-v-4e11b9bf],        .bottom[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center        }        .bottom .buy-join[data-v-4e11b9bf] {            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            height: 48px;            line-height: 48px        }        .bottom .buy-join span[data-v-4e11b9bf] {            line-height: 48px;            margin-left: 5px;            color: hsla(0, 0%, 100%, .5);            font-size: 11px;            text-decoration: line-through        }        .bottom .button-cancel[data-v-4e11b9bf] {            height: 51px;            line-height: 51px        }        .bottom-control[data-v-4e11b9bf],        .bottom-sub[data-v-4e11b9bf] {            width: 100%;            -webkit-box-orient: horizontal;            -ms-flex-direction: row;            flex-direction: row;            -ms-flex-pack: distribute;            justify-content: space-around;            -webkit-box-sizing: border-box;            box-sizing: border-box;            padding: 0 1.3125rem        }        .bottom-control .item[data-v-4e11b9bf],        .bottom-control[data-v-4e11b9bf],        .bottom-sub .item[data-v-4e11b9bf],        .bottom-sub[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-direction: normal        }        .bottom-control .item[data-v-4e11b9bf],        .bottom-sub .item[data-v-4e11b9bf] {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            -webkit-box-orient: vertical;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            cursor: pointer        }        .bottom-control .item i[data-v-4e11b9bf],        .bottom-sub .item i[data-v-4e11b9bf] {            color: #353535;            font-size: 1.125rem;            line-height: 1.5rem        }        .bottom-control .item span[data-v-4e11b9bf],        .bottom-sub .item span[data-v-4e11b9bf] {            color: #888;            font-size: 11px        }        .button-subscribe[data-v-4e11b9bf] {            -webkit-box-flex: 1;            -ms-flex: 1;            flex: 1;            height: 69px;            color: #fff;            font-size: 15.25px;            text-align: center;            background-color: #ff5a05;            line-height: 69px;            border-radius: 5px        }        .article-sub-bottom[data-v-4e11b9bf] {            z-index: 2        }        @media only screen and (device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3) {            .bottom[data-v-4e11b9bf],            .comments[data-v-4e11b9bf] {                padding-bottom: 34px            }        }        @media (max-width:769px) {            .course-detail .breadcrumb[data-v-4e11b9bf] {                padding: 10px            }        }        @media screen and (min-width:768px) {            .extra .comments[data-v-4e11b9bf],            .to-comment[data-v-4e11b9bf] {                margin: 0 0 -10px            }        }</style><style type="text/css">        .mobile-tips {            width: 100%;            height: 51px;            background: rgba(0, 0, 0, .8);            position: fixed;            top: 0;            left: 0;            z-index: 20;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-sizing: border-box;            box-sizing: border-box;            padding: 0 12px;            -webkit-transition: opacity .35s;            transition: opacity .35s;            opacity: 0;            pointer-events: none        }        .mobile-tips.istop {            opacity: 1;            pointer-events: auto        }        .mobile-tips .mobile-tips-info {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: start;            -ms-flex-pack: start;            justify-content: flex-start        }        .mobile-tips .mobile-tips-info i {            width: 36px;            height: 36px;            background-image: url(data:image/png;base64,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);            background-position: 0 0;            background-repeat: no-repeat;            background-size: contain;            border-radius: 7px        }        .mobile-tips .mobile-tips-info h2 {            font-size: 15px;            color: #fff;            font-weight: 400;            margin-left: 6px        }        .mobile-tips .mobile-tips-info h2 span {            font-size: 11px        }        .mobile-tips a {            width: 72px;            height: 31px;            text-align: center;            border: 1px solid #ff5a05;            border-radius: 3px;            font-size: 13px;            color: #ff5a05;            line-height: 31px        }</style><style type="text/css">        .comment-item {            list-style-position: inside;            width: 100%;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            margin-bottom: 1rem        }        .comment-item a {            border-bottom: none        }        .comment-item .avatar {            width: 2.625rem;            height: 2.625rem;            -ms-flex-negative: 0;            flex-shrink: 0;            border-radius: 50%        }        .comment-item .info {            margin-left: .5rem;            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1        }        .comment-item .info .hd {            width: 100%;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .comment-item .info .hd .username {            color: #888;            font-size: 15.25px;            font-weight: 400;            line-height: 1.2        }        .comment-item .info .hd .control {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .comment-item .info .hd .control .btn-share {            color: #888;            font-size: .75rem;            margin-right: 1rem        }        .comment-item .info .hd .control .btn-praise {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            font-size: 15.25px;            text-decoration: none        }        .comment-item .info .hd .control .btn-praise i {            color: #888;            display: inline-block;            font-size: .75rem;            margin-right: .3rem;            margin-top: -.01rem        }        .comment-item .info .hd .control .btn-praise i.on,        .comment-item .info .hd .control .btn-praise span {            color: #ff5a05        }        .comment-item .info .bd {            color: #353535;            font-size: 15.25px;            font-weight: 400;            white-space: normal;            word-break: break-all;            line-height: 1.6        }        .comment-item .info .time {            color: #888;            font-size: 9px;            line-height: 1        }        .comment-item .info .reply .reply-hd {            font-size: 15.25px        }        .comment-item .info .reply .reply-hd span {            margin-left: -12px;            color: #888;            font-weight: 400        }        .comment-item .info .reply .reply-hd i {            color: #ff5a05;            font-size: 15.25px        }        .comment-item .info .reply .reply-content {            color: #353535;            font-size: 15.25px;            font-weight: 400;            white-space: normal;            word-break: break-all        }        .comment-item .info .reply .reply-time {            color: #888;            font-size: 9px        }</style></head><body style=""><div id="app"><div data-v-4e11b9bf="" class="course-detail"><div class="breadcrumb breadcrumb"><span><a href="#" class="title router-link-active">讲堂</a><span class="split iconfont"></span></span><span><span class="title">11 | 微服务 API 服务网关（二）开源网关 Zuul</span></span></div><div data-v-4e11b9bf="" class="course-main main" style="position: relative;"><div data-v-4e11b9bf="" class="vplayer" id ="DplayerCont" style="height: 416.25px;"><h2 class="title">                        11 | 微服务 API 服务网关（二）开源网关 Zuul</h2></div></div><div data-v-4e11b9bf="" class="course-info" style="margin-top: 0px;"><div data-v-4e11b9bf="" class="course-info-top"><h1 data-v-4e11b9bf="" class="course-title"></h1><i data-v-4e11b9bf="" class="iconfont"></i></div></div><div data-v-4e11b9bf=""><div data-v-4e11b9bf="" class="content-box"><div data-v-4e11b9bf="" id="article-content" class="typo common-content"><div class="text">                            </div></div></div></div><div data-v-4e11b9bf="" class="extra" style="margin-bottom: 1rem;"><div data-v-4e11b9bf="" class="comments"><h2 data-v-4e11b9bf=""><span data-v-4e11b9bf="">精选留言</span></h2><ul>                        <li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">LMD</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>5</span></a></div>
+	</div>
+	<div class="bd">关于《微服务架构核心20讲》课程讲义（PDF 文件），学员可复制下面链接到浏览器下载获取。 http:&#47;&#47;t.cn&#47;RQs9iTw</div> <span class="time">2018-01-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">lgtao</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>21</span></a></div>
+	</div>
+	<div class="bd">每节课的思考题，老师是不是也给出你的意见呀！</div> <span class="time">2018-01-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">稻草</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">网关和soa架构中的esb有什么区别？难道不是同样会造成整个平台性能瓶颈的痛点吗？希望解答，谢谢</div> <span class="time">2018-07-22</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">技术上两者有点相似，但是gateway比esb更轻量，gateway基本上就是一个转发代理，一般不做较重的协议转换，传统esb一般里头有较重的转换逻辑；另外gateway一般处在微服务的边界上，企业内部服务一般可以采用直连，暴露出去的时候才需要通过gateway，gateway一般无状态，可以水平扩，另外gateway可以通过容错限流等手段保证高可用性，esb一般处在企业内部，是一个中心hub，所以有单点风险。</p> <p class="reply-time">2018-07-30</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/9c/d7/9c4d1cb1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">wang</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">跟iptables 很像</div> <span class="time">2018-05-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/a1/c9/f75f8ae3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">self-discipline</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">有个问题咨询下杨老师,我们现在的网关用zuul,使用spring cloud  技术框架,一旦某个单一服务重启了,必须跟着重启网关,不然网关找不到对应的服务,不知道您遇到过这个问题没有,自己如何解决这个问题,期待您的回复,谢谢</div> <span class="time">2018-02-22</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">可以做成动态刷新方式就不需要重启了，比如我之前公司在网关里头有个scheduler，定期去一个中央地址服务拉取最新地址信息。</p> <p class="reply-time">2018-04-04</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/b8/c8/0c366f70.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">杨波</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">也有LB兼具Gateway功能，或者Gateway兼具LB功能做法，小网站可以这样做，建议网站到一定体量把两者分层布署</div> <span class="time">2018-02-11</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/b8/c8/0c366f70.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">杨波</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">LB代表负载均衡，因为网关本身一般是无状态部署，可以部署多个，所以一般前置需要F5（硬件）或者LVS（软件）等负载均衡。网关Gateway主要负责一些跨横切面的逻辑（路由，安全，限流等），也可能包含LB逻辑，比如一种流行做法是网关（Zuul）+客户端软负载（Ribbon）配合服务注册中心（Eureka）实现对后端微服务的负载均衡调用。</div> <span class="time">2018-02-11</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/ee/d2/7024431c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">探索无止境</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师你好，反爬虫程序可以写在前置过滤器上，但是有一个问题，现在大家都是用代理上网，假如我们监控到某个ip发起了恶意攻击，将这个ip列入黑名单，但会导致一片的无辜用户也无法正常访问，这个问题怎么办？如何可以更精确锁定到某个具体的用户？</div> <span class="time">2018-12-12</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/00/f4/cc5f0896.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Jowin</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">如果内部微服务之间使用RPC，出口是HTTP，在网关的地方必然要有一个转换逻辑，这个老师是怎么考虑的？</div> <span class="time">2018-11-17</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不建议在网关上做RPC到HTTP转换（虽然可以这样做），建议开发适配服务（也叫聚合转换服务或BFF），在后台RPC和网关之间专门做转换聚合等适配工作。</p> <p class="reply-time">2018-12-04</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/00/f4/cc5f0896.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Jowin</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师有一个问题，假如一个微服务部署了多个实例，那网关必然要从多个服务实例中选择一个来进行服务调用，也就是必须要具备一点负载均衡的功能，这个是不能省掉的吧？</div> <span class="time">2018-11-17</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">网关可以集成负载均衡，比Zuul对接Eureka&#47;Ribbon实现软负载。如果内部服务使用集中式负载，比如nginx，则网关不需要负载均衡功能，可直接通过域名调服务，会间接通过nginx做负载均衡。</p> <p class="reply-time">2018-12-04</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/a3/d1/a30a4d06.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">张闯</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">首先要识别爬虫请求。爬虫请求的特点有很多，比如单个IP在短时间内高频率地请求。<br>在网关的pre-filter层对爬虫请求进行识别，拒绝请求，并创建IP黑名单。</div> <span class="time">2018-11-15</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/39/2f/d7f9e2ef.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">庄周是我🐟</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">杨老师，zuul这块讲得再深入一点就好了，特别是如何优化，提高吞吐量这块</div> <span class="time">2018-11-09</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">可关注我的《微服务架构实践160讲》，其中一个模块专门讲zuul网关实践。</p> <p class="reply-time">2018-11-09</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/2d/22/5c3e953c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">enbo</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">理论感觉听得懂，但是实际操作却不清楚！有点小痛苦</div> <span class="time">2018-11-01</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">要多参与项目实践加深理解，也可进一步学习我的视频课程《微服务架构和实践160讲》，既有理论也更偏重实践。</p> <p class="reply-time">2018-11-02</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/75/55/f81be934.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">曾晓东</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">杨老师你好，我想提问一个问题：前端使用了SSR服务器端渲染生成html的方式，这个适合放到网关里面的BFF层实现吗？</div> <span class="time">2018-07-14</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">技术上ok，html页面应用也算一种BFF，实际要看企业具体技术和业务上下文。</p> <p class="reply-time">2018-07-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/K3amnH6ccoYibM2p8SJQsMibP5QEZFZaNfGRALBDtrpPzufV1BQqtKOR7VSMibjUjbfKYbRB4FHOIo5uEPHoQ5ibXw/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">米琴</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">杨老师有没有讲eureka的呀，今天遇到一个问题，eureka client 注册时，空指针，API网关是可以注册成功的，业务服务注册不成功。</div> <span class="time">2018-06-05</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">《微服务架构实战160讲》会专门有一模块剖析eureka。eureka是开源的，问题实在搞不定，就拉原码到本地跟踪调试一把。</p> <p class="reply-time">2018-06-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">barry</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请问，灰度发布是如何做的？</div> <span class="time">2018-05-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">请参考我之前在聊聊架构公众号发表的文章《现代发布技术》https:&#47;&#47;mp.weixin.qq.com&#47;s&#47;WdCM6cOmjdhAEa6PtviH9A</p> <p class="reply-time">2018-06-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/ce/99/4382727b.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">sayid</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">听到这一课才突然发现杨老师说话很有磁性啊 哈哈</div> <span class="time">2018-05-23</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">谢谢支持🌹</p> <p class="reply-time">2018-05-24</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/bf/19/24cc3e7c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">二康</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师讲的很好</div> <span class="time">2018-05-23</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">多谢支持🌹</p> <p class="reply-time">2018-05-24</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/eb/91/12612612.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">彡工鸟</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">这个设计基本是参照iptable来的吧</div> <span class="time">2018-05-11</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不确定有没有参考iptable，但和职责键模式思路接近</p> <p class="reply-time">2018-05-11</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/36/2c/8bd4be3a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">小喵喵</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">网关是干什么的？我完全不懂，和程序有什么关系呢？我平时写程序没有涉及网关。请指点一下谢谢</div> <span class="time">2018-05-06</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">网关是微服务基础设施，一般由企业框架团队负责维护，管路由，安全，监控等跨横功面功能，一般研发不直接接触</p> <p class="reply-time">2018-05-09</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/07/cf/7f5ce6a6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">宁碧夏</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">受益匪浅</div> <span class="time">2018-05-05</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">加油🌹</p> <p class="reply-time">2018-05-09</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">wang</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">您好，请教个问题。聚合服务和网关有什么联系么，比如可能一个公司内部可能会有多组服务，每组服务都有自己的网关，比如app端，一个请求要夸多组服务，是否需要提供一个聚合服务？</div> <span class="time">2018-04-04</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">你的做法把聚合服务和网关做在一起了，建议网关独立不含聚合逻辑，只负责路由监控等逻辑，聚合服务单独一层躲在网关层后面，这样架构更清晰关注分离</p> <p class="reply-time">2018-04-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/f4/3d/e3406ac4.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">杨小勇</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">防爬虫过滤器放在前置过滤器是最合适的，如果检测出是爬虫行为，可以直接拒绝请求，而不会当做正常请求去处理，避免了后端服务的资源浪费</div> <span class="time">2018-03-18</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的，同时要收集访问数据，做大数据分析，作为防爬虫决策依据</p> <p class="reply-time">2018-04-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/c3/ab/2940b75d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">名贤集</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">J杨老师讲解的非常好</div> <span class="time">2018-02-12</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">谢谢支持🌹</p> <p class="reply-time">2018-05-24</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/9f/ec/d39f8fef.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">小天狼星</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师您好，LB和Gateway有什么本质的区别呢？还是只是一个软件担任的角色不同？因为我在想如果要实现一个网关，或者实现一个LB，他们有许多功能是重叠的。比如他们都可以做反向代理，也可以限流，也可以做auth……不是太理解</div> <span class="time">2018-02-08</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/b2/10/a6debd39.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">章洁</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">自己多思考，每个人答案不同</div> <span class="time">2018-01-23</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li></ul></div></div><div data-v-4e11b9bf=""></div></div></div><link href="https://cdn.bootcss.com/dplayer/1.25.0/DPlayer.min.css" rel="stylesheet"><script src="https://cdn.bootcss.com/hls.js/0.10.1/hls.min.js"></script><script src="https://cdn.bootcss.com/dplayer/1.25.0/DPlayer.min.js"></script><script>            const dp = new DPlayer({                container: document.getElementById('DplayerCont'),                video: {                    url: 'https://media001.geekbang.org/c1af1f20a1124aa3b959039ad7898f47/4ffaf4d74a584504a37e83ca3ea997e5-b7384b6b1bd4e96b2ddbb6144e7e2077-hd.m3u8',                    type: 'hls'                }            });</script></body></html>

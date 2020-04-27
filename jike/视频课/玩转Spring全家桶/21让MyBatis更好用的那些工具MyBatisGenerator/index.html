@@ -1,0 +1,354 @@
+<html class="cye-disabled cye-lm"><head><meta charset="utf-8"><meta name="Keywords" content="极客时间,极客邦,极客邦科技,极客邦控股,极客时间App,专栏订阅,极客新闻,二叉树,极客Live,QCon,左耳听风,AI技术内参,大航海时代,陈皓,徐飞,洪亮劼,霍泰稳,池建强,Selina,Gary,InfoQ,极客搜索"><meta name="description" content="极客时间是极客邦科技出品的一款 IT 内容知识服务 App，内容包含专栏订阅、极客新闻、热点专题、直播、视频和音频等多形式的知识内容，并设有陈皓专栏、徐飞专栏、洪亮劼专栏等专栏供订阅。"><link rel="apple-touch-icon" sizes="180x180" href="http://static001.geekbang.org/static/icon/time/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="http://static001.geekbang.org/static/icon/time/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="http://static001.geekbang.org/static/icon/time/favicon-16x16.png"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="format-detection" content="telephone=no"><title>21 | 让 MyBatis 更好用的那些工具：MyBatis Generator</title><link href="https://static001.geekbang.org/static/time/css/app.b230db929e53af87acd535637f5011b8.css" rel="stylesheet"><style type="text/css">        @font-face {            font-family: player-font;            src: url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.eot");            src: url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.eot?#iefix") format("embedded-opentype"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.woff") format("woff"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.ttf") format("truetype"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.svg#player-font") format("svg")        }        .player-font {            font-family: player-font !important;            font-size: 16px;            font-style: normal;            -webkit-font-smoothing: antialiased;            -webkit-text-stroke-width: .2px;            -moz-osx-font-smoothing: grayscale        }        .vplayer {            position: relative;            overflow: hidden        }        .vplayer,        .vplayer video {            width: 100%        }        .vplayer .title {            position: absolute;            top: 1rem;            left: 1rem;            right: 1rem;            color: #fff;            font-weight: 400;            font-size: .875rem;            word-break: break-all;            display: -webkit-box;            overflow: hidden;            text-overflow: ellipsis;            -webkit-box-orient: vertical;            -webkit-line-clamp: 1        }        .vplayer .finish-control,        .vplayer .loading {            position: absolute;            top: 0;            left: 0;            background: rgba(0, 0, 0, .5);            color: #fff;            width: 100%;            height: 100%;            z-index: 2;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center        }        .vplayer .finish-control h3,        .vplayer .loading h3 {            position: absolute;            color: #fff;            top: 1rem;            left: 50%;            font-size: 1rem;            font-weight: 400;            -webkit-transform: translate(-50%);            transform: translate(-50%)        }        .vplayer .finish-control p,        .vplayer .loading p {            cursor: pointer;            max-height: 6rem;            text-align: center        }        .vplayer .finish-control .cancel-next,        .vplayer .loading .cancel-next {            margin-left: 4rem        }        .vplayer .finish-control .cancel-next .icon-cancel-next,        .vplayer .loading .cancel-next .icon-cancel-next {            height: 4rem;            line-height: 4rem;            cursor: pointer;            font-size: 3.5rem        }        .vplayer .finish-control .cancel-next .icon-cancel-next i,        .vplayer .loading .cancel-next .icon-cancel-next i {            position: absolute;            top: 0;            left: 0;            margin-left: 8px        }        .vplayer .finish-control .icon-replay,        .vplayer .loading .icon-replay {            height: 4rem;            cursor: pointer;            line-height: 4rem;            font-size: 3rem        }        .vplayer .finish-control {            background: #000        }        .vplayer .no-wifi {            width: 70%;            position: absolute;            left: 50%;            top: 50%;            padding: 1rem;            background: rgba(0, 0, 0, .8);            -webkit-transform: translate(-50%, -50%);            transform: translate(-50%, -50%);            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: vertical;            -webkit-box-direction: normal;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            z-index: 3        }        .vplayer .no-wifi p {            line-height: 1.5rem;            margin: 0 auto;            width: 60%;            color: #fff;            font-size: 1rem;            text-align: center        }        .vplayer .no-wifi p span {            font-size: .875rem        }        .vplayer .no-wifi div {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            margin-top: 1rem        }        .vplayer .no-wifi div a {            color: #fff;            background: #ff5a05;            padding: .3rem .5rem        }        .vplayer .no-wifi div a:last-child {            margin-left: 1rem        }        .vplayer .buy {            position: absolute;            z-index: 4;            top: 0;            left: 0;            width: 100%;            height: 100%;            color: #fff;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: vertical;            -webkit-box-direction: normal;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            background: #000        }        .vplayer .buy p {            text-align: center        }        .vplayer .buy p span {            color: #ff5a05        }        .vplayer .buy .btn {            margin-top: 1rem;            color: #fff;            background: #ff5a05;            padding: .3rem 1.5rem        }        .android .dplayer .dplayer-controller .dplayer-icons .dplayer-full,        .dplayer-setting-item.dplayer-setting-loop {            display: none        }</style><style type="text/css">        .MathJax_Display {            overflow: auto        }        .poster {            position: fixed;            left: -10000px;            top: -10000px;            overflow: hidden;            padding: 1rem;            background: #ececec        }        .richcontent-pre-copy {            font-size: 13px;            color: #888;            position: absolute;            right: 1em;            top: .2em;            cursor: pointer;            -webkit-user-select: none;            -moz-user-select: none;            -ms-user-select: none;            user-select: none        }        .richcontent-pre-copy .iconfont {            font-size: 12px;            margin-right: .2em        }</style><style type="text/css">        .bottom {            width: 100%;            background-color: #f5f5f5;            position: fixed;            bottom: 0;            left: 0;            z-index: 10        }        .bottom,        .bottom .bottom-wrapper {            height: 67px;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row        }        .bottom .bottom-wrapper {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            padding-left: 20px;            padding-right: 20px;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between        }        .bottom .bottom-wrapper a {            height: 48px;            line-height: 51px;            -webkit-box-sizing: border-box;            box-sizing: border-box        }</style><style type="text/css">        .breadcrumb {            padding: 30px 0;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -ms-flex-wrap: wrap;            flex-wrap: wrap;            background: #fff        }        .breadcrumb a.title {            color: #e57c39;            font-size: 15px;            font-weight: 400        }        .breadcrumb span.title {            color: #888;            font-size: 15px;            font-weight: 400        }        .breadcrumb .split {            color: #ccc;            font-size: 10px;            margin-right: 5px        }</style><style type="text/css">        .course-detail[data-v-4e11b9bf] {            max-width: 46.25rem;            margin: 0 auto;            background: #f5f5f5        }        .course-detail .course-main[data-v-4e11b9bf] {            background-color: #fff;            width: 100%;            z-index: 10;            top: 0;            left: 0        }        .course-detail .course-info[data-v-4e11b9bf] {            background: #fff;            cursor: pointer        }        .course-detail .course-info .course-info-top[data-v-4e11b9bf] {            padding: 1rem 0 .4rem .78125rem;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .course-detail .course-info .course-info-top h1[data-v-4e11b9bf] {            font-size: 1.03125rem;            font-weight: 400;            text-align: justify-content        }        .course-detail .course-info .course-info-top i[data-v-4e11b9bf] {            font-weight: 400;            width: 40px;            padding-right: .78125rem;            -ms-flex-negative: 0;            flex-shrink: 0;            text-align: right;            color: #dadada        }        .course-detail .course-info .course-info-bottom[data-v-4e11b9bf] {            padding: 0 54px .5rem .78125rem;            border-bottom: 1px solid #e8e8e8;            color: #888;            font-size: .78125rem        }        .course-detail .course-info .course-info-bottom .icon-course-play[data-v-4e11b9bf] {            color: #d9d9d9;            font-size: .75rem        }        .course-detail .video-list[data-v-4e11b9bf] {            background: #fff;            width: 100%;            overflow: hidden;            overflow: auto;            -webkit-overflow-scrolling: touch        }        .course-detail .video-list ul[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            padding: .875rem 0        }        .course-detail .video-list ul li[data-v-4e11b9bf] {            margin-left: .71875rem;            position: relative;            border: 1px solid #e8e8e8;            border-radius: 3px;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            height: 4.0625rem;            overflow: hidden;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            font-size: .78125rem;            -ms-flex-negative: 0;            flex-shrink: 0;            line-height: 1rem;            -webkit-transition: border .5s ease;            transition: border .5s ease        }        .course-detail .video-list ul li img[data-v-4e11b9bf] {            width: 1.78125rem;            height: .84375rem;            position: absolute;            top: 0;            left: 0        }        .course-detail .video-list ul li a[data-v-4e11b9bf] {            -webkit-transition: color .5s ease;            transition: color .5s ease;            padding: 0 .5rem        }        .course-detail .video-list ul li a[data-v-4e11b9bf]:link,        .course-detail .video-list ul li a[data-v-4e11b9bf]:visited {            color: #353535        }        .course-detail .video-list ul li.on[data-v-4e11b9bf] {            border-color: #ff5a05        }        .course-detail .video-list ul li.on a[data-v-4e11b9bf]:link,        .course-detail .video-list ul li.on a[data-v-4e11b9bf]:visited {            color: #ff5a05        }        .article-title[data-v-4e11b9bf] {            color: #353535;            font-weight: 400;            line-height: 1.65rem;            font-size: 1.34375rem        }        .article-info[data-v-4e11b9bf] {            color: #888;            font-size: .9375rem;            margin-top: 1.0625rem        }        .article-content[data-v-4e11b9bf] {            margin-top: 1.0625rem        }        .audio-player[data-v-4e11b9bf] {            width: 100%;            margin: 20px 0        }        .content-box[data-v-4e11b9bf] {            padding: 1px 1.3125rem;            background-color: #fff;            margin-top: .46875rem        }        .to-comment[data-v-4e11b9bf] {            overflow: hidden;            padding-top: 20px;            margin: 0 1.3125rem -10px        }        .to-comment a.button-primary[data-v-4e11b9bf] {            float: right;            height: 20px;            font-size: 12px;            line-height: 20px;            padding: 4px 8px;            cursor: pointer        }        .extra[data-v-4e11b9bf] {            margin-top: .46875rem;            margin-bottom: 67px;            background: #fff;            position: relative        }        .extra .video-comment-box[data-v-4e11b9bf] {            position: absolute;            width: 100%;            top: 0;            left: 0;            z-index: 3;            -webkit-box-sizing: border-box;            box-sizing: border-box;            background: #fff;            padding-left: 1rem;            padding-right: 1rem;            padding-top: .5rem        }        .extra .video-comment-box h3[data-v-4e11b9bf] {            color: #353535;            font-size: .875rem;            line-height: 2rem;            font-weight: 400        }        .extra .comments[data-v-4e11b9bf] {            margin: 0 1.3125rem;            padding-bottom: 50px        }        .extra .comments h2[data-v-4e11b9bf] {            text-align: center;            color: #888;            position: relative;            z-index: 1;            margin-bottom: 14px        }        .extra .comments h2[data-v-4e11b9bf]:before {            border-top: 1px dotted #e8e8e8;            content: "";            position: absolute;            top: 50%;            left: 0;            width: 100%;            z-index: -1        }        .extra .comments h2 span[data-v-4e11b9bf] {            font-size: 15.25px;            font-weight: 400;            padding: 16px 1rem;            background: #fff;            display: inline-block        }        .extra .comments .no-comment[data-v-4e11b9bf] {            text-align: center        }        .extra .comments .no-comment i.icon-cat[data-v-4e11b9bf] {            color: #f5f5f5;            font-size: 100px;            line-height: 1.2;            margin-right: 12px        }        .extra .comments .no-comment .no-comment-text[data-v-4e11b9bf] {            color: #e8e8e8;            font-size: 12.5px;            line-height: 1.6        }        .bottom[data-v-4e11b9bf] {            position: fixed;            bottom: 0;            left: 0;            width: 100%;            height: 67px;            background: #fff;            background-color: #f5f5f5;            z-index: 10        }        .bottom .buy-join[data-v-4e11b9bf],        .bottom[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center        }        .bottom .buy-join[data-v-4e11b9bf] {            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            height: 48px;            line-height: 48px        }        .bottom .buy-join span[data-v-4e11b9bf] {            line-height: 48px;            margin-left: 5px;            color: hsla(0, 0%, 100%, .5);            font-size: 11px;            text-decoration: line-through        }        .bottom .button-cancel[data-v-4e11b9bf] {            height: 51px;            line-height: 51px        }        .bottom-control[data-v-4e11b9bf],        .bottom-sub[data-v-4e11b9bf] {            width: 100%;            -webkit-box-orient: horizontal;            -ms-flex-direction: row;            flex-direction: row;            -ms-flex-pack: distribute;            justify-content: space-around;            -webkit-box-sizing: border-box;            box-sizing: border-box;            padding: 0 1.3125rem        }        .bottom-control .item[data-v-4e11b9bf],        .bottom-control[data-v-4e11b9bf],        .bottom-sub .item[data-v-4e11b9bf],        .bottom-sub[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-direction: normal        }        .bottom-control .item[data-v-4e11b9bf],        .bottom-sub .item[data-v-4e11b9bf] {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            -webkit-box-orient: vertical;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            cursor: pointer        }        .bottom-control .item i[data-v-4e11b9bf],        .bottom-sub .item i[data-v-4e11b9bf] {            color: #353535;            font-size: 1.125rem;            line-height: 1.5rem        }        .bottom-control .item span[data-v-4e11b9bf],        .bottom-sub .item span[data-v-4e11b9bf] {            color: #888;            font-size: 11px        }        .button-subscribe[data-v-4e11b9bf] {            -webkit-box-flex: 1;            -ms-flex: 1;            flex: 1;            height: 69px;            color: #fff;            font-size: 15.25px;            text-align: center;            background-color: #ff5a05;            line-height: 69px;            border-radius: 5px        }        .article-sub-bottom[data-v-4e11b9bf] {            z-index: 2        }        @media only screen and (device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3) {            .bottom[data-v-4e11b9bf],            .comments[data-v-4e11b9bf] {                padding-bottom: 34px            }        }        @media (max-width:769px) {            .course-detail .breadcrumb[data-v-4e11b9bf] {                padding: 10px            }        }        @media screen and (min-width:768px) {            .extra .comments[data-v-4e11b9bf],            .to-comment[data-v-4e11b9bf] {                margin: 0 0 -10px            }        }</style><style type="text/css">        .mobile-tips {            width: 100%;            height: 51px;            background: rgba(0, 0, 0, .8);            position: fixed;            top: 0;            left: 0;            z-index: 20;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-sizing: border-box;            box-sizing: border-box;            padding: 0 12px;            -webkit-transition: opacity .35s;            transition: opacity .35s;            opacity: 0;            pointer-events: none        }        .mobile-tips.istop {            opacity: 1;            pointer-events: auto        }        .mobile-tips .mobile-tips-info {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: start;            -ms-flex-pack: start;            justify-content: flex-start        }        .mobile-tips .mobile-tips-info i {            width: 36px;            height: 36px;            background-image: url(data:image/png;base64,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);            background-position: 0 0;            background-repeat: no-repeat;            background-size: contain;            border-radius: 7px        }        .mobile-tips .mobile-tips-info h2 {            font-size: 15px;            color: #fff;            font-weight: 400;            margin-left: 6px        }        .mobile-tips .mobile-tips-info h2 span {            font-size: 11px        }        .mobile-tips a {            width: 72px;            height: 31px;            text-align: center;            border: 1px solid #ff5a05;            border-radius: 3px;            font-size: 13px;            color: #ff5a05;            line-height: 31px        }</style><style type="text/css">        .comment-item {            list-style-position: inside;            width: 100%;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            margin-bottom: 1rem        }        .comment-item a {            border-bottom: none        }        .comment-item .avatar {            width: 2.625rem;            height: 2.625rem;            -ms-flex-negative: 0;            flex-shrink: 0;            border-radius: 50%        }        .comment-item .info {            margin-left: .5rem;            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1        }        .comment-item .info .hd {            width: 100%;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .comment-item .info .hd .username {            color: #888;            font-size: 15.25px;            font-weight: 400;            line-height: 1.2        }        .comment-item .info .hd .control {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .comment-item .info .hd .control .btn-share {            color: #888;            font-size: .75rem;            margin-right: 1rem        }        .comment-item .info .hd .control .btn-praise {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            font-size: 15.25px;            text-decoration: none        }        .comment-item .info .hd .control .btn-praise i {            color: #888;            display: inline-block;            font-size: .75rem;            margin-right: .3rem;            margin-top: -.01rem        }        .comment-item .info .hd .control .btn-praise i.on,        .comment-item .info .hd .control .btn-praise span {            color: #ff5a05        }        .comment-item .info .bd {            color: #353535;            font-size: 15.25px;            font-weight: 400;            white-space: normal;            word-break: break-all;            line-height: 1.6        }        .comment-item .info .time {            color: #888;            font-size: 9px;            line-height: 1        }        .comment-item .info .reply .reply-hd {            font-size: 15.25px        }        .comment-item .info .reply .reply-hd span {            margin-left: -12px;            color: #888;            font-weight: 400        }        .comment-item .info .reply .reply-hd i {            color: #ff5a05;            font-size: 15.25px        }        .comment-item .info .reply .reply-content {            color: #353535;            font-size: 15.25px;            font-weight: 400;            white-space: normal;            word-break: break-all        }        .comment-item .info .reply .reply-time {            color: #888;            font-size: 9px        }</style></head><body style=""><div id="app"><div data-v-4e11b9bf="" class="course-detail"><div class="breadcrumb breadcrumb"><span><a href="#" class="title router-link-active">讲堂</a><span class="split iconfont"></span></span><span><span class="title">21 | 让 MyBatis 更好用的那些工具：MyBatis Generator</span></span></div><div data-v-4e11b9bf="" class="course-main main" style="position: relative;"><div data-v-4e11b9bf="" class="vplayer" id ="DplayerCont" style="height: 416.25px;"><h2 class="title">                        21 | 让 MyBatis 更好用的那些工具：MyBatis Generator</h2></div></div><div data-v-4e11b9bf="" class="course-info" style="margin-top: 0px;"><div data-v-4e11b9bf="" class="course-info-top"><h1 data-v-4e11b9bf="" class="course-title"></h1><i data-v-4e11b9bf="" class="iconfont"></i></div></div><div data-v-4e11b9bf=""><div data-v-4e11b9bf="" class="content-box"><div data-v-4e11b9bf="" id="article-content" class="typo common-content"><div class="text">                            <h1>PDF 课件和源代码下载地址：</h1>
+<p><a href="https://github.com/geektime-geekbang/geektime-spring-family">https://github.com/geektime-geekbang/geektime-spring-family</a></p>
+<h1>猜你喜欢</h1>
+<p><a href="https://time.geekbang.org/course/intro/160?utm_term=zeusV2Z2Y&amp;utm_source=app&amp;utm_medium=springzhuanlan&amp;utm_campaign=160presell&amp;utm_content=0305springhutui"><img src="https://static001.geekbang.org/resource/image/68/e2/68c7ffdd1f7890525428b5e8225aa1e2.png" alt="unpreview" /></a><a href="https://time.geekbang.org/column/intro/159?utm_term=zeusRUPJ3&amp;utm_source=app&amp;utm_medium=spring&amp;utm_campaign=159-presell&amp;utm_content=banner"><img src="https://static001.geekbang.org/resource/image/54/4f/54f2342be73ea5af50d1fe239b9c714f.png" alt="unpreview" /></a></p>
+</div></div></div></div><div data-v-4e11b9bf="" class="extra" style="margin-bottom: 1rem;"><div data-v-4e11b9bf="" class="comments"><h2 data-v-4e11b9bf=""><span data-v-4e11b9bf="">精选留言</span></h2><ul>                        <li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">DigitalSonic</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">有很多同学反馈运行示例时没有生成resources里的mapper，统一答复一下，这里需要在运行前现在resources里创建一下mapper目录，也就是目标目录需要先存在。在课程视频中没有提及这点，疏忽了，希望这条置顶留言能在后面其他同学碰到这个问题时帮他们解决问题。</div> <span class="time">2019-03-06</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/3f/8d/a89be8f9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">寻路人</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>4</span></a></div>
+	</div>
+	<div class="bd">最近几个项目都是使用的MyBatis-Plus，它也带有代码的自动生成机制和一些原生的CRUD接口，老师怎么不使用MyBatis-Plus作为例子讲解，希望能够讲一下它们之间的差异</div> <span class="time">2019-02-26</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">这个我记下了，后面我在答疑课程里给大家介绍下MyBaitsPlus。介绍Generator主要因为它是官方的生成工具。</p> <p class="reply-time">2019-03-01</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/a6/56/abb7bfe3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">云儿-199412</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">丁老师，为什么我用mybatis.generator 插件 能生成java 下的mapper,model 而生不成resources下的xml呢</div> <span class="time">2019-03-01</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">你是不是没有配sqlMapGenerator？另外，如果你全部用注解方式来配置映射关系的话，也就没xml什么事了。还有一点，在运行前，需要先确保目标目录存在，也就是需要创建一下.&#47;src&#47;main&#47;resources&#47;mapper这个目录</p> <p class="reply-time">2019-03-05</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/5e/11/616e35a8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Yuriy</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">丁老师，为什么我用mybatis.generator 插件 能生成java 下的mapper,model 而生不成resources下的xml呢</div> <span class="time">2019-03-04</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">在运行前，需要先确保目标目录存在，也就是需要创建一下.&#47;src&#47;main&#47;resources&#47;mapper这个目录。</p> <p class="reply-time">2019-03-06</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/13/c7/6a20e180.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">戴鹏</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">老师，我使用你的demo无法自动生成代码，控制行不报错，跑起来然后结束了，日志没有相关信息，然后也没有生成model和mapper，是Mac的路径和window路径不一致的问题么？</div> <span class="time">2019-03-02</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">boyxie</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">mybatis的自动生成类跟阿里开发手册的要求差别有点大，这个怎么破</div> <span class="time">2019-02-26</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">手写的部分遵从规范，自动生成的忽略掉规范，并且不要去改动自动生成的产物。</p> <p class="reply-time">2019-02-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/14/77/3c8fa6a0.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">casvaer</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">不够看啊，希望老师更新快点，嘻嘻嘻。</div> <span class="time">2019-02-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/CV9kk5M26pdxvFhbrkicjZSMmwzssuOicJuMtuzODuCLpqZaueIibuB119CCOWW2Jfrfunicic4Kic2RVH0hyAJjicM8Q/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">爱酒</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">丁老师，我用MybatisGenerator生成后实体和Mapper后，执行写入数据库报错org.apache.ibatis.builder.IncompleteElementException: Could not find result map junhao.spring.mybatis.mapper.CoffeeMapper.BaseResultMap，如何解决？</div> <span class="time">2019-04-03</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/dd/85/fcbb5850.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">binger233</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">丁老师, 有两个问题请教下:<br>  如果不用generatorConfig.xml（xml方式，纯代码）生成代码；<br>  如果定制的生成代码，比如前面我们自己写poji这种风格。</div> <span class="time">2019-04-01</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/5Mkibry9RCXd8AXBtP3tnXibicT3LLjj5ICzWc351PVkc7egwkME1OoWMFpWtE4eOTkwcXX1dteaaX7jahic16DzrA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">同意</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">如果是多个数据源，对于这个工具的generatoeConfig.xml要怎么配置呢？</div> <span class="time">2019-03-31</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">用不同的文件吧，执行时可以指定配置文件的</p> <p class="reply-time">2019-04-01</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/15/f3/ae/0f225cc6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">L N W</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，为什么我clone你的github一直不行<br>error: RPC failed; curl 56 OpenSSL SSL_read: SSL_ERROR_SYSCALL, errno 10054<br>fatal: the remote end hung up unexpectedly<br>fatal: early EOF<br>fatal: index-pack failed<br>是我网络的原因吗<br></div> <span class="time">2019-03-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/3xWtqfUPZotjJxXjnwgLhLSia6dCmDLlbmBicdE5ZInobmvUm3yyMQ6iaYFqwYaqXJmVicEmO2TYUqMJ5KwDNVcPkQ/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Rays</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">戴鹏你好，你出的那个问题我也有，刚刚发现问题，你是不是把所有项目在idea中打开的，还是单独把mybatis-generator-demo单独打开，前者不行是因为项目的基本路径是geektime-spring-family，所以生成到其他位置去了</div> <span class="time">2019-03-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/15/64/8a/1cf35d29.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">雄仔₃₇₀₇</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师你好，我看到generatorConfig.xml中最后配置了单个表t_coffee的相关money的映射，如果是多个表的话是怎么来配置这个映射呢？</div> <span class="time">2019-03-23</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/10/2e/3587a44d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Usher</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">公司项目强制要求手写的和自动生成的分开放，分开放能够很好的支持后期数据表新增字段或者修改字段的维护工作。</div> <span class="time">2019-03-23</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/16/57/f6/3276948e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">葱</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，我这边把数据库改成了mysql，能正常生成，但是在调用insert的时候却报了以下错误：<br>Caused by: org.apache.ibatis.builder.IncompleteElementException: Could not find result map com.geektime.mybatis.mapper.CoffeeMapper.BaseResultMap<br>Caused by: java.lang.IllegalArgumentException: Result Maps collection does not contain value for com.goblin.mybatis.mapper.CoffeeMapper.BaseResultMap<br>---------------------------------------------------------------<br>xml文件出了context 节点的id改成了mysql，jdbcConnection改成了对应的mysql连接方式,以及<br> &lt;generatedKey column=&quot;id&quot; sqlStatement=&quot;JDBC&quot; identity=&quot;true&quot; &#47;&gt;以外，其它的都是按照GitHub上的xml配置来的<br><br><br></div> <span class="time">2019-03-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTI84zLItcwTa63GibcLMpOf0woKl90PU9ZwkVNkBCfxMRQmAxxEocsgb8OBG7lVVmbfcRbJuVfnLHw/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Geek_264ecf</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd"> 老师你好，在业务需要，变更表的时候，比如要加个字段。基于新增字段做增删改查。那一定要重新运行并生成mapper，example对象吗？如果不生成，手写example里那些查询方法，工作量也挺大的。这种情况有没有好的办法？ 谢谢老师！</div> <span class="time">2019-03-16</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">改了表结构就要重新生成一下，所以我才说一定要把生成的和手写的分开放，不然容易把手写的东西覆盖了。</p> <p class="reply-time">2019-03-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/4f/13/5197f8d2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">永旭</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">你好, 老师, <br>怎么实现 自动生成和自己写的xml分离啊 ?</div> <span class="time">2019-03-12</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">我在答疑课程中介绍了，届时可以关注一下哈</p> <p class="reply-time">2019-03-18</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/5e/f4/776ad2df.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">beenchaos</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请教丁老师：我们在实际工作中遇到select ***, count(*), sum(*), avg(*) from xxx_table group by ***的情况。这种需求该如何在mybatis中支持呢？</div> <span class="time">2019-03-11</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">手写一个SQL，定义对应的结果集，里面就是你要的聚合结果，就和一般的映射没什么区别。</p> <p class="reply-time">2019-03-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/5e/f4/776ad2df.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">beenchaos</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">丁老师好：<br><br>如您在课程中所言，我们在实际工作过程中经常遇到在mybatis-generator-plugin自动生成的基础之上，再做一些调整的情况。您也在最后说明可以分开放置，这个能否举例说明一下，如何组织么？</div> <span class="time">2019-03-11</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">我在最近的答疑课程中聊了这个话题，到时候可以关注一下哈</p> <p class="reply-time">2019-03-18</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/d6/a7/c50f5bc3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">better</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">如果使用的是 多 module 的结构，生成时，需要配置成：<br>targetProject=&quot;module名字&#47;src&#47;main&#47;resources&#47;mapper&quot;<br>这样就不要写死路径了。</div> <span class="time">2019-03-10</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/15/7d/40/2a0ac40f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">五点半先生</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">Mybatis sqlxml如何将工具生成的，手动编写的xml分开来，</div> <span class="time">2019-03-06</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">这个话题我在答疑课程中与大家聊聊吧</p> <p class="reply-time">2019-03-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/f2/1f/c6b7cabc.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">༦志海࿔࿆࿐ོ</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">没有自动生成CoffeeMapper.xml</div> <span class="time">2019-03-06</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">在运行前，需要先确保目标目录存在，也就是需要创建一下.&#47;src&#47;main&#47;resources&#47;mapper这个目录</p> <p class="reply-time">2019-03-06</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/70/9e/5095f881.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">jaryoung</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">example是不是不建议使用？语句都写在代码里， 是不是让DBA狠抓狂呢？</div> <span class="time">2019-03-06</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">用Hibernate时，语句也都在代码里，DBA这时会怎么样呢……用哪种方式还是其次的，是你一定得要让你运行的SQL是DBA可接受的，至于这语句怎么搞出来的，他们其实也不关心。但在一些有SQL扫描的大厂，能有明确的语句文件可以给DBA扫描，他们肯定更乐意。</p> <p class="reply-time">2019-03-06</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/10/f9/eaa59e6f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Q</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，resources下的目录生成不了是为什么呢</div> <span class="time">2019-03-04</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">在运行前，需要先确保目标目录存在，也就是需要创建一下.&#47;src&#47;main&#47;resources&#47;mapper这个目录</p> <p class="reply-time">2019-03-06</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/a0/0b/20123c7a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">fireflyc</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">生成的代码放在generate-sources比较好吧？直接src，这就是为了“修改”而生成啊。</div> <span class="time">2019-03-03</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">我在最近的答疑课程里聊了这个话题，可以留意一下哈</p> <p class="reply-time">2019-03-18</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/15/65/01/1ddb2606.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Mr.Rankey</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">mybatis-plus和那两个插件有什么区别？我怎么觉得mybatis-plus功能更丰富呢</div> <span class="time">2019-02-27</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">选择generator完全是因为它是官方的，MyBatis-plus也挺不错的，有其他同学也提到了。我觉得在后面的答疑课程中我们可以普及一下</p> <p class="reply-time">2019-03-03</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/15/53/a8/73618c92.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">kai楷</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，我用Mybatis批量插入数据到数据库，但是id都不会回填，用了网上的几种方法都没用，这个怎么弄，单条插入id会回填</div> <span class="time">2019-02-27</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">我搜“mybatis 批量insert 返回主键”还挺多文章的，你可以参考一下</p> <p class="reply-time">2019-03-13</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/15/65/01/1ddb2606.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Mr.Rankey</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">丁老师，请教个问题，就是你的这个demo，我只是把数据库换成了mysql的，生成的insert接口代码如下：<br>@SelectKey(statement=&quot;CALL IDENTITY()&quot;, keyProperty=&quot;id&quot;, before=false, resultType=Long.class)<br>    int insert(Coffee record);<br><br>但是我在执行插入操作时报了这个异常：<br>Cause: java.sql.SQLSyntaxErrorException: PROCEDURE geektime.IDENTITY does not exist。<br><br>mysql数据库的版本是5.7<br>pom引入的驱动依赖：<br>&lt;dependency&gt;<br>			&lt;groupId&gt;mysql&lt;&#47;groupId&gt;<br>			&lt;artifactId&gt;mysql-connector-java&lt;&#47;artifactId&gt;<br>			&lt;scope&gt;runtime&lt;&#47;scope&gt;<br>		&lt;&#47;dependency&gt;<br><br>这是什么问题呀老师？</div> <span class="time">2019-02-27</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">&lt;generatedKey column=&quot;id&quot; sqlStatement=&quot;CALL IDENTITY()&quot; identity=&quot;true&quot; &#47;&gt;  这个是需要换掉的，把sqlStatement换成MySql。具体可以参考 http:&#47;&#47;www.mybatis.org&#47;generator&#47;configreference&#47;generatedKey.html</p> <p class="reply-time">2019-03-01</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/yzDN2BI9icM32QVHuTzYibOiblQ4eX4dFgYXkd8pz3Xbxokn1OzZicysnk7zkwf8iams7ugjMK89aSHp8fzEy0JYq1w/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Pui</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">对于单表的操作，用这个方便。多表的话还是需要自己写代码的，是这样嘛？</div> <span class="time">2019-02-26</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">可以这么理解吧，多表关联的查询需要自己手工写</p> <p class="reply-time">2019-03-01</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/15/60/a0/dc0bf77c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">梅云霞</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">官网生成的mapper和我们项目实际不一样，我可以重写账号的方法吧，希望丁老师能给我们多讲些源码相关，谢谢</div> <span class="time">2019-02-26</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">没看懂账号的方法是啥？生成的东西建议不要去手改，你的大部分复杂查询，都可以用Example拼出来的</p> <p class="reply-time">2019-02-26</p>
+	</div>
+</div>
+</li></ul></div></div><div data-v-4e11b9bf=""></div></div></div><link href="https://cdn.bootcss.com/dplayer/1.25.0/DPlayer.min.css" rel="stylesheet"><script src="https://cdn.bootcss.com/hls.js/0.10.1/hls.min.js"></script><script src="https://cdn.bootcss.com/dplayer/1.25.0/DPlayer.min.js"></script><script>            const dp = new DPlayer({                container: document.getElementById('DplayerCont'),                video: {                    url: 'https://media001.geekbang.org/42d1722856e34a07863796afe4a3e0c2/9a2b225bdc7849a4842969c62291831b-954c720372c7f028969614ec3705df76-hd.m3u8',                    type: 'hls'                }            });</script></body></html>

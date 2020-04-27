@@ -1,0 +1,708 @@
+<html class="cye-disabled cye-lm"><head><meta charset="utf-8"><link rel="apple-touch-icon" sizes="180x180" href="http://static001.geekbang.org/static/icon/time/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="http://static001.geekbang.org/static/icon/time/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="http://static001.geekbang.org/static/icon/time/favicon-16x16.png"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="format-detection" content="telephone=no"><title>第15讲 | HTTPS协议：点外卖的过程原来这么复杂</title><link href="https://static001.geekbang.org/static/time/css/app.b230db929e53af87acd535637f5011b8.css" rel="stylesheet"><style id="nightModeStyle">    html.cye-enabled.cye-nm:not(*:-webkit-full-screen) body,html.cye-enabled.cye-nm:not(*:-webkit-full-screen) #cye-workaround-body {-webkit-filter:contrast(91%) brightness(84%) invert(1);}</style><style id="cyebody">html.cye-enabled.cye-lm body{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyediv">html.cye-enabled.cye-lm div{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyetable">html.cye-enabled.cye-lm th{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}html.cye-enabled.cye-lm td{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyetextInput">html.cye-enabled.cye-lm input[type=text]{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}html.cye-enabled.cye-lm textarea{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeselect">html.cye-enabled.cye-lm select{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeul">html.cye-enabled.cye-lm ul{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeChangeByClick">html.cye-enabled.cye-lm .cye-lm-tag,html.cye-enabled.cye-lm.cye-lm-tag{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style type="text/css">    .hljs-ln {      border-collapse: collapse    }    .hljs-ln td {      padding: 0    }    .hljs-ln-n:before {      content: attr(data-line-number)    }</style><style type="text/css">    #iv-container {      position: fixed;      background: #0d0d0d;      width: 100%;      height: 100%;      top: 0;      left: 0;      display: none;      z-index: 1000    }    .iv-container {      overflow: hidden    }    .iv-close {      width: 26px;      height: 26px;      position: absolute;      right: 20px;      top: 20px;      cursor: pointer;      text-align: center;      overflow: hidden;      text-shadow: 0 0 3px #6d6d6d;      -webkit-transition: all .2s ease;      -moz-transition: all ease .2s;      -o-transition: all ease .2s;      transition: all .2s ease    }    .iv-close:after,    .iv-close:before {      content: "";      height: 2px;      width: 26px;      background: #fff;      position: absolute;      left: 0;      top: 50%;      margin-top: -2px;      border-radius: 2px    }    .iv-close:before {      -webkit-transform: rotate(45deg);      -moz-transform: rotate(45deg);      -ms-transform: rotate(45deg);      -o-transform: rotate(45deg);      transform: rotate(45deg)    }    .iv-close:after {      -webkit-transform: rotate(-45deg);      -moz-transform: rotate(-45deg);      -ms-transform: rotate(-45deg);      -o-transform: rotate(-45deg);      transform: rotate(-45deg)    }    .iv-close:hover {      -webkit-transform: rotate(90deg);      -moz-transform: rotate(90deg);      -ms-transform: rotate(90deg);      -o-transform: rotate(90deg);      transform: rotate(90deg)    }    .iv-image-view {      position: absolute;      height: 100%;      width: 100%    }    .iv-image-wrap {      display: inline-block    }    .iv-image-wrap:active {      cursor: move    }    .iv-large-image {      cursor: move;      max-width: 100%;      max-height: 100%;      background-color: #ececec;      -moz-transform: translateZ(0);      -o-transform: translateZ(0)    }    .iv-large-image,    .iv-loader {      position: absolute;      -webkit-transform: translateZ(0);      -ms-transform: translateZ(0);      transform: translateZ(0)    }    .iv-loader {      top: 50%;      left: 50%;      border-radius: 50%;      width: 32px;      height: 32px;      z-index: 100;      margin-top: -16px;      margin-left: -16px;      font-size: 5px;      text-indent: -9999em;      border-top: 1em solid hsla(0, 0%, 100%, .2);      border-right: 1em solid hsla(0, 0%, 100%, .2);      border-bottom: 1em solid hsla(0, 0%, 100%, .2);      border-left: 1em solid #fff;      -webkit-animation: load8 1.1s infinite linear;      animation: load8 1.1s infinite linear    }    .iv-loader:after {      width: 10em;      height: 10em;      border-radius: 50%    }    @-webkit-keyframes load8 {      0% {        -webkit-transform: rotate(0deg);        transform: rotate(0deg)      }      to {        -webkit-transform: rotate(1turn);        transform: rotate(1turn)      }    }    @keyframes load8 {      0% {        -webkit-transform: rotate(0deg);        transform: rotate(0deg)      }      to {        -webkit-transform: rotate(1turn);        transform: rotate(1turn)      }    }</style><style type="text/css">    .vue-pull-to-wrapper[data-v-12abd9fb] {      display: -webkit-box;      display: -webkit-flex;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -webkit-flex-direction: column;      flex-direction: column;      height: 100%    }    .scroll-container[data-v-12abd9fb] {      -webkit-box-flex: 1;      -webkit-flex: 1;      flex: 1;      overflow-y: auto;      -webkit-overflow-scrolling: touch    }    .vue-pull-to-wrapper .action-block[data-v-12abd9fb] {      position: relative;      width: 100%    }    .default-text[data-v-12abd9fb] {      height: 100%;      line-height: 50px;      text-align: center    }</style><style type="text/css">    .button-cancel[data-v-87ffcada] {      color: #888;      border: 1px solid #888;      border-radius: 3px;      margin-right: 12px    }    .button-cancel[data-v-87ffcada],    .button-primary[data-v-87ffcada] {      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      height: 35px;      display: inline-block;      font-size: 15px;      text-align: center;      line-height: 36px    }    .button-primary[data-v-87ffcada] {      color: #fff;      background-color: #ff5a05;      border-radius: 3px    }    .article[data-v-87ffcada] {      max-width: 46.25rem;      margin: 0 auto    }    .article .article-unavailable[data-v-87ffcada] {      color: #fff;      text-align: center;      font-size: .875rem;      font-weight: 400;      width: 100%;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 0 15%;      height: 4.9rem;      background-image: url(data:image/jpeg;base64,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);      background-position: 0 0;      background-repeat: no-repeat;      background-size: cover;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center    }    .article .main[data-v-87ffcada] {      padding: 1.25rem 1.375rem;      margin-top: 52px;      margin-bottom: 52px    }    .article-title[data-v-87ffcada] {      color: #353535;      font-weight: 400;      line-height: 1.65rem;      font-size: 1.34375rem    }    .article-info[data-v-87ffcada] {      color: #888;      font-size: .9375rem;      margin-top: 1.0625rem    }    .article-content[data-v-87ffcada] {      margin-top: 1.0625rem    }    .article-content.android video[data-v-87ffcada]::-webkit-media-controls-fullscreen-button {      display: none    }    .audio-player[data-v-87ffcada] {      width: 100%;      margin: 20px 0    }    .to-comment[data-v-87ffcada] {      overflow: hidden;      margin-bottom: -30px    }    .to-comment a.button-primary[data-v-87ffcada] {      float: right;      height: 20px;      font-size: 12px;      line-height: 20px;      padding: 4px 8px;      cursor: pointer    }    .article-comments[data-v-87ffcada] {      margin-top: 2rem    }    .article-comments h2[data-v-87ffcada] {      text-align: center;      color: #888;      position: relative;      z-index: 1;      margin-bottom: 1rem    }    .article-comments h2[data-v-87ffcada]:before {      border-top: 1px dotted #888;      content: "";      position: absolute;      top: 56%;      left: 0;      width: 100%;      z-index: -1    }    .article-comments h2 span[data-v-87ffcada] {      font-size: 15.25px;      font-weight: 400;      padding: 0 1rem;      background: #fff;      display: inline-block    }    .article-sub-bottom[data-v-87ffcada] {      z-index: 10;      cursor: pointer    }    @media (max-width:769px) {      .article .breadcrumb[data-v-87ffcada] {        padding: 10px 0      }    }</style><style type="text/css">    .share-poster-wrapper {      position: fixed;      background-color: #fff;      left: 0;      bottom: 0;      z-index: 100;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      overflow: hidden;      width: 100%;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -moz-user-select: -moz-none;      -webkit-user-select: none;      -ms-user-select: none;      user-select: none    }    .share-poster-wrapper .poster-bottom,    .share-poster-wrapper .poster-middle,    .share-poster-wrapper .poster-top {      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .poster-middle {      padding: 16px 32px;      -webkit-box-sizing: border-box;      box-sizing: border-box    }    .share-poster-wrapper .poster-middle .poster-userinfo {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      padding-bottom: 18px    }    .share-poster-wrapper .poster-middle .poster-userinfo .poster-avatar {      min-width: 45px;      min-height: 45px;      width: 7vw;      height: 7vw;      border-radius: 50%;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .poster-middle .nickname {      font-size: 5vw;      font-weight: 400;      margin-left: 18px    }    .share-poster-wrapper .poster-middle .time {      font-size: 3.2vw    }    .share-poster-wrapper .poster-middle .poster-middle-content {      font-size: 4vw;      font-weight: 400;      white-space: normal;      word-wrap: break-word;      word-break: break-word;      letter-spacing: 1px    }    .share-poster-wrapper .poster-middle .poster-middle-content p {      margin-bottom: 22px    }    .share-poster-wrapper .poster-middle .quote-content {      font-size: 3.7vw;      padding: 32px 0    }    .share-poster-wrapper .poster-middle .quote-content p {      margin-bottom: 22px    }    .share-poster-wrapper .poster-middle .quote-info {      border-left: 1px solid #000;      padding-left: 10px;      margin-top: 38px    }    .share-poster-wrapper .poster-middle .quote-info p {      font-size: 3.2vw;      line-height: 1.5    }    .share-poster-wrapper.theme0 .poster-top {      width: 100%;      height: 25px;      margin-top: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/top.png") no-repeat 15px 1px    }    .share-poster-wrapper.theme0 .poster-middle {      width: 100%;      padding-left: 56px;      padding-right: 56px;      background-image: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/middle.png");      background-repeat: repeat-y;      background-position: 15px 0    }    .share-poster-wrapper.theme0 .poster-middle .time {      margin-bottom: 45px    }    .share-poster-wrapper.theme0 .poster-middle .quote-content {      border-top: 1px solid #e3e1dc;      margin-top: 30px    }    .share-poster-wrapper.theme0 .poster-bottom {      width: 100%;      height: 25px;      margin-bottom: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/bottom.png") no-repeat 15px -10px    }    .share-poster-wrapper.theme1 .poster-top {      width: 100%;      height: 25px;      margin-top: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/top.png") no-repeat 38px 1px    }    .share-poster-wrapper.theme1 .poster-middle {      width: 100%;      padding: 0 42px 10px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/middle.png") repeat-y 38px 0    }    .share-poster-wrapper.theme1 .poster-middle .poster-userinfo {      border-bottom: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .poster-userinfo .poster-avatar {      margin-left: 38px    }    .share-poster-wrapper.theme1 .poster-middle .poster-middle-wrapper {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      min-height: 260px;      border-bottom: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .time {      max-width: 65px;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      text-align: center;      vertical-align: middle;      border-right: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .time span {      white-space: nowrap;      -webkit-transform: rotate(90deg);      transform: rotate(90deg)    }    .share-poster-wrapper.theme1 .poster-middle .poster-middle-content {      padding: 30px    }    .share-poster-wrapper.theme1 .poster-middle .quote-content {      font-size: 3.7vw;      margin-left: 36px;      margin-right: 36px    }    .share-poster-wrapper.theme1 .poster-middle .quote-info {      margin-left: 36px;      margin-right: 36px    }    .share-poster-wrapper.theme1 .poster-middle .footer {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      margin-right: 30px    }    .share-poster-wrapper.theme1 .poster-bottom {      width: 100%;      height: 25px;      margin-bottom: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/bottom.png") no-repeat 38px -10px    }    .share-poster-wrapper .share-poster {      background: #fefdf8;      -webkit-box-sizing: border-box;      box-sizing: border-box;      color: #9b8d73;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      overflow: auto;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-overflow-scrolling: touch;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .share-poster-wrapper .share-poster.color0 {      background-color: #fefdf8    }    .share-poster-wrapper .share-poster.color1 {      background-color: #4d4d4d    }    .share-poster-wrapper .share-poster .footer {      margin-top: 2rem;      position: relative;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: end;      -ms-flex-pack: end;      justify-content: flex-end;      -webkit-box-align: end;      -ms-flex-align: end;      align-items: flex-end    }    .share-poster-wrapper .share-poster .footer p {      margin: 0;      line-height: 1.4;      margin-left: 20px;      text-align: right;      padding-right: 20px    }    .share-poster-wrapper .controls {      background: #fff;      border-top: 1px solid #f5f5f5;      width: 100%;      padding-top: 5px;      -webkit-box-shadow: 0 -4px 10px 0 rgba(0, 0, 0, .1);      box-shadow: 0 -4px 10px 0 rgba(0, 0, 0, .1);      z-index: 1;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .controls>div {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      padding: 10px 0    }    .share-poster-wrapper .controls>div span {      font-size: .85rem    }    .share-poster-wrapper .controls>div button {      width: 100px;      height: 24px;      background: #eee;      margin: 0 10px;      border-radius: 5px;      border: 2px solid #b2b2b2;      outline: none    }    .share-poster-wrapper .controls>div button.on {      border: 2px solid #ff5a05    }    .share-poster-wrapper .controls .controls-themes button {      color: #b2b2b2;      font-size: 12px;      background: #fff;      text-align: center    }    .share-poster-wrapper .controls .controls-themes button.on {      color: #ff5a05    }    .share-poster-wrapper .buttons {      background: #fff;      border-top: 1px solid #f5f5f5;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .buttons a {      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      text-align: center;      color: #000;      font-weight: 400;      height: 3rem;      line-height: 3rem    }    .share-poster-wrapper .buttons a:last-child {      border-left: 1px solid #f5f5f5    }    .share-poster-wrapper img {      max-width: 100%    }    .share-poster-wrapper.android .poster-middle .nickname {      font-size: 10vw    }    .share-poster-wrapper.android .poster-middle .time {      font-size: 6.4vw    }    .share-poster-wrapper.android .poster-middle .poster-middle-content {      font-size: 8vw    }    .share-poster-wrapper.android .poster-middle .quote-content {      font-size: 7.4vw    }    .share-poster-wrapper.android .poster-middle .quote-info p {      font-size: 6.4vw    }</style><style type="text/css">    .mobile-tips {      width: 100%;      height: 51px;      background: rgba(0, 0, 0, .8);      position: fixed;      top: 0;      left: 0;      z-index: 20;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 0 12px;      -webkit-transition: opacity .35s;      transition: opacity .35s;      opacity: 0;      pointer-events: none    }    .mobile-tips.istop {      opacity: 1;      pointer-events: auto    }    .mobile-tips .mobile-tips-info {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: start;      -ms-flex-pack: start;      justify-content: flex-start    }    .mobile-tips .mobile-tips-info i {      width: 36px;      height: 36px;      background-image: url(data:image/png;base64,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);      background-position: 0 0;      background-repeat: no-repeat;      background-size: contain;      border-radius: 7px    }    .mobile-tips .mobile-tips-info h2 {      font-size: 15px;      color: #fff;      font-weight: 400;      margin-left: 6px    }    .mobile-tips .mobile-tips-info h2 span {      font-size: 11px    }    .mobile-tips a {      width: 72px;      height: 31px;      text-align: center;      border: 1px solid #ff5a05;      border-radius: 3px;      font-size: 13px;      color: #ff5a05;      line-height: 31px    }</style><style type="text/css">    .mini-audio-player {      width: 100%;      height: 5.25rem;      border: 1px solid #d9d9d9;      background: #fafafa;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 1rem;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      margin: 1rem 0    }    .mini-audio-player>a {      border: none;      -ms-flex-negative: 0;      flex-shrink: 0    }    .mini-audio-player .btn-play {      background-image: url(data:image/png;base64,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)    }    .mini-audio-player .btn-pause,    .mini-audio-player .btn-play {      width: 2.6875rem;      height: 2.6875rem;      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain;      text-decoration: none    }    .mini-audio-player .btn-pause {      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAI0AAACNCAYAAACKXvmlAAABS2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxMzggNzkuMTU5ODI0LCAyMDE2LzA5LzE0LTAxOjA5OjAxICAgICAgICAiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIi8+CiA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgo8P3hwYWNrZXQgZW5kPSJyIj8+IEmuOgAAEiNJREFUeJztnXmUFdWZwH+3XtMuhKVBxYyCECQzQFgUWVT0qCROdCJqTIxxyTYxc2aixMgZ0RDGcwyajiYYEzw5ExOTQ+KSmLiOS0yCoATFREODSgaQ/YwQhIbuNKQbXtX88VV5b3W/pV53vXpV3fd3zu2+tb13697v3fW736caGxvpIyjgA8AYYKQfhgPHAMcCQ4EB/r0DgDrgMNDqn2sF9gC7gXeB7cAWP2wANgFeld8hFdTVOgFV5IPATGAGMAH4EPC+Cj+jDmjw4w3AiBL3/g14E1gDvAKsANZX+H2ZoDcJzYnAR/1wNlJ7JMn7gOl+uNY/txt4EXjODzsSTlNVyLrQjAY+BXwSmBzh/r8Cb6GblU1IU7PHv7bfv68VaZrq0E3WIOA4pBk7BmnqRvphnH+tM8cCl/kBYDXwCPAL4O0I6U0lWRSaQcDVwGeBqSXu2wu8DKwE/gisBXZW+F2HgWY/3owIWjGGARP9NJ0BnA4M6XTPZD/c7qdpCfAztLBmApWhjvAU4HrgcuCoAtc7kH5E0BS8QW07pgrpRwVN5kygvsB9B5Ha53vAa4mlrgekXWgUcCEwFzi3wPUO4Hkk058g3b/YgcDFiNCfT2EBegG4G/gfUjwSc2qdgCIoYDbwZyQDOwvMWmAO8H7gIqSaT7PAALQgTdFFSLrnIO9hci7wJNL3mY3kQ+pIo9CcA7yK1ByTjPOHgYeRvsJE4PtIvyWL7EXSPxGZEngYeb+Aicj7v4rkR6pIk9CcDDyKVNGnGecPAt/1r38amQPpTaxC3utk5D0PGtdOQ/LjUf96KkiD0BwF3IZMjF1qnG9Hfo2jga8CW5NPWqJsRd5zNNIpbjeuXYrkz20UHgQkSq2FZibSfi9Adww94CFkRncO8E5tklYz3gG+grz/Q+gOcT2ST6uBs2qTNKFWQnMk8G1gOZI5AX9G5jiuBLbVIF1pYhuSD2cArxvnPwgsA76D5GPi1EJoxiHt+Fzj+9v846n0vj5LT3kFmIbkT5t/zgFuRDrK45JOUNJCczUyEzrROLcUWVBcBOQTTk9WyCP5MwHJr4AJSH5ek2RikhKafsBiZJ7iaP9cBzAP+AiwOaF0ZJ3NSH7NQ/IPJD+XIPnbL4lEJCE0DcCzwJeNc5uQtvpOwE0gDb0JF8m305F8DPgyks8NhR6Kk2oLzUjgJWCWce4ZZP4hE+ssKeZ1JB+fMc7NQvJ7ZDW/uJpCMwlZZR7vH3vAQmQavbnYQ5aKaEbyc6FxbjyS75MKPhED1RKaaUiH7Xj/uANRZViAbY7ixkXy9fPAIf/c8Uj+T6vGF1ZDaM4CfofWJWkFLkA6wZbq8VMknwOd5iFIOcQ+ERi30EwHnkJruzUjagBLiz5hiZPfI6OroPkfgJTH9Di/JE6hmYB0ygb5x7uRpX47WZcsq4DzkPwHKY9nkPKJhbiE5kTCTdI+ROKbYvp8S2WsRvJ/n388BKmFhsfx4XEITSDJgWJ1C6LeaAWmtjQh5dDiHx8LPI1uCbpNT4WmH6LrEVR9Hcgy/qoefq4lHlYh5RHMHk9AyqtHM8c9FZo7kfYz4IvYTm/aWAr8q3F8HlJu3aYnQnMFcINx3IgdVqeVnyPlE3ADUn7dortC80/Aj43jZ4H53U2EJRHmI+UU8GOkHCumO0JTDzyAXq3eBFyFnelNOy5STsHOzqOBBym8laYk3RGahcCpfrwD2cdj15KyQTOyjTnoGJ9CeN0qEpUKzZmIBlnAAuxqddZ4Dfi6cTwXKdfIVCI0RwD3Gc+8gOj5WrLHd9CjXAcp1yOiPlyJ0MwHxvrxNmR4bfsx2cRFyi/QOR5LBQOZqEIzGrjJOP4vwlpjluyxGeleBNxExA15UYXm2+jq6zXgnshJs6QZ01LFEcBdUR6KIjSzgEv8uIds5LK7BnoHeWRDYrAh7xLCM/wFKSc0ivBM4sPAH7qTOktqWYns5AxopIy1inJCMxu9Gb8duLnbSbOkmVvQe8enIuVelFJCo5AN5wE/xG6V7a1sQ8o34DZK1DalhGY2eifkAeCOHifNkmbuQMoZpNyL1jalhMZcwb6Pyo0cWrLFTuC/jeMbit1YzLrnaWgLTIeRfcSpZd7qm0HVgfL643ELOLNQjAP+DryI5y4Gdzl5T6a1qmKUTEE/B+BsUF8CdTpiOnYrnvcMnvcNHNqoy/Otcam1c/hdxBhmHVL+0xAjAyGK1TTXG/FHyUJfRnljILcO5cxHMQMxjHgc8AmUswzl3FyR6UMP+bkcihhcD1ALwFkO6irEzvBAYAJKzUM5bwIfSKcVvffYBvzaOL6u0E2FaprBiDHngFTXMgAo6kAtRwwgFsH5Jg5NwLMoStvOdBGFyJPykKP8YkkdsMu5iDbnNuqKfLBSJ4GzDDc/inTPc92NrIQDfAKZx9ln3lCoprkKbaJrLVnQ91XOdeC8v6QkKMBx7iXvwWEP8iWC6/9vU9FCq1K4uR/glJJEDzw1nHzu3+J+/ZhZhfh3AJGDKzvfUEhoPm/Ef1jgegpxLit7iwcoRpFT48g5lAx1DjgOtNRBcx3sLxFa6mBPbjLtnECuTBoUgHNpmbvSwH1G/AudL3YWmpMRy+AgijoPVilRcdMQyVazUqAYCR6oEsHxwPPgby60uNBaIuxzod07gZyKkAQPPG9YDO9bbR5AK2pNodNCZuc+zeVG/HmyY6c3uopGPq/KjqBySCd4L9L7KDUxcRgYgMeAXNgScLZpRsr/Y/7x5RjzdJ2zwxSaX1Q3XbESXWiUclFQMuD/7xcx5JRbwcgsKzpIZvmbchESmn9AzwAfQsytW/ouT6KbqEmIfABhobkA/Ttbgd7OaembtBDWaLgwiJhC889G3DTJZem7PG3Ezw8iptCcY8Sfr3ZqLJnAlINzCCYN/BP/iPb5uJeuLmUsfZM30CPoY/GtywdCY+57WUmKHVRZEsUj3K85E7TQmOa1rDqnxWSlEZ8OWmhMT7N2x6TFxJSHSSBC46Bt/YLtz1jCmPLwIWRVjlFAf//kLqyGniXMTrRM9AdGOYQXo9YlniRLFviLER/jELajvyXRpFiygrkFe5SDqCUGvI3F0hXTtdJIB7EBHLA94cRYsoGpIz7cQc8Eg+0EWwqzy4gf46CtjEN2lK4sybLHiA91gKFFLlosAWZlMsRBtqwEWIOLlkKYlUmDQ1hbNiuqiJYa4qDtAQMcrFVCLKmmzYj3dwg7V+jAYumKuc+izkH7PYSE/DpbMoe51emwg7ZJAuGmymIJ6G/E2xzCWnpJOHe3ZByHsEWAqnuPt2QScy6v2SE8Bh+CxdKV0KqBQ3i2bygWS1dCqwYO2hUvQBYsGliSx5SLdx1gh3FiRMKJsWQDUy62O4QVbEYnnBhLNhhlxLd0FpqRyabFkhFM7c4tDrDRODEWi6UrpoPU9UFNEyxIDQOOTzxJljRjykQbsNlB1CHeNG6akHSqLKlmohF/E3CDZYMm48IULBbNqUZ8Nei1JtNWcEWeUy29HlMeXgUtNCuMC2dQJe8BlsyhCAvNCtBCsx49MzwE2ehtsYxHrzvtRuTkPaHxgGXGzedjsYTtMC7HV6Mx9WdM+2r/kkSKLKnHlIPfBBFTaEyLnmcibmcsfZeBSP824D35MIXm/9BD73rKOL+09Hpmo32xNyHyAXRV7/ylEf8Ulr6MWf6mXHQRmkeM+PlkR/0z+hSB5yk8KBnw/0f1Kpf3VAUpyMJ0RgPhwVBIaDp7YdkAvI7MAtYjDsMWVzN1seCRi1QUHuDkcuKip8R9CvHEMkSV93npAvXkyEe0oqvKeoVKA1ci5Q8iD+aidkF3hD9BTx1fSxaEBvailPhoKoYL1HswgK2RN10cjODDSQEuO8gToQ5R4HnvRvvymvIlI/6TzhcLCc3PgTsRV3QTEduxKXdJ6D0OnFXyliOBfWxno7smkmltBxihZPtgOY+TitWo3E6iaQj8uvwtNWUaepHyICIPIQr95PYBvzKOvxp/umLGcxfjuTtL/tTrFbTk/50NHmyMEDZ54LhQ70JdmZBzPVT+P/DKtXneNnLuD+J+/Zgxy/tXdHJ6CsX9ci8GrvHjlyE6oul1s+x5HXjeTBRLKaTn7CloOXwjw9ynOYFoXVEPadIORLjfA5T7GLi3gPompjve96LeBsjPwnHT7H9uBOIhN+DeQjcVa9xfRS8r1FHCG3xqUOptvPxYPPd24I+Iv6JNwBLy+Rl47t2AuHePEtqDz43y3cEftxHPPRvPewi8rUALrvcKyrsVlR8HbE+514mvoCuSZRTplqjGxqLe6C8GHvfjBxClc2uTr/cyDPmRBfv5LwGeKHRjqWHEU2j/zEcDX4srdZZU8jW0wKxByr8gpYTGBW41jq8Fhvc4aZY0MpzwMPtWSlhFKzdh8QTaC8eRQNG2zJJpGpHyBSnvgs1SQDmh8YCbjeNPE175tGSf05FyDZhHmSnNKFOjv0N3iBXwPcjEVLilPDng++gx4uPA78s9FNWI0U3oQegUYE6lqbOkkjno3SftSDmXJarQbADuMo6/QXh/ryV7jELKMeAupJzLUom5tIVovz/9gR9V+LwlPTjAfWhben9Byjfyw1FpB76IHoqdB8yt4HlLepgLzPLjHjKd0l789jCV1hR/ABYZxwuBUyr8DEttOYVwrbKI8L63snSneZmPvz0TUdR5hLB/BUt6GYxo4QUKVqvpxkx/d4SmA9HsCuwPjwYe6OZnWZJDIeUU+Cw9gGhmVmylvrsFvQ5pBwMuBG7v5mdZkmEhUk4B1wJvdeeDelI7PAjcYxzPQyTXkj6uAm4xju9Byq9b9LRJ+U9gqR9XwP3IqMqSHs5DyiWY9V1KxEm8YvRUaA4BH0d7ia8HHkP0ii21ZzrwKLrjuxYprx5524mj87ofuAhtdWIg8BxhC0qW5JmElMMg/3g3oli3v6cfHNeIZyvwYbQ7w8HIQuekmD7fUhmTgd+ip0KakfLZXPSJCohzmLwGuADRzQVx3fwCtqlKmulIvyVwnd2ClMuaok9USNxzK6uQpqrVP25AJP7cmL/HUphZSH4H26lbkfKIdd9aNSbkXgQ+gm6qBiBt69VV+C6L5nOIOZAB/nEzUg4vxv1F1ZrFXYXULsHuhXpgCbIUb2eO48VB8vV+9ChpF5L/VdkZW80CbEJUQ4NZRwV8HdFyz4o1irQzGHgSyddgHuYtRIWzqdhDPaXav/rNwEykQxxwIbKZ7dSCT1iicirwJ8Imzl5A8juWUVIxkmgqmhGDf+YWz9HAy8jMpG2uKsNBZuJfJuw1514kn5sLPRR3ApLgEHAd8Bn06ng98C2kt29VR6MxCsmvO9H9lwPAZ5H8PVTkuVhJ+lf+M2AqetkBZG1kLWKtwO5yKEwOyZ+1hNf21iL5uSTJxNSiaXgLsYGyCK062t8/fhmYUYM0pZkZSL4sQuv0usDdSD52S72hJ9SqP/F3RE/1HHwr2D5TgZXIsn1fd404AsmHlUi+BKxHhtM3IvmYOLXuhL6ErJMsRK+8KmTH33pE76Ov+Z86Hnnv/0XyIRhKdyD5NJkqTNhVQq2FBsRE1wLEDv9jxvkjkM1cm5Cq+KTkk5YoJyHv+Tby3kca1x5D8mcBkl81JQ1CE7AR0fWYhcw/BByFGFXaCDyEtOO9iWnIe21E3vNo49qfkNXpj9PJwmYtSZPQBCxFMvISwiuzdcAVyNR4EzLEzOrMcgOS/ibkfa4gbMpuDXApkg9l91YnTRqFBmQD1xPIHp2Lkb6PyURk4/pOZFniGtLvy2Egks6ngHeQ9HdWVHsJed9TkM34qTS2VsxQY1pwkbWVJ5ERxPWIIcGj/Ov1wMf80IFs+nrOD29Q20xXiN+sj/phJnpCzuQgYkVzMb7ntrRTyuZeWhmMqFl8jtL+Nvciw9UViKGeNcBfq5iu45CaYwrixeZMtIOtQrwG/BSx09vF7GqayaLQmIwBPumHyRHu34V4fN1ihN3AHkSgAq3D/Ugt56B1bAcigjEU0YobaYTxiKHDcqxGapVfEtFCQxpJe/NUjg3AHX44Ed0UnI1WdzQZRrTCjYvdyJxK0GTuSPC7q0bWhcZkB2L+5Ef+8VhEr2QGouA+Hj0NXw3akFqsCXgFmfpfV8Xvqxm9SWg6s84P9/vHDrJKPAbdrAwHjkFqpaFoVclB/v0uestHK9KM7QbeBbajm7iNyCRkUYuYvYn/B8j3LlZxsulHAAAAAElFTkSuQmCC)    }    .mini-audio-player .audio-info {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      margin-left: .6875rem;      min-width: 0    }    .mini-audio-player .audio-info h3 {      color: #353535;      font-size: 15.25px;      margin: 0;      white-space: nowrap;      overflow: hidden;      text-overflow: ellipsis    }    .mini-audio-player .audio-info p {      margin: 0;      margin-top: .125rem;      font-size: 11px;      line-height: 1rem    }    .mini-audio-player .audio-info p span {      color: #888    }    .mini-audio-player .btn-download {      width: 1.25rem;      height: 1.25rem;      position: relative;      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAA+CAYAAACbQR1vAAABS2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxMzggNzkuMTU5ODI0LCAyMDE2LzA5LzE0LTAxOjA5OjAxICAgICAgICAiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIi8+CiA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgo8P3hwYWNrZXQgZW5kPSJyIj8+IEmuOgAAA4hJREFUaIHtm8lOFFEUhr9qCWGHGxcaY1joK2h0YRzAtYmsWbAGGidEXOACbAYRxfgAPoEPoInGxJgg86gsJTHMw86EhS7O7TDk3uqq6qo6HahvQ7pOce7//1U0feve9vr6+lAiD3QC/4AC8FZDRJXGoMB14PWB1yPANPA1bSG5tAc0XLEcu5y6CvQCOGU5pnI3agVQMWQBaAvQJgtAW4A2WQDaArTJAtAWoE0WgLYAbbIAtAVokwWgLUCbLABtAdpkAfjU6oC7wKV0pCTCRcRDnesEVwDNwC/gg/nZHbeyFOgGltj30Gw7yRZALfAOqDavPeA50BO7xOToQTR75nU14qn26Im2AM4DNZbjz4DeePQlSi+i9Sg1iLdD2AJYApYdzbuo7BBeIBptLCPeDmELYA9oBHYdjbqQpaxKowA8ddR2gXuIt0O43gRHgTu4Q+ikskIoIJps7AINwA9b0e/fYJAQ1FZWD9CP2/wOUI/DPJT+IDRqGrhCeGIEaNEPdDhqO8iVH/NrEOST4BgSwo6j3gEMBOgTNwP4m6+nhHkI/lG4VAiPgcGAveJg0IxpYxvROh6kUZi5wLhpvO2oPyKdEF6asWyEMg/hJ0PjyN+VXwhDIXuGYQh46KhtIeYnwjSMMhss3glbjvoDkglhyPS2Eck8RJ8OTyB3gl8IryL2tjGM2/wmYn4ySuNyngdMmIE3HfX7iHDPUQ+CZ3q0O+qbyIWIZB7KfyAyaQS4QmhH7oQoIZQyv0EZV75IHE+EJvG/E9oJfyd4yC6yvKO+gQQ/FaKnlbgeiU0hIWw46nnEUJAQiubbHPV1M1bZ5iHeZ4KlQmgD3uAfgofsGfQz34DsKYyFuLemTSMhfATOWOqtiMk/llrRfIuj9zpwG5gtX+Y+SezNK4bwCXsILdgDaAXOOnomYh6Seyw+gwhed9TPWY75mb9FAuYh2XWBWUS4K4QgrAE3gblYFFlIemFkDjEQJYQ1JMD5WBUdIY2VoXkkhLUQv7NqfidR85De0liYEFaRK7+QqCJDmmuDC0gIqz7nrJhzUjEP6S+O+oWwglz5xTQFaawOLwI3gO8Hjo2ZY6maB72vzPwErgEXkO8MuVaiEkcrgCK/lcfPNkhkAWgL0KYKmZiMIG9Ktn0Bx5G/wDcgXwW8R6avJ41G4HQOufInlas5ZO5+UpnJAU3AFyy7J44xe8BnoOk/JruwYo92bigAAAAASUVORK5CYII=);      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain;      text-decoration: none;      padding-right: .25rem    }    .mini-audio-player .btn-download .icon-download-done {      width: .45rem;      height: .45rem;      position: absolute;      bottom: 0;      right: 0;      display: inline-block;      background-image: url(data:image/png;base64,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);      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain    }</style><style type="text/css">    .MathJax_Display {      overflow: auto    }    .poster {      position: fixed;      left: -10000px;      top: -10000px;      overflow: hidden;      padding: 1rem;      background: #ececec    }    .richcontent-pre-copy {      font-size: 13px;      color: #888;      position: absolute;      right: 1em;      top: .2em;      cursor: pointer;      -webkit-user-select: none;      -moz-user-select: none;      -ms-user-select: none;      user-select: none    }    .richcontent-pre-copy .iconfont {      font-size: 12px;      margin-right: .2em    }</style><style type="text/css">    .comment-item {      list-style-position: inside;      width: 100%;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      margin-bottom: 1rem    }    .comment-item a {      border-bottom: none    }    .comment-item .avatar {      width: 2.625rem;      height: 2.625rem;      -ms-flex-negative: 0;      flex-shrink: 0;      border-radius: 50%    }    .comment-item .info {      margin-left: .5rem;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1    }    .comment-item .info .hd {      width: 100%;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .comment-item .info .hd .username {      color: #888;      font-size: 15.25px;      font-weight: 400;      line-height: 1.2    }    .comment-item .info .hd .control {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .comment-item .info .hd .control .btn-share {      color: #888;      font-size: .75rem;      margin-right: 1rem    }    .comment-item .info .hd .control .btn-praise {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      font-size: 15.25px;      text-decoration: none    }    .comment-item .info .hd .control .btn-praise i {      color: #888;      display: inline-block;      font-size: .75rem;      margin-right: .3rem;      margin-top: -.01rem    }    .comment-item .info .hd .control .btn-praise i.on,    .comment-item .info .hd .control .btn-praise span {      color: #ff5a05    }    .comment-item .info .bd {      color: #353535;      font-size: 15.25px;      font-weight: 400;      white-space: normal;      word-break: break-all;      line-height: 1.6    }    .comment-item .info .time {      color: #888;      font-size: 9px;      line-height: 1    }    .comment-item .info .reply .reply-hd {      font-size: 15.25px    }    .comment-item .info .reply .reply-hd span {      margin-left: -12px;      color: #888;      font-weight: 400    }    .comment-item .info .reply .reply-hd i {      color: #ff5a05;      font-size: 15.25px    }    .comment-item .info .reply .reply-content {      color: #353535;      font-size: 15.25px;      font-weight: 400;      white-space: normal;      word-break: break-all    }    .comment-item .info .reply .reply-time {      color: #888;      font-size: 9px    }</style><style type="text/css">    .breadcrumb {      padding: 30px 0;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -ms-flex-wrap: wrap;      flex-wrap: wrap;      background: #fff    }    .breadcrumb a.title {      color: #e57c39;      font-size: 15px;      font-weight: 400    }    .breadcrumb span.title {      color: #888;      font-size: 15px;      font-weight: 400    }    .breadcrumb .split {      color: #ccc;      font-size: 10px;      margin-right: 5px    }</style></head><body style=""><div id="app"><div data-v-87ffcada="" class="article"><div data-v-87ffcada="" class="main main-app" style="margin-top: 0px;"><h1 data-v-87ffcada="" class="article-title">          第15讲 | HTTPS协议：点外卖的过程原来这么复杂</h1><div data-v-87ffcada="" class="article-info"><span data-v-87ffcada="">2018-06-20</span><span data-v-87ffcada="">刘超</span></div><div data-v-87ffcada="" class="article-content typo common-content"><img data-v-87ffcada="" src="https://static001.geekbang.org/resource/image/d0/ec/d05de7616d91d99c3afe11ebd66497ec.jpg"><div data-v-87ffcada="" class="mini-audio-player"><a href="javascript:;" class="btn-play"></a><div class="audio-info"><h3>第15讲 | HTTPS协议：点外卖的过程原来这么复杂</h3><p><span>朗读人：秭明&nbsp;&nbsp;&nbsp;</span><span>00:15:03 | 6223</span></p></div><audio title="第15讲 | HTTPS协议：点外卖的过程原来这么复杂" src="https://res001.geekbang.org/resource/audio/f3/8d/f32cb9ab428dd51e209d6c1ce260ae8d.mp3" controls="controls"></audio></div><div data-v-87ffcada="" id="article-content" class=""><div class="text">              <p>用HTTP协议，看个新闻还没有问题，但是换到更加严肃的场景中，就存在很多的安全风险。例如，你要下单做一次支付，如果还是使用普通的HTTP协议，那你很可能会被黑客盯上。</p>
+<p>你发送一个请求，说我要点个外卖，但是这个网络包被截获了，于是在服务器回复你之前，黑客先假装自己就是外卖网站，然后给你回复一个假的消息说：“好啊好啊，来来来，银行卡号、密码拿来。”如果这时候你真把银行卡密码发给它，那你就真的上套了。</p>
+<p>那怎么解决这个问题呢？当然一般的思路就是<strong>加密</strong>。加密分为两种方式一种是<strong>对称加密</strong>，一种是<strong>非对称加密</strong>。</p>
+<p>在对称加密算法中，加密和解密使用的密钥是相同的。也就是说，加密和解密使用的是同一个密钥。因此，对称加密算法要保证安全性的话，密钥要做好保密。只能让使用的人知道，不能对外公开。</p>
+<p>在非对称加密算法中，加密使用的密钥和解密使用的密钥是不相同的。一把是作为公开的公钥，另一把是作为谁都不能给的私钥。公钥加密的信息，只有私钥才能解密。私钥加密的信息，只有公钥才能解密。</p>
+<p>因为对称加密算法相比非对称加密算法来说，效率要高得多，性能也好，所以交互的场景下多用对称加密。</p>
+<h2>对称加密</h2>
+<p>假设你和外卖网站约定了一个密钥，你发送请求的时候用这个密钥进行加密，外卖网站用同样的密钥进行解密。这样就算中间的黑客截获了你的请求，但是它没有密钥，还是破解不了。</p><!-- [[[read_end]]] -->
+<p>这看起来很完美，但是中间有个问题，你们两个怎么来约定这个密钥呢？如果这个密钥在互联网上传输，也是很有可能让黑客截获的。黑客一旦截获这个秘钥，它可以佯作不知，静静地等着你们两个交互。这时候你们之间互通的任何消息，它都能截获并且查看，就等你把银行卡账号和密码发出来。</p>
+<p>我们在谍战剧里面经常看到这样的场景，就是特工破译的密码会有个密码本，截获无线电台，通过密码本就能将原文破解出来。怎么把密码本给对方呢？只能通过<strong>线下传输</strong>。</p>
+<p>比如，你和外卖网站偷偷约定时间地点，它给你一个纸条，上面写着你们两个的密钥，然后说以后就用这个密钥在互联网上定外卖了。当然你们接头的时候，也会先约定一个口号，什么“天王盖地虎”之类的，口号对上了，才能把纸条给它。但是，“天王盖地虎”同样也是对称加密密钥，同样存在如何把“天王盖地虎”约定成口号的问题。而且在谍战剧中一对一接头可能还可以，在互联网应用中，客户太多，这样是不行的。</p>
+<h2>非对称加密</h2>
+<p>所以，只要是对称加密，就会永远在这个死循环里出不来，这个时候，就需要非对称加密介入进来。</p>
+<p>非对称加密的私钥放在外卖网站这里，不会在互联网上传输，这样就能保证这个秘钥的私密性。但是，对应私钥的公钥，是可以在互联网上随意传播的，只要外卖网站把这个公钥给你，你们就可以愉快地互通了。</p>
+<p>比如说你用公钥加密，说“我要定外卖”，黑客在中间就算截获了这个报文，因为它没有私钥也是解不开的，所以这个报文可以顺利到达外卖网站，外卖网站用私钥把这个报文解出来，然后回复，“那给我银行卡和支付密码吧”。</p>
+<p>先别太乐观，这里还是有问题的。回复的这句话，是外卖网站拿私钥加密的，互联网上人人都可以把它打开，当然包括黑客。那外卖网站可以拿公钥加密吗？当然不能，因为它自己的私钥只有它自己知道，谁也解不开。</p>
+<p>另外，这个过程还有一个问题，黑客也可以模拟发送“我要定外卖”这个过程的，因为它也有外卖网站的公钥。</p>
+<p>为了解决这个问题，看来一对公钥私钥是不够的，客户端也需要有自己的公钥和私钥，并且客户端要把自己的公钥，给外卖网站。</p>
+<p>这样，客户端给外卖网站发送的时候，用外卖网站的公钥加密。而外卖网站给客户端发送消息的时候，使用客户端的公钥。这样就算有黑客企图模拟客户端获取一些信息，或者半路截获回复信息，但是由于它没有私钥，这些信息它还是打不开。</p>
+<h2>数字证书</h2>
+<p>不对称加密也会有同样的问题，如何将不对称加密的公钥给对方呢？一种是放在一个公网的地址上，让对方下载；另一种就是在建立连接的时候，传给对方。</p>
+<p>这两种方法有相同的问题，那就是，作为一个普通网民，你怎么鉴别别人给你的公钥是对的。会不会有人冒充外卖网站，发给你一个它的公钥。接下来，你和它所有的互通，看起来都是没有任何问题的。毕竟每个人都可以创建自己的公钥和私钥。</p>
+<p>例如，我自己搭建了一个网站cliu8site，可以通过这个命令先创建私钥。</p>
+<pre><code>openssl genrsa -out cliu8siteprivate.key 1024
+</code></pre>
+<p>然后，再根据这个私钥，创建对应的公钥。</p>
+<pre><code>openssl rsa -in cliu8siteprivate.key -pubout -outcliu8sitepublic.pem
+</code></pre>
+<p>这个时候就需要权威部门的介入了，就像每个人都可以打印自己的简历，说自己是谁，但是有公安局盖章的，就只有户口本，这个才能证明你是你。这个由权威部门颁发的称为<strong>证书</strong>（<strong>Certificate</strong>）。</p>
+<p>证书里面有什么呢？当然应该有<strong>公钥</strong>，这是最重要的；还有证书的<strong>所有者</strong>，就像户口本上有你的姓名和身份证号，说明这个户口本是你的；另外还有证书的<strong>发布机构</strong>和证书的<strong>有效期</strong>，这个有点像身份证上的机构是哪个区公安局，有效期到多少年。</p>
+<p>这个证书是怎么生成的呢？会不会有人假冒权威机构颁发证书呢？就像有假身份证、假户口本一样。生成证书需要发起一个证书请求，然后将这个请求发给一个权威机构去认证，这个权威机构我们称为<strong>CA</strong>（ <strong>Certificate Authority</strong>）。</p>
+<p>证书请求可以通过这个命令生成。</p>
+<pre><code>openssl req -key cliu8siteprivate.key -new -out cliu8sitecertificate.req
+</code></pre>
+<p>将这个请求发给权威机构，权威机构会给这个证书卡一个章，我们称为**签名算法。**问题又来了，那怎么签名才能保证是真的权威机构签名的呢？当然只有用只掌握在权威机构手里的东西签名了才行，这就是CA的私钥。</p>
+<p>签名算法大概是这样工作的：一般是对信息做一个Hash计算，得到一个Hash值，这个过程是不可逆的，也就是说无法通过Hash值得出原来的信息内容。在把信息发送出去时，把这个Hash值加密后，作为一个签名和信息一起发出去。</p>
+<p>权威机构给证书签名的命令是这样的。</p>
+<pre><code>openssl x509 -req -in cliu8sitecertificate.req -CA cacertificate.pem -CAkey caprivate.key -out cliu8sitecertificate.pem
+</code></pre>
+<p>这个命令会返回Signature ok，而cliu8sitecertificate.pem就是签过名的证书。CA用自己的私钥给外卖网站的公钥签名，就相当于给外卖网站背书，形成了外卖网站的证书。</p>
+<p>我们来查看这个证书的内容。</p>
+<pre><code>openssl x509 -in cliu8sitecertificate.pem -noout -text 
+</code></pre>
+<p>这里面有个Issuer，也即证书是谁颁发的；Subject，就是证书颁发给谁；Validity是证书期限；Public-key是公钥内容；Signature Algorithm是签名算法。</p>
+<p>这下好了，你不会从外卖网站上得到一个公钥，而是会得到一个证书，这个证书有个发布机构CA，你只要得到这个发布机构CA的公钥，去解密外卖网站证书的签名，如果解密成功了，Hash也对的上，就说明这个外卖网站的公钥没有啥问题。</p>
+<p>你有没有发现，又有新问题了。要想验证证书，需要CA的公钥，问题是，你怎么确定CA的公钥就是对的呢？</p>
+<p>所以，CA的公钥也需要更牛的CA给它签名，然后形成CA的证书。要想知道某个CA的证书是否可靠，要看CA的上级证书的公钥，能不能解开这个CA的签名。就像你不相信区公安局，可以打电话问市公安局，让市公安局确认区公安局的合法性。这样层层上去，直到全球皆知的几个著名大CA，称为<strong>root CA</strong>，做最后的背书。通过这种<strong>层层授信背书</strong>的方式，从而保证了非对称加密模式的正常运转。</p>
+<p>除此之外，还有一种证书，称为<strong>Self-Signed Certificate</strong>，就是自己给自己签名。这个给人一种“我就是我，你爱信不信”的感觉。这里我就不多说了。</p>
+<h2>HTTPS的工作模式</h2>
+<p>我们可以知道，非对称加密在性能上不如对称加密，那是否能将两者结合起来呢？例如，公钥私钥主要用于传输对称加密的秘钥，而真正的双方大数据量的通信都是通过对称加密进行的。</p>
+<p>当然是可以的。这就是HTTPS协议的总体思路。</p>
+<p><img src="https://static001.geekbang.org/resource/image/70/02/7042f5c3d9e3437d5b0b30b30f43c802.jpg" alt="" /></p>
+<p>当你登录一个外卖网站的时候，由于是HTTPS，客户端会发送Client Hello消息到服务器，以明文传输TLS版本信息、加密套件候选列表、压缩算法候选列表等信息。另外，还会有一个随机数，在协商对称密钥的时候使用。</p>
+<p>这就类似在说：“您好，我想定外卖，但你要保密我吃的是什么。这是我的加密套路，再给你个随机数，你留着。”</p>
+<p>然后，外卖网站返回Server Hello消息, 告诉客户端，服务器选择使用的协议版本、加密套件、压缩算法等，还有一个随机数，用于后续的密钥协商。</p>
+<p>这就类似在说：“您好，保密没问题，你的加密套路还挺多，咱们就按套路2来吧，我这里也有个随机数，你也留着。”</p>
+<p>然后，外卖网站会给你一个服务器端的证书，然后说：“Server Hello Done，我这里就这些信息了。”</p>
+<p>你当然不相信这个证书，于是你从自己信任的CA仓库中，拿CA的证书里面的公钥去解密外卖网站的证书。如果能够成功，则说明外卖网站是可信的。这个过程中，你可能会不断往上追溯CA、CA的CA、CA的CA的CA，反正直到一个授信的CA，就可以了。</p>
+<p>证书验证完毕之后，觉得这个外卖网站可信，于是客户端计算产生随机数字Pre-master，发送Client Key Exchange，用证书中的公钥加密，再发送给服务器，服务器可以通过私钥解密出来。</p>
+<p>到目前为止，无论是客户端还是服务器，都有了三个随机数，分别是：自己的、对端的，以及刚生成的Pre-Master随机数。通过这三个随机数，可以在客户端和服务器产生相同的对称密钥。</p>
+<p>有了对称密钥，客户端就可以说：“Change Cipher Spec，咱们以后都采用协商的通信密钥和加密算法进行加密通信了。”</p>
+<p>然后发送一个Encrypted Handshake Message，将已经商定好的参数等，采用协商密钥进行加密，发送给服务器用于数据与握手验证。</p>
+<p>同样，服务器也可以发送Change Cipher Spec，说：“没问题，咱们以后都采用协商的通信密钥和加密算法进行加密通信了”，并且也发送Encrypted Handshake Message的消息试试。当双方握手结束之后，就可以通过对称密钥进行加密传输了。</p>
+<p>这个过程除了加密解密之外，其他的过程和HTTP是一样的，过程也非常复杂。</p>
+<p>上面的过程只包含了HTTPS的单向认证，也即客户端验证服务端的证书，是大部分的场景，也可以在更加严格安全要求的情况下，启用双向认证，双方互相验证证书。</p>
+<h2>重放与篡改</h2>
+<p>其实，这里还有一些没有解决的问题，例如重放和篡改的问题。</p>
+<p>没错，有了加密和解密，黑客截获了包也打不开了，但是它可以发送N次。这个往往通过Timestamp和Nonce随机数联合起来，然后做一个不可逆的签名来保证。</p>
+<p>Nonce随机数保证唯一，或者Timestamp和Nonce合起来保证唯一，同样的，请求只接受一次，于是服务器多次受到相同的Timestamp和Nonce，则视为无效即可。</p>
+<p>如果有人想篡改Timestamp和Nonce，还有签名保证不可篡改性，如果改了用签名算法解出来，就对不上了，可以丢弃了。</p>
+<h2>小结</h2>
+<p>好了，这一节就到这里了，我们来总结一下。</p>
+<ul>
+<li>
+<p><span class="orange">加密分对称加密和非对称加密。对称加密效率高，但是解决不了密钥传输问题；非对称加密可以解决这个问题，但是效率不高。</span></p>
+</li>
+<li>
+<p><span class="orange"> 非对称加密需要通过证书和权威机构来验证公钥的合法性。</span></p>
+</li>
+<li>
+<p><span class="orange">HTTPS是综合了对称加密和非对称加密算法的HTTP协议。既保证传输安全，也保证传输效率。</span></p>
+</li>
+</ul>
+<p>最后，给你留两个思考题：</p>
+<ol>
+<li>
+<p>HTTPS协议比较复杂，沟通过程太繁复，这样会导致效率问题，那你知道有哪些手段可以解决这些问题吗？</p>
+</li>
+<li>
+<p>HTTP和HTTPS协议的正文部分传输个JSON什么的还好，如果播放视频，就有问题了，那这个时候，应该使用什么协议呢？</p>
+</li>
+</ol>
+<p>欢迎你留言和我讨论。趣谈网络协议，我们下期见！</p>
+<p><img src="https://static001.geekbang.org/resource/image/b5/fb/b5bc14cb81d3630919fee94a512cc3fb.jpg" alt="" /></p>
+</div></div></div><div data-v-87ffcada="" class="article-comments"><h2 data-v-87ffcada=""><span data-v-87ffcada="">精选留言</span></h2><ul data-v-87ffcada="">            <li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/1f/66/59e0647a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">万历十五年</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>58</span></a></div>
+	</div>
+	<div class="bd">各大CA机构的公钥是默认安装在操作系统里的。所以不要安装来路不明的操作系统，否则相当于裸奔</div> <span class="time">2018-06-22</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的</p> <p class="reply-time">2018-06-22</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">monkay</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>16</span></a></div>
+	</div>
+	<div class="bd">会不会存在浏览器第一次向外卖网站请求证书时就被黑客拦截了，然后黑客用自己服务器去权威机构请求正规的证书，然后发给用户，之后的交互，用户以为是跟外卖网站交互，其实背后是跟黑客的网站交互</div> <span class="time">2018-06-21</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/c6/e4/ec572f55.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">沙亮亮</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>10</span></a></div>
+	</div>
+	<div class="bd">https还是可以被抓包，可以讲下抓https包的原理</div> <span class="time">2018-06-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/ef/a2/6ea5bb9e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">LEON</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>9</span></a></div>
+	</div>
+	<div class="bd">这张SSL握手的图，真的棒！</div> <span class="time">2018-06-20</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">谢谢</p> <p class="reply-time">2018-06-20</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/19/ee/e395a35e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">郑一一</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>6</span></a></div>
+	</div>
+	<div class="bd">新学到的一点，CA 证书的作用，是保证服务器的公钥的来历。其做法是对公钥进行哈希摘要算法，然后用 CA 私钥加密，伴随公钥一起发送出去。<br>客户端收到后，用 CA 公钥解密，然后对公钥做哈希，比对哈希值是否一致来做到的。</div> <span class="time">2018-06-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">飞龙在天</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>5</span></a></div>
+	</div>
+	<div class="bd">老师你好：<br>https协议中，客户端和服务端信息传输使用了对称加密，疑惑的是服务器端是怎样识别多个客户端的公钥呢？项目中并没有对此做特殊的处理，希望老师解惑o(^o^)o。</div> <span class="time">2018-06-20</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">会建立session</p> <p class="reply-time">2018-06-20</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/13/00/a4a2065f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Michael</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>4</span></a></div>
+	</div>
+	<div class="bd">看了好几遍，感觉算是明白 https 非对称加密通信的过程了，总结一下，大家看看是不是这样的：<br><br>首先，服务端需要向证书颁发机构申请一个自己的证书，这个证书里面会包含此该站点的基本信息，个人啊，公司啊，组织什么呢，我记得CA证书好像分三类的，然后还有该证书的 签名 以及 hash 值用于在通信中客户端鉴别此证书是否合法。<br><br>https 通信分为四个步骤：<br><br>1. c-&gt;s,客户端发起加密通信请求，这个请求通常叫做 ClientHello请求，告知自己支持的协议版本号，加密算法，压缩算法，以及一个用于生成后续通信密钥的随机数；<br>2. s-&gt;c,服务端响应，也叫作 ServerHello，确认加密通信协议，加密算法，以及一个用于生成后续通信密钥的随机数，还有网站证书；<br>3. c-&gt;s,客户端在收到上一步服务端的响应之后，首先会检查证书的颁发者是否可信任，是否过期，域名是否一致，并且从操作系统的证书链中找出该证书的上一级证书，并拿出服务端证书的公钥，然后验证签名和hash，如果验证失败，就会显示警告，我们经常在Chrome里面看到，“此网站有风险，是否继续什么的”。如果验证通过，客户端会向服务端发送一个称作 “pre-master-key” 的随机数，该随机数使用证书的公钥加密，以及编码改变通知（以后咋们就用协商的密钥堆成加密通信了），客户端完成握手。<br>4. 服务端在收到上一步客户端请求之后，也会确认我以后发给你的信息可就加密了哦，并且完成握手。<br><br>此时，客户端有第一步自己生成的随机数，第二步收到服务端的随机数，第三步的 pre-master-key，服务端也是如此，他们就可以用这三个随机数使用约定的算法生成同一个密钥来加密以后的通信数据了。<br></div> <span class="time">2018-12-11</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/57/4f/6fb51ff1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">一步</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">老师，可以补充一下https双向认证的流程图吗？</div> <span class="time">2018-07-17</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">好的，后期补充一下</p> <p class="reply-time">2018-07-17</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/9e/ef/a74049d9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">森码</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">客户端和服务端为什么要分别传输一个随机数呢？通过公钥加密Pre-master不是就可以用吗？</div> <span class="time">2018-07-11</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">如果双向认证，其实是可以的，但是不都是双向认证</p> <p class="reply-time">2018-07-12</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/43/ef/f4e600e5.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">烧饼</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">这里两个 hello 信息都是用明文传输的，包括里面的随机数，真正加密传输的是 Pre-master 。就是说外界完全可以抓取这两个随机数，真正影响外界窃取对称密钥的是 Pre-master ，那是不是意味着其实这两个随机数作用不大，可以去掉？</div> <span class="time">2018-06-29</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不是的，这几个都是计算对称密钥的材料</p> <p class="reply-time">2018-06-29</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">唐唐</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">老师好，有个问题很疑惑，想请教一下。这个https是浏览器和服务器端的交互吧。那么这个证书对应安装到用户的浏览器了吗？服务器端怎么能知道用户安装的是什么证书，拿到该证书对应的公钥或私钥呢？浏览器是安装一个证书，还是对应不同服务器安装多个不同证书。</div> <span class="time">2018-06-20</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">证书会下载到浏览器本地，服务端不管，如果证书不对就验证失败</p> <p class="reply-time">2018-06-20</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/84/39/901bcf0a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">无形</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">之前的还能懂，这节好复杂，看懵了</div> <span class="time">2018-09-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">shupian418</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">https是要解决http中的问题：<br>1 明文传输，很容易被窃听<br>2 没有验证数据的完整性，容易被篡改<br>3 没有验证对端的身份，容易被伪装</div> <span class="time">2018-09-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/cf/22/2091d425.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">李简单</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">证书解密后，hash怎么算对上了呢？</div> <span class="time">2018-08-08</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/41/be/7c083406.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">陈卓</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">老师你好，我之前听说获取CA证书都是需要给钱的，这边怎么一条命令就能获取一个证书啊？望解惑，谢谢</div> <span class="time">2018-07-17</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">我自己做ca当然可以啊，只不过拿出去不算</p> <p class="reply-time">2018-07-18</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/74/3d/54bbc1df.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Jaime</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">https做请求缓存，来提高效率?视频要用udp协议，</div> <span class="time">2018-07-14</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/41/5a/b273689e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">洪宇舟</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">刘老师，请问文章里面证书请求的命令行里面为什么是私钥呢？CA应该是对公钥做签名吧</div> <span class="time">2018-06-23</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">证书里面主要是公钥</p> <p class="reply-time">2018-06-23</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/87/dd/4f53f95d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">进阶的码农</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">为啥私钥加密 互联网上人人都可以把它打开？</div> <span class="time">2018-06-21</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">公钥很容易得到</p> <p class="reply-time">2018-06-22</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">isaac</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">单向认证中的三个随机数可能是为了保证完全随机吧，毕竟所有的机器都是伪随机的</div> <span class="time">2019-01-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJTL1kXMgeyk9hcCTDWbrwuAW2OiaJmHLTN3ZppVzKJXIXicia8D9a38Nb8vjfCEepFJyJJUqAknib2UQ/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Geek_0e0e73</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师你好，有个疑惑，https的加密解密、验证证书、传输密钥等属于tcp的三次握手吗？http基于tcp要先进行三次握手我能理解，那https的三次握手是怎么样的，上面传输密钥的过程属不属于三次握手？不属于的话，那什么时候进行三次握手</div> <span class="time">2019-01-23</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJTL1kXMgeyk9hcCTDWbrwuAW2OiaJmHLTN3ZppVzKJXIXicia8D9a38Nb8vjfCEepFJyJJUqAknib2UQ/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Geek_0e0e73</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">想请教老师一下，上面的HTTPS请求，客户端和服务端之间发送证书，验证证书，传输秘钥等等这些操作，是在HTTPS的TCP连接建立成功后做的吗？</div> <span class="time">2019-01-23</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/72/ed/1d8398ea.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">王恩浩</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">理解：面对面交接“对称密钥”不可能，于是我就把密钥让靠谱的“快递公司”先传递给你。这过程只要想办法确保“快递公司”是正规的安全的就行了。</div> <span class="time">2019-01-16</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/f0/61/68462a07.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">无名</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">重放与篡改的策略也是https的一部分吗？还是说这个需要自己实现？</div> <span class="time">2019-01-03</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/71/a2/091d9619.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">leo</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">为什么https请求，抓包还可以拿到域名，支持可以抓到域名的服务器常见吗？</div> <span class="time">2018-12-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/13/00/a4a2065f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Michael</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">还有一个问题，最后的对称加密密钥是怎么算出来的，客护端和服务端最终协商后会选择一个加密算法，这个加密算法通常有哪些？</div> <span class="time">2018-12-11</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/23/df/367f2c75.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">🌀🐑hfy🐣</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，请问https哪部分是对称加密？哪部分是非对称加密？</div> <span class="time">2018-12-04</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/d0/16/9663e7af.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">剧终</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师的课讲的很不错，通俗易懂，如久旱逢甘雨，让我拨云见日，茅塞顿开，期待老师其他课程。</div> <span class="time">2018-12-04</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/11/3e/c8a1bd6e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">回家</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">HTTPS是使用非对称加密来传输对称加密的秘钥。有些问题请教下，客户端和服务端在发送 change cipher spec 的时候使用的仍然是非对称加密的公私钥对吗？另外，服务端发给客户端的证书对客户端来说是非对称加密的公钥，对CA来说，其实是自己的私钥是吧？</div> <span class="time">2018-11-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/e3/45/d392d494.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">意文</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">刘老师，客户端和服务端的证书有何不同？<br>都是公钥，可以各自解密对方私钥加密后的内容吗？</div> <span class="time">2018-11-06</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">没有不同，原理完全相同的两对</p> <p class="reply-time">2018-11-07</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/6f/63/8808cc00.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">扬～</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd"> 那两个明文的随机数实在想不出有什么用，甚至觉得是祸害。比如黑客参与到建立前过程，截获修改随机数，这样就导致握手阶段始终不成功。希望老师能解答一下。</div> <span class="time">2018-11-04</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/f0/61/68462a07.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">无名</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">https与ssl有什么关系吗？</div> <span class="time">2018-11-01</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">有啊，http + ssl</p> <p class="reply-time">2018-11-02</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/b7/a2/0ce9b8df.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">家榆</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">从流程上看，只用pre-master作为对称秘钥就可以了吧，没必要产生前两个随机数，安全性也是一样的吧</div> <span class="time">2018-10-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/db/ef/784a32ec.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Miss.Zhou</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师 请问 访问https的网站也会进行http的三次握手吗？<br></div> <span class="time">2018-10-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/bf/66/56568450.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">安森👣</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请问老师， 是不是HTTPS只能防篡改不能防止偷窥</div> <span class="time">2018-10-17</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/ea/37/77687967.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">无知的陈程</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">分别获得三个随机数后，是怎么选择对称密钥的生成方法呢？</div> <span class="time">2018-09-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/b4/9a/a9167c59.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">归去来兮</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">https本身不就有防监听，防篡改，防重放的作用吗？</div> <span class="time">2018-09-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/be/84/1f681e75.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Sxd.</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">刘老师，整体流程大概看明白了，那这个获取证书，随机数这一套流程是由谁来完成呢？客户端的浏览器和服务端的tomcat？这种一般不需要开发者介入吧？</div> <span class="time">2018-09-23</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/d7/ca/7b8bd13c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">木木夕Ace</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">签名里应该要有域名信息吧？</div> <span class="time">2018-09-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的</p> <p class="reply-time">2018-09-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/ee/23/b8d6546e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">nice</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老是你好，我今天刚买的，就看了一个HTTPS，受益匪浅，想问下您，在最后您留下的问题，我在下一期没有发现问题的讲解，这问题是不是不会进行讲解，让自己进行学习呢？</div> <span class="time">2018-09-18</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">最后有个解答五篇，都在里面</p> <p class="reply-time">2018-09-18</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/fe/cf/aa6b25b7.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">米斯特粥</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">TLS&#47;SSL协议本身并不提供身份验证功能，它需要PKI技术中的证书机制来保证。</div> <span class="time">2018-09-07</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/e1/da/d7f591a7.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">励研冰</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">通过这三个随机数，可以在客户端和服务器产生相同的对称密钥。老师这句话怎么理解？客户端生成一个随机数发个服务端当作对称加密的密钥不久行了吗，为什么会发送两个？</div> <span class="time">2018-08-18</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">直接传输对称密钥比计算更不安全</p> <p class="reply-time">2018-08-20</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/eb/82/4b56fa5f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">rtoday</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">HTTPS 的工作模式<br>我们可以知道，非对称加密在性能上不如对称加密，那是否能将两者结合起来呢？例如，公钥<br>私钥主要用于传输对称加密的秘钥，而真正的双方大数据量的通信都是通过对称加密进行的。<br>当然是可以的。这就是 HTTPS 协议的总体思路<br><br>这里我一直觉得读起来很怪…<br>请问是不是写错了？<br><br>，公钥<br>私钥主要用于传输「非」对称加密的秘钥<br></div> <span class="time">2018-08-17</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">没错的，用非对称的传输对称的，然后用对称的传输内容</p> <p class="reply-time">2018-08-20</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/54/cf/fddcf843.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">芋头</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">学到了很多，把之前有疑惑的地方都解释清楚了，赞</div> <span class="time">2018-08-03</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/8a/4f/a3a78dde.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">会飞的肥肥会飞</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">1. 对称加密，加解密一个密匙。该方式的优势在于加解密效率高，所以可用于对大量实际通信内容进行加密；其劣势在于加解密双方信息的一致性问题，即在协商密匙时，双方信息一致性的达成会受到所处环境的干扰，付出的代价较大。<br><br>2. 非对称加密，有公钥和私钥之分，两两配对。私钥自己保存，不能公开；公钥可以公开。私钥加密，其对应公钥可以解密；反之亦然。由于公钥可以公开传输，所以该方式可以解决对称加密的劣势问题，但需要有方法来验证公钥的合法性问题<br><br>3. 数字证书可以验证公钥的合法性，数字证书由认证机构颁发，认证机构的合法性由其上层认证机构来证实，层层向上追溯，一直到root机构</div> <span class="time">2018-07-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">米兰的小铁匠</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">非对称加密里面有一段话说：‘’外卖网站拿私钥加密的，互联网上人人都可以把它打开，当然包括黑客。‘’ <br>我想问其他人是怎么打开的呢？</div> <span class="time">2018-06-29</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">公钥是公开的</p> <p class="reply-time">2018-06-30</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/63/af/226bf1b2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Clancey</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">区块链的密码学技术😁</div> <span class="time">2018-06-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/7d/34/ad7ae96c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">路慢慢</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">pre-master的作用是不是前两次各自传的随机数有可能被截获？这个随机数才是黑客无法截获的。</div> <span class="time">2018-06-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/b6/74/c63449b1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">问题究竟系边度</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">握手结果作为一个token持续字段时间。<br>减少加密套件挑选时间。<br>下载中间证书保存。<br>使用硬件加快rsa计算速度<br></div> <span class="time">2018-06-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/af/99/1e215523.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">于小龙</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">问题1复用最后协商密钥放到session ，减少握手次数，最重要的还是优化算法，用更高版本的tls版本，比如1.3</div> <span class="time">2018-06-23</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/09/42/b7a406c9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Hurt</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师。微信 支付宝的签名验证属于一个范畴吗 </div> <span class="time">2018-06-22</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/3a/da/4c4cc7f8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">9527</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">wireshark抓包讲一下，刘老师</div> <span class="time">2018-06-21</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/d1/15/7d47de48.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">咖啡猫口里的咖啡猫🐱</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">减少交互，keep alive 保持tcp连接，导致可被释放的连接一直维持，0包，抢站资源，导致so backlog队列溢出，，，所以设计时，服务端一定要有TCP心跳包机制，主动断开客户端连接。。。也可以通过http2来优化，，h2协议，，，对不对老师o(^o^)o</div> <span class="time">2018-06-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/d7/d5/84ac11c7.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">异星</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">你好，文中对称加密那块说客户端太多，不适合使用对称加密，我理解的客户端（逻辑）只有一个，怎么会有多个呢，没太明白，不能把每个用户都算一个客户端吧</div> <span class="time">2018-06-20</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">我的意思是线下商量对称密钥的方式，类似接头这种方式，客户端太多不可能，</p> <p class="reply-time">2018-06-20</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/07/e0/19cb0e9f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">朱永昌</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师您好，有个问题烦请帮忙解答，客户端通过外卖网站上的CA证书获取外卖网站的公钥，那么外卖网站是如何获取每个客户的公钥的呢？每个客户端都会有自己的CA证书吗？</div> <span class="time">2018-06-20</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不是的，如果不是双向认证就不需要，如果需要双向认证，客户端也需要有证书，也是通过https中有一步传过去的，这里没画</p> <p class="reply-time">2018-06-20</p>
+	</div>
+</div>
+</li></ul></div></div></div></div><div id="translate-man-app" class="content-3WfBL_0" style="background-color: rgb(255, 255, 255); display: none;"><div data-v-ea0bd11e="" class="outputBox-qe9A4_0"><div data-v-ea0bd11e="" class="outputBox-3oESn_0"><span data-v-ea0bd11e="" class="outputBox-13Ovx_0"></span></div><div data-v-ea0bd11e="" class="outputBox-1GLb__0"><div data-v-ea0bd11e="" class="outputBox-onVZH_0"><img src="chrome-extension://fapgabkkfcaejckbfmfcdgnfefbmlion/static/sound.svg"            class="icon-tprjJ_0"></div></div><div data-v-ea0bd11e="" class="outputBox-2sJgr_0"></div><div data-v-ea0bd11e="" class="outputBox-17RAm_0" style="display: none;"><div data-v-ea0bd11e=""></div></div></div></div><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({        showProcessingMessages: false,        messageStyle: "none",        tex2jax: {          inlineMath: [['$','$'], ['\\(','\\)']],          displayMath: [ ["$$","$$"] ],          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'a']        }      });      MathJax.Hub.Register.MessageHook("End Process", function (message) {        var eve = new Event('mathjaxfini')        window.dispatchEvent(eve)      })</script></body></html>

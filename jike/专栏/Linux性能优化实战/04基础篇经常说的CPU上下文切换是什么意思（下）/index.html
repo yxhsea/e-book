@@ -1,0 +1,1220 @@
+<html class="cye-disabled cye-lm"><head><meta charset="utf-8"><link rel="apple-touch-icon" sizes="180x180" href="http://static001.geekbang.org/static/icon/time/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="http://static001.geekbang.org/static/icon/time/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="http://static001.geekbang.org/static/icon/time/favicon-16x16.png"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="format-detection" content="telephone=no"><title>04 | 基础篇：经常说的 CPU 上下文切换是什么意思？（下）</title><link href="https://static001.geekbang.org/static/time/css/app.b230db929e53af87acd535637f5011b8.css" rel="stylesheet"><style id="nightModeStyle">    html.cye-enabled.cye-nm:not(*:-webkit-full-screen) body,html.cye-enabled.cye-nm:not(*:-webkit-full-screen) #cye-workaround-body {-webkit-filter:contrast(91%) brightness(84%) invert(1);}</style><style id="cyebody">html.cye-enabled.cye-lm body{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyediv">html.cye-enabled.cye-lm div{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyetable">html.cye-enabled.cye-lm th{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}html.cye-enabled.cye-lm td{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyetextInput">html.cye-enabled.cye-lm input[type=text]{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}html.cye-enabled.cye-lm textarea{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeselect">html.cye-enabled.cye-lm select{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeul">html.cye-enabled.cye-lm ul{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeChangeByClick">html.cye-enabled.cye-lm .cye-lm-tag,html.cye-enabled.cye-lm.cye-lm-tag{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style type="text/css">    .hljs-ln {      border-collapse: collapse    }    .hljs-ln td {      padding: 0    }    .hljs-ln-n:before {      content: attr(data-line-number)    }</style><style type="text/css">    #iv-container {      position: fixed;      background: #0d0d0d;      width: 100%;      height: 100%;      top: 0;      left: 0;      display: none;      z-index: 1000    }    .iv-container {      overflow: hidden    }    .iv-close {      width: 26px;      height: 26px;      position: absolute;      right: 20px;      top: 20px;      cursor: pointer;      text-align: center;      overflow: hidden;      text-shadow: 0 0 3px #6d6d6d;      -webkit-transition: all .2s ease;      -moz-transition: all ease .2s;      -o-transition: all ease .2s;      transition: all .2s ease    }    .iv-close:after,    .iv-close:before {      content: "";      height: 2px;      width: 26px;      background: #fff;      position: absolute;      left: 0;      top: 50%;      margin-top: -2px;      border-radius: 2px    }    .iv-close:before {      -webkit-transform: rotate(45deg);      -moz-transform: rotate(45deg);      -ms-transform: rotate(45deg);      -o-transform: rotate(45deg);      transform: rotate(45deg)    }    .iv-close:after {      -webkit-transform: rotate(-45deg);      -moz-transform: rotate(-45deg);      -ms-transform: rotate(-45deg);      -o-transform: rotate(-45deg);      transform: rotate(-45deg)    }    .iv-close:hover {      -webkit-transform: rotate(90deg);      -moz-transform: rotate(90deg);      -ms-transform: rotate(90deg);      -o-transform: rotate(90deg);      transform: rotate(90deg)    }    .iv-image-view {      position: absolute;      height: 100%;      width: 100%    }    .iv-image-wrap {      display: inline-block    }    .iv-image-wrap:active {      cursor: move    }    .iv-large-image {      cursor: move;      max-width: 100%;      max-height: 100%;      background-color: #ececec;      -moz-transform: translateZ(0);      -o-transform: translateZ(0)    }    .iv-large-image,    .iv-loader {      position: absolute;      -webkit-transform: translateZ(0);      -ms-transform: translateZ(0);      transform: translateZ(0)    }    .iv-loader {      top: 50%;      left: 50%;      border-radius: 50%;      width: 32px;      height: 32px;      z-index: 100;      margin-top: -16px;      margin-left: -16px;      font-size: 5px;      text-indent: -9999em;      border-top: 1em solid hsla(0, 0%, 100%, .2);      border-right: 1em solid hsla(0, 0%, 100%, .2);      border-bottom: 1em solid hsla(0, 0%, 100%, .2);      border-left: 1em solid #fff;      -webkit-animation: load8 1.1s infinite linear;      animation: load8 1.1s infinite linear    }    .iv-loader:after {      width: 10em;      height: 10em;      border-radius: 50%    }    @-webkit-keyframes load8 {      0% {        -webkit-transform: rotate(0deg);        transform: rotate(0deg)      }      to {        -webkit-transform: rotate(1turn);        transform: rotate(1turn)      }    }    @keyframes load8 {      0% {        -webkit-transform: rotate(0deg);        transform: rotate(0deg)      }      to {        -webkit-transform: rotate(1turn);        transform: rotate(1turn)      }    }</style><style type="text/css">    .vue-pull-to-wrapper[data-v-12abd9fb] {      display: -webkit-box;      display: -webkit-flex;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -webkit-flex-direction: column;      flex-direction: column;      height: 100%    }    .scroll-container[data-v-12abd9fb] {      -webkit-box-flex: 1;      -webkit-flex: 1;      flex: 1;      overflow-y: auto;      -webkit-overflow-scrolling: touch    }    .vue-pull-to-wrapper .action-block[data-v-12abd9fb] {      position: relative;      width: 100%    }    .default-text[data-v-12abd9fb] {      height: 100%;      line-height: 50px;      text-align: center    }</style><style type="text/css">    .button-cancel[data-v-87ffcada] {      color: #888;      border: 1px solid #888;      border-radius: 3px;      margin-right: 12px    }    .button-cancel[data-v-87ffcada],    .button-primary[data-v-87ffcada] {      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      height: 35px;      display: inline-block;      font-size: 15px;      text-align: center;      line-height: 36px    }    .button-primary[data-v-87ffcada] {      color: #fff;      background-color: #ff5a05;      border-radius: 3px    }    .article[data-v-87ffcada] {      max-width: 46.25rem;      margin: 0 auto    }    .article .article-unavailable[data-v-87ffcada] {      color: #fff;      text-align: center;      font-size: .875rem;      font-weight: 400;      width: 100%;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 0 15%;      height: 4.9rem;      background-image: url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAQEBAQEBAQFBQQGBgYGBgkIBwcICQ0KCgoKCg0UDQ8NDQ8NFBIWEhESFhIgGRcXGSAlHx4fJS0pKS05NjlLS2QBBAQEBAQEBAUFBAYGBgYGCQgHBwgJDQoKCgoKDRQNDw0NDw0UEhYSERIWEiAZFxcZICUfHh8lLSkpLTk2OUtLZP/CABEIAP0E2gMBIgACEQEDEQH/xAAbAAEBAQEBAQEBAAAAAAAAAAAAAQIDBAUGB//aAAgBAQAAAAD9Vm26S7qrqhSl1SauoUAAAAAAAADnFZhM5YzydvQRMyHHm9G5MQNXnXqplMDKvPC1qXTazWqS1RrQl3YoAAAAAAAAOcRrEkmM4zzz0+kmUSTOOT0dMyQU5r6KkZyijzZKtNU3TWqFUbUXQoAAAAAAAA5jNvNnOcYzwx2+oJEhy5u20kDV5V1LnEBuPA0LqjVl1aboUprQmtWKAAAAAAAA5iSzMzjnnnxz1+tFMEcuc79JAF5x2RMQHQ+bm60Vaui61K1aFKa0DdigAAAADBEEI5zp0ZMzOMZ48cdvsMms5GMN7SCq5R1uUwEvQ+XKutFLbpNbo1aS2yrpSauooAAAAHHkmTOZJMzEn2bJcTOMZ5cMdvsRFuZGMOmgBriukTAkaPm51autFNLpNbouxNFTV0JvSKAAAAHDjDOIZzE5Zx9+yXEmMY5cufb68gWpjFtAXTkakZyEo+XF1outCrdWN6KuxNFLqhdooAAAB5+MTCZyjOMYz+hslwznGMcefb6sgBnLQLajnG2UzAaPkZtrWi7pVrVjWyrqktUuqGtIoAAAHDgc4xlGMznifoqzc5kxnnyx0+oQguc27JYheeZu5SZIvQ+JDWjdLuyra1ZdaUuxLaLqhqigEAgRw4rnMmGXNznPP6Ss2ZkznHDPX6IAZzNWkGjlJtkzIHQ+A1Vta1TW0tWro1qjWiNFLqhuooJzRIkkmM8eWPZ0xMyZYzOeJ+jrK4iZ58s7+gAGItC0OUWyGWRs+DJd1qmra1sWq1TW4q7ClTWqS61CjPERMyZzmccc/Z35pnMk5uWZ+iqSsJMcpr2yKQSLqLQTnGkhIhT4GdGtVdGtVbsLa1TWi26C2UuqGtIrHIkmZMTOZjHP2984YmYk5YffqRrOUziX0ABIttAyxFrIQbj89g2mtVdGtK1sVbdDWlW6ClypIIknJ6dTEmJM5mJj195iZmCOcfarJpzM4m+oWmpzi1oEjEaGQGj81FNl2XS3VN6FW203VNaJawyZxMZRnOJ6PozEziZkmMvX2kzgmZJJ9YGnMmcb6rvQHPmtWhkxGgkBT81Fo0a2aprY3oVbdJrVpdUlwQ55YkM4no90xM4TEmcvZ2zJMQOafTFrOSYmvUoBywtLRIylAJFPy82XUmqa2XRrVXWk0q3Q3aXVOYJzjObJHX1JljMzmRn195MBDkvvqJkM4uvUAHLC0aBMyKAG0/JF1Vpabulq3VXWhUxJMMkzbvtrr3iuchJLvvYzM5kxD09hJEXmegBZHNv2QAcsNakLQ5xqAB0PxudaroWlpu22rdVdaLzyTmswLr1XfdC4zUSu+kzJnBmPT2GSDmu6oiYYb90g0HLDWkhSucdEyAdD8ZJrdOhomqutGqurV3WMjOZZFa9G99kQLEjrpJlJmZT1dlvOC5k1ZFSJnMnT1lrQcctaGQMydNGcgdD8Zka3ZraXRdGtGtGtF0kgxksmvXu+hEQQuetkkjOkmfT2EzFJKOcaZzM4u/ZbaozyjWggOcdDRMB0PxMtG9LdlpaqqQq9LelkM5ia9unpCREE6jMyZzvTt0QhTnGjJEzmc3b3KExIktVQOcnQWkkbPw+dbC60b0aGqAhHfc7dEmYlj3L1FCSJdUTMiXU9HSIA5gZJJhidvcyZkBm0FpiZdbINCK/CjWqGtaa0XfSoRJFnq6Z6aBmSPfW7FhQjVyJJlrTt0pyBJLZCJJmTG/UAWzM1pGbCyR0pEKQ/CTWluqsb1ZvTfYAMyevtndRBE9p0oEgKAkzo79RjMDUDAkTMzfSFKJnepCRKyboRAPwQ3rW5ZZGrleno111UiB6ezVmQiPdY0ogSyLUDNO3RZmJLQZzplEK2qhC510iSIi5ztVCIP5/LtffGMmcwznp6d9vTUCHr6yqhlD2LnaxQIAoLN3Ui0oyItxM1dAEi0uxJIQbmYqhk/n+V1v6fNJnKMyNejfXvqrZZHp7BUCZ9Vll1SUBG9AEl1sIUAOYAIis1jr0BEkG6xmFpI/n2bZfsyZyzkymb26dOu7tpaduiWrqpJO5ozdAvRnMTW6ZaGV6VKlADBGY2kKzDN69AAkz0BnOTXST8dwxz54+rzvfOZMQDp063eta1dR26Xmu13SY7GhJpDW4zUl1qopEXeiKACM846SLZgJeuwAJQisydD8ty5c+fH6fPn3TDOIFdel1rV6a3Z20461d29Bz7UUEpSWkl1tWaRGt0AARjDeSsCRrrsAAARZU/PceeOfL1yRXOTmsaOmtW66b3rW9OE67u7rczntmlapIukizVZdNTpeYIa2AAJhLlJc0ka67AAAAD/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/aAAgBAhAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAEDEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/EADQQAAIBAwIDBgUEAgMBAQAAAAABEQIQIBIxAyEwEzJBUWFxBCJScoEUM0BQQpEjNFMkQ//aAAgBAQABPwCvv1+7tNpJvqFV6Ypk4zlJJOKYn/eOpmp+ZqZL8zn5jdXmzVV5mqrzNVXma6vMdVf1M11/Ua6/rO14n1sq4vEjvs18T62drxPqZwuM63pe5DIeMEPDiLmiLcFfK/caizRBGECRpGubsxPksnj6M0o0o0ryK+/V7vCZtLRJIudtWKYnjOUsnJOLx/cPcgjBqLOzs7PYmWVM+H/ep/JJJF4vBytxE5VkjhKE7QRaCEQiLwPk2c2aPUWyvNnyHecYZX36/d5JkWTgTvJJN5E8ZOTxTZJOKqE5/vVba9VnarYdTKmfCS+PTz8HhuNReMK91fhrkyLNEEEEEECVmlLutkNivVvl4ogggqcV1/cxNeeKE3hzE3eRYJk4zlLE8pUITn+8RVZjs7VFW49j4SP1FEeTyaxg4ifIh24WzyjGB7u6vNnl4rCvv1+7snBqWU3TJm6ZqxTJw2JOTxkTJxVTJVo/pNdJ2lJ2lJ2lJ2tB2tB2tB21HqdtQdvw/U7fh+p+o4fqfqOH6n6nhLzH8TwvU/U8L1KOLw6+7Vi7MZMjGPdjKtz4T/sU+zzaxr8L0bXjGCLvd3WDHjzkWFT+ev3ZN02jWuimTJFpE5xTJxWUk5SvETn+j4m6JJJwbRN2xtL1G2z8mpSNmpppyLZeys7NWY7VWq3Y9ypHwn/Zp9n0INLIdqr09PSOZcEO7ux4R6iJvLK+/X7slCeCbFUuingqhY6spykTyT/ouL3li3BqtJJqwlIbHUySnu0+ys7PbBlWw/EeyZUVHwa/+il+j6fIqiVddFIhKz3fQeMLCGV1fPX7s5WTE8E2hVScsZJtJyd1UJp4zlOSJyVX9Bxd17YN2i3JDbdps6oY3LGTanu0+ys8nZjUIiRrdHwqjj0ez6lV0rxeJIEoJu+87SLBjy8UQRavv1e7JE7bEieGpoTT6KeCqJxTWKE8pJx/IqsJ/lcXvL2we7s3Bzu7VPnZ3Yu7T7LF73ZBUPZ2aZ8N+/T7PCCCMYKkRal4RecIHu83lzPFYVP5q/ueCdthMlYJkrzyV5wklYzjsb5Jk4y0Jz1pSNS8zUvM1LzJRKNS8zUvM1LzNVPma6fM1U+Zro+pHaUfUji10OpfMth8Sj60Kuh7VKz3sx4VbXq5D2JJ5lPdp9ljUsHapciLfDpdrT7PqVW/Arz0Xu7R6ZvFbrCvv1e7JNV0xO8km90yZGsZuneRPFCeKzn1JxXITWE5vkrciUaiWfnCUSSNmplb9RlTjkcB1OhT4MqtVsId69jmrVKVbxGinu0+yx3IjBoq2ZA0cD9ynqO6yjJ7vF9KRMkrfz1/c7yTN0+TJumJ4JslEYzaYE07yJ4pwTis0ycWxNR0a+SymzZNnUiW7Mrdm2z4fuP3HzV3i1I1dq1Pdp9ld2Q8Whog4KjiLCSScn4XXUe7xecEEc8OJ36/uYnBM3lk3TgkiyqFfY1MTnKbJtCc3liqN8JE8pxlkk46masJvxO7hNmybNwNtmw2ybVbobhbW+H/AG/zZqzs3i6R03p7tPsrvCpYPazRwl/yLqPwurLpPd9OCCLwjSitrXX7u6eCYneRNWUkk4aiSLTZE2TE07yaicJJnFPFtGs7T0O1X0naryZ2y+lnbL6WdvT9LP1dK3oZ+rp+hn6yn6Gfq6f/ADZ+spX/AObP11P/AJsq+Noajs2P4yn/AM2fraPGipFHEo4imlzd3ZsTI71WdJ8N+2/e7UWaHTJDVovFonwF3afZdNjUW4ffWSTYqWaWaWaUOkfhddR7v+FX36/uZJLungqibzyvLJJwVRKeP5JtJN5YnjJOM354tbjs98YRUhqLfCyuL703dqrVGyHd73+HX/H+WNWiRrCF5Gn1IqvHqaUKYXsug7sduH31eH5CpRGde6HZdR7voR0ZKqvnr93eWJzbYnBVYSTaWKrFMlPKbITm6cCZKwTJxkm04NXd4s+aGiPQ+H/d/DJs7Pa7V2xqb/D/ALb9x3kdKqNLXqfgkVo9SCCPQWywi7eDHajvoSXkQvLpV7q660dKLwQ7V9+v7mJtGpW5onBMUWlon1JvJNpJ2JunAq/M5eeM3kVpJFUTgnBN4ziRqLwQQRfTJwlorkknBqzVm8NPqfDqKH73ZFptC8jSiEQNEWWytKJRKNRLxbHz8LcPvrqV7q9K36j3/gJQaUVP56/d3TgTtsSvIRFk7zAmfmycEk2k1Cumas6qoJb8Rt+bJfmxt+bNVX1Ml+bG6/qY6q1/kzXX9bJq+qr/AGTX9b/2TX9dX+zVX9b/ANidf1smrzYtXi2UVtZReEaUOkiyQuRTzUkWhXaizGkxpq0EHAlUbeN4IIZBBF4I3INJJN5JtNpJGSScFzxER0+Jur02fSd4ldevv1fcyRVG9pYmnbmhO0GwngqhObbE2gkmSbptCqxq36kMQjwEhLbOpWggi0Xp7qu0NXaNrukg5nAjT+SDSaWaXeCCCCBp3km0rBkjJJJtweXERI2ajUSn4G2Ve6vTd4SSTd7sk/AtrOnq19+v7ndVYJ7czcg5oTFeTe0ieCZKdpJJvMCrV6sWpIvFkr0iVkK0dGENEMgWyvJKwaTNHqNRaJ8SGcDubeJBD8yLVLmRhsnyvCZpStHlacJJTsyR8x8jg/uU4LoVuYvT1GOy2WDRHSr79f3PDmKoV0ySLJ2gTg1XkVWCd5E8JaFUh82QNNY6TbJWSgVovBBBF2sE5cCV4IHebSRT5Gm3B7n5wRURhGbHBInNoVpJGTBMo4MPieyFaLQRi4Y70+OUEEEEEDV1tk10a389f3MnHY1Cc3VTJTIJaE5NyCWaryySWSzU/M11GuoddR2lfodrWdtX6HbVna1+aKeJW14M11C4tUqRRUpQ1BGDRpZF1IohWWUEYvnelRVtk7wh8rU81fhKKfzhzHL8LwRaM2kKEcsHvZohbsSOD+4vUSSIycmpkt2iRqLK89F3jkuhCNJDFvhX36/uZJ7MTWMtGoTvSxNMgTgm0Cxh5wcyI2OGpptBw+VKJOTNJpx3sxU8kQyCST2Jygi0ciGU72jowcPZmnmR5HCXy/kghkP+G7MdnFuB+6rupCqQ6kS14jyggS3yknBvBdSbSV1TXX7s3tImTebS0ahOTlZVEpkEskpUsiNkQfg0ogggiTS0Q14Y8FTR+R0kFO2bSIIRDstleCLQQRzJzggWcWiyvwu6Rg+TtJJJPJ8sIRCZEdGLNSM4X7lPSizvTeCMZNQ7QQLZYRjOVffr+5ibRqV5ET6ZKqSfW6qE0yDh79NwzSRbgdz820opUIhEEEY7kDQlyV07RhytBGU+hq9DV0afe/C2xq6EEXcDS882NWak4S/5PZZQRlCGoKNmQQ1hF4IIwT5LKCOhXUtdf3O8tCqVqaKmdm/Bn5wbjwNQuJ6C4vodrH+J2y8mLjpeB+pS/wAGUfEp1RoaFx1y+VnbU+TKYqUohkehCGiCGQ8eBGj8kIgS5Gk0kQc7wQO62VoRBEdCMIR+RzZLzI6FJFuF3SWhVJ2bgfO8dFkEJGlEO8WgVCZ2aKKUqm45xeCMpsrNnD2dpg3IIwi0koa8sJJzjGvv1+7sn5k2Te14T3HTfYhMi+5pRpZw1zEUqWzhcmxX/JDOdotCIOByo/JCIecIhkPBMm6eHPpzbnbSaWaTSQQjSaTQL5Ubs0o0shkECRCNKORCIIRBBDINJp9DSaRpDSINJBTvaOhN4woczlC8yHhFotCaHQOl3npVuK6/ud04JQnDRA1dqRrCExoi9O4tik4e7JE7rGEQcHufnoQRhCIOUIai0WTgnBT0pFV1VVlH8ucJQ3JT4jcDcnD2vGDtCIxWyu6ZY6XhOEO9b+ev3dpIsple92vIau6ZIas7wNMpXMpaE4KNxVEyTlFoOEopd3uJ4K0GkhkWWcieS53qxTYnODcGrNNoTn+E6XJBEX1EsT53knCYG5vztBw/Hqv2JzdKY6Xgt7NI0o4nw/C11/It2Pg0L/FD4VP0ofDjZDoaIcrn4jVfmxuteLKOJVKVXNG5DIizQ10E58ChicCYqrJiYoxo5I1Wb5skQnN0+rFkyRskkpfM1I1DcoTvFpYqiU7wLljF02hVJ/woRA1yIst828U70ePWfSdKNAlDWHEXz1e7HSOgdDHSOjmvcaHTI6Oau0RZjWKGoE4ZS1JLOTJYqoE5ExMkTshcrSypxUxObp2TxqZ5GxJJOcZbE4xaRVXSQ6RproamhNP+EyFanfpvCjZ/ynhxEtdf3MdKGuQ0mVUoaiBkjw3HvZjFgm34kEtGzE5JYtmxWpcisnZbEknF5VMTkp52QvGydntbzG4jGRCwbgnmNicskkdpYvElixTtInJv0qan/Be1/Gzs9jcgeDwo8f53/8QAFBEBAAAAAAAAAAAAAAAAAAAAoP/aAAgBAgEBPwAcH//EABQRAQAAAAAAAAAAAAAAAAAAAKD/2gAIAQMBAT8AHB//2Q==);      background-position: 0 0;      background-repeat: no-repeat;      background-size: cover;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center    }    .article .main[data-v-87ffcada] {      padding: 1.25rem 1.375rem;      margin-top: 52px;      margin-bottom: 52px    }    .article-title[data-v-87ffcada] {      color: #353535;      font-weight: 400;      line-height: 1.65rem;      font-size: 1.34375rem    }    .article-info[data-v-87ffcada] {      color: #888;      font-size: .9375rem;      margin-top: 1.0625rem    }    .article-content[data-v-87ffcada] {      margin-top: 1.0625rem    }    .article-content.android video[data-v-87ffcada]::-webkit-media-controls-fullscreen-button {      display: none    }    .audio-player[data-v-87ffcada] {      width: 100%;      margin: 20px 0    }    .to-comment[data-v-87ffcada] {      overflow: hidden;      margin-bottom: -30px    }    .to-comment a.button-primary[data-v-87ffcada] {      float: right;      height: 20px;      font-size: 12px;      line-height: 20px;      padding: 4px 8px;      cursor: pointer    }    .article-comments[data-v-87ffcada] {      margin-top: 2rem    }    .article-comments h2[data-v-87ffcada] {      text-align: center;      color: #888;      position: relative;      z-index: 1;      margin-bottom: 1rem    }    .article-comments h2[data-v-87ffcada]:before {      border-top: 1px dotted #888;      content: "";      position: absolute;      top: 56%;      left: 0;      width: 100%;      z-index: -1    }    .article-comments h2 span[data-v-87ffcada] {      font-size: 15.25px;      font-weight: 400;      padding: 0 1rem;      background: #fff;      display: inline-block    }    .article-sub-bottom[data-v-87ffcada] {      z-index: 10;      cursor: pointer    }    @media (max-width:769px) {      .article .breadcrumb[data-v-87ffcada] {        padding: 10px 0      }    }</style><style type="text/css">    .share-poster-wrapper {      position: fixed;      background-color: #fff;      left: 0;      bottom: 0;      z-index: 100;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      overflow: hidden;      width: 100%;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -moz-user-select: -moz-none;      -webkit-user-select: none;      -ms-user-select: none;      user-select: none    }    .share-poster-wrapper .poster-bottom,    .share-poster-wrapper .poster-middle,    .share-poster-wrapper .poster-top {      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .poster-middle {      padding: 16px 32px;      -webkit-box-sizing: border-box;      box-sizing: border-box    }    .share-poster-wrapper .poster-middle .poster-userinfo {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      padding-bottom: 18px    }    .share-poster-wrapper .poster-middle .poster-userinfo .poster-avatar {      min-width: 45px;      min-height: 45px;      width: 7vw;      height: 7vw;      border-radius: 50%;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .poster-middle .nickname {      font-size: 5vw;      font-weight: 400;      margin-left: 18px    }    .share-poster-wrapper .poster-middle .time {      font-size: 3.2vw    }    .share-poster-wrapper .poster-middle .poster-middle-content {      font-size: 4vw;      font-weight: 400;      white-space: normal;      word-wrap: break-word;      word-break: break-word;      letter-spacing: 1px    }    .share-poster-wrapper .poster-middle .poster-middle-content p {      margin-bottom: 22px    }    .share-poster-wrapper .poster-middle .quote-content {      font-size: 3.7vw;      padding: 32px 0    }    .share-poster-wrapper .poster-middle .quote-content p {      margin-bottom: 22px    }    .share-poster-wrapper .poster-middle .quote-info {      border-left: 1px solid #000;      padding-left: 10px;      margin-top: 38px    }    .share-poster-wrapper .poster-middle .quote-info p {      font-size: 3.2vw;      line-height: 1.5    }    .share-poster-wrapper.theme0 .poster-top {      width: 100%;      height: 25px;      margin-top: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/top.png") no-repeat 15px 1px    }    .share-poster-wrapper.theme0 .poster-middle {      width: 100%;      padding-left: 56px;      padding-right: 56px;      background-image: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/middle.png");      background-repeat: repeat-y;      background-position: 15px 0    }    .share-poster-wrapper.theme0 .poster-middle .time {      margin-bottom: 45px    }    .share-poster-wrapper.theme0 .poster-middle .quote-content {      border-top: 1px solid #e3e1dc;      margin-top: 30px    }    .share-poster-wrapper.theme0 .poster-bottom {      width: 100%;      height: 25px;      margin-bottom: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/bottom.png") no-repeat 15px -10px    }    .share-poster-wrapper.theme1 .poster-top {      width: 100%;      height: 25px;      margin-top: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/top.png") no-repeat 38px 1px    }    .share-poster-wrapper.theme1 .poster-middle {      width: 100%;      padding: 0 42px 10px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/middle.png") repeat-y 38px 0    }    .share-poster-wrapper.theme1 .poster-middle .poster-userinfo {      border-bottom: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .poster-userinfo .poster-avatar {      margin-left: 38px    }    .share-poster-wrapper.theme1 .poster-middle .poster-middle-wrapper {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      min-height: 260px;      border-bottom: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .time {      max-width: 65px;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      text-align: center;      vertical-align: middle;      border-right: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .time span {      white-space: nowrap;      -webkit-transform: rotate(90deg);      transform: rotate(90deg)    }    .share-poster-wrapper.theme1 .poster-middle .poster-middle-content {      padding: 30px    }    .share-poster-wrapper.theme1 .poster-middle .quote-content {      font-size: 3.7vw;      margin-left: 36px;      margin-right: 36px    }    .share-poster-wrapper.theme1 .poster-middle .quote-info {      margin-left: 36px;      margin-right: 36px    }    .share-poster-wrapper.theme1 .poster-middle .footer {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      margin-right: 30px    }    .share-poster-wrapper.theme1 .poster-bottom {      width: 100%;      height: 25px;      margin-bottom: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/bottom.png") no-repeat 38px -10px    }    .share-poster-wrapper .share-poster {      background: #fefdf8;      -webkit-box-sizing: border-box;      box-sizing: border-box;      color: #9b8d73;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      overflow: auto;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-overflow-scrolling: touch;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .share-poster-wrapper .share-poster.color0 {      background-color: #fefdf8    }    .share-poster-wrapper .share-poster.color1 {      background-color: #4d4d4d    }    .share-poster-wrapper .share-poster .footer {      margin-top: 2rem;      position: relative;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: end;      -ms-flex-pack: end;      justify-content: flex-end;      -webkit-box-align: end;      -ms-flex-align: end;      align-items: flex-end    }    .share-poster-wrapper .share-poster .footer p {      margin: 0;      line-height: 1.4;      margin-left: 20px;      text-align: right;      padding-right: 20px    }    .share-poster-wrapper .controls {      background: #fff;      border-top: 1px solid #f5f5f5;      width: 100%;      padding-top: 5px;      -webkit-box-shadow: 0 -4px 10px 0 rgba(0, 0, 0, .1);      box-shadow: 0 -4px 10px 0 rgba(0, 0, 0, .1);      z-index: 1;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .controls>div {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      padding: 10px 0    }    .share-poster-wrapper .controls>div span {      font-size: .85rem    }    .share-poster-wrapper .controls>div button {      width: 100px;      height: 24px;      background: #eee;      margin: 0 10px;      border-radius: 5px;      border: 2px solid #b2b2b2;      outline: none    }    .share-poster-wrapper .controls>div button.on {      border: 2px solid #ff5a05    }    .share-poster-wrapper .controls .controls-themes button {      color: #b2b2b2;      font-size: 12px;      background: #fff;      text-align: center    }    .share-poster-wrapper .controls .controls-themes button.on {      color: #ff5a05    }    .share-poster-wrapper .buttons {      background: #fff;      border-top: 1px solid #f5f5f5;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .buttons a {      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      text-align: center;      color: #000;      font-weight: 400;      height: 3rem;      line-height: 3rem    }    .share-poster-wrapper .buttons a:last-child {      border-left: 1px solid #f5f5f5    }    .share-poster-wrapper img {      max-width: 100%    }    .share-poster-wrapper.android .poster-middle .nickname {      font-size: 10vw    }    .share-poster-wrapper.android .poster-middle .time {      font-size: 6.4vw    }    .share-poster-wrapper.android .poster-middle .poster-middle-content {      font-size: 8vw    }    .share-poster-wrapper.android .poster-middle .quote-content {      font-size: 7.4vw    }    .share-poster-wrapper.android .poster-middle .quote-info p {      font-size: 6.4vw    }</style><style type="text/css">    .mobile-tips {      width: 100%;      height: 51px;      background: rgba(0, 0, 0, .8);      position: fixed;      top: 0;      left: 0;      z-index: 20;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 0 12px;      -webkit-transition: opacity .35s;      transition: opacity .35s;      opacity: 0;      pointer-events: none    }    .mobile-tips.istop {      opacity: 1;      pointer-events: auto    }    .mobile-tips .mobile-tips-info {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: start;      -ms-flex-pack: start;      justify-content: flex-start    }    .mobile-tips .mobile-tips-info i {      width: 36px;      height: 36px;      background-image: url(data:image/png;base64,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);      background-position: 0 0;      background-repeat: no-repeat;      background-size: contain;      border-radius: 7px    }    .mobile-tips .mobile-tips-info h2 {      font-size: 15px;      color: #fff;      font-weight: 400;      margin-left: 6px    }    .mobile-tips .mobile-tips-info h2 span {      font-size: 11px    }    .mobile-tips a {      width: 72px;      height: 31px;      text-align: center;      border: 1px solid #ff5a05;      border-radius: 3px;      font-size: 13px;      color: #ff5a05;      line-height: 31px    }</style><style type="text/css">    .mini-audio-player {      width: 100%;      height: 5.25rem;      border: 1px solid #d9d9d9;      background: #fafafa;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 1rem;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      margin: 1rem 0    }    .mini-audio-player>a {      border: none;      -ms-flex-negative: 0;      flex-shrink: 0    }    .mini-audio-player .btn-play {      background-image: url(data:image/png;base64,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)    }    .mini-audio-player .btn-pause,    .mini-audio-player .btn-play {      width: 2.6875rem;      height: 2.6875rem;      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain;      text-decoration: none    }    .mini-audio-player .btn-pause {      background-image: url(data:image/png;base64,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)    }    .mini-audio-player .audio-info {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      margin-left: .6875rem;      min-width: 0    }    .mini-audio-player .audio-info h3 {      color: #353535;      font-size: 15.25px;      margin: 0;      white-space: nowrap;      overflow: hidden;      text-overflow: ellipsis    }    .mini-audio-player .audio-info p {      margin: 0;      margin-top: .125rem;      font-size: 11px;      line-height: 1rem    }    .mini-audio-player .audio-info p span {      color: #888    }    .mini-audio-player .btn-download {      width: 1.25rem;      height: 1.25rem;      position: relative;      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAA+CAYAAACbQR1vAAABS2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxMzggNzkuMTU5ODI0LCAyMDE2LzA5LzE0LTAxOjA5OjAxICAgICAgICAiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIi8+CiA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgo8P3hwYWNrZXQgZW5kPSJyIj8+IEmuOgAAA4hJREFUaIHtm8lOFFEUhr9qCWGHGxcaY1joK2h0YRzAtYmsWbAGGidEXOACbAYRxfgAPoEPoInGxJgg86gsJTHMw86EhS7O7TDk3uqq6qo6HahvQ7pOce7//1U0feve9vr6+lAiD3QC/4AC8FZDRJXGoMB14PWB1yPANPA1bSG5tAc0XLEcu5y6CvQCOGU5pnI3agVQMWQBaAvQJgtAW4A2WQDaArTJAtAWoE0WgLYAbbIAtAVokwWgLUCbLABtAdpkAfjU6oC7wKV0pCTCRcRDnesEVwDNwC/gg/nZHbeyFOgGltj30Gw7yRZALfAOqDavPeA50BO7xOToQTR75nU14qn26Im2AM4DNZbjz4DeePQlSi+i9Sg1iLdD2AJYApYdzbuo7BBeIBptLCPeDmELYA9oBHYdjbqQpaxKowA8ddR2gXuIt0O43gRHgTu4Q+ikskIoIJps7AINwA9b0e/fYJAQ1FZWD9CP2/wOUI/DPJT+IDRqGrhCeGIEaNEPdDhqO8iVH/NrEOST4BgSwo6j3gEMBOgTNwP4m6+nhHkI/lG4VAiPgcGAveJg0IxpYxvROh6kUZi5wLhpvO2oPyKdEF6asWyEMg/hJ0PjyN+VXwhDIXuGYQh46KhtIeYnwjSMMhss3glbjvoDkglhyPS2Eck8RJ8OTyB3gl8IryL2tjGM2/wmYn4ySuNyngdMmIE3HfX7iHDPUQ+CZ3q0O+qbyIWIZB7KfyAyaQS4QmhH7oQoIZQyv0EZV75IHE+EJvG/E9oJfyd4yC6yvKO+gQQ/FaKnlbgeiU0hIWw46nnEUJAQiubbHPV1M1bZ5iHeZ4KlQmgD3uAfgofsGfQz34DsKYyFuLemTSMhfATOWOqtiMk/llrRfIuj9zpwG5gtX+Y+SezNK4bwCXsILdgDaAXOOnomYh6Seyw+gwhed9TPWY75mb9FAuYh2XWBWUS4K4QgrAE3gblYFFlIemFkDjEQJYQ1JMD5WBUdIY2VoXkkhLUQv7NqfidR85De0liYEFaRK7+QqCJDmmuDC0gIqz7nrJhzUjEP6S+O+oWwglz5xTQFaawOLwI3gO8Hjo2ZY6maB72vzPwErgEXkO8MuVaiEkcrgCK/lcfPNkhkAWgL0KYKmZiMIG9Ktn0Bx5G/wDcgXwW8R6avJ41G4HQOufInlas5ZO5+UpnJAU3AFyy7J44xe8BnoOk/JruwYo92bigAAAAASUVORK5CYII=);      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain;      text-decoration: none;      padding-right: .25rem    }    .mini-audio-player .btn-download .icon-download-done {      width: .45rem;      height: .45rem;      position: absolute;      bottom: 0;      right: 0;      display: inline-block;      background-image: url(data:image/png;base64,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);      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain    }</style><style type="text/css">    .MathJax_Display {      overflow: auto    }    .poster {      position: fixed;      left: -10000px;      top: -10000px;      overflow: hidden;      padding: 1rem;      background: #ececec    }    .richcontent-pre-copy {      font-size: 13px;      color: #888;      position: absolute;      right: 1em;      top: .2em;      cursor: pointer;      -webkit-user-select: none;      -moz-user-select: none;      -ms-user-select: none;      user-select: none    }    .richcontent-pre-copy .iconfont {      font-size: 12px;      margin-right: .2em    }</style><style type="text/css">    .comment-item {      list-style-position: inside;      width: 100%;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      margin-bottom: 1rem    }    .comment-item a {      border-bottom: none    }    .comment-item .avatar {      width: 2.625rem;      height: 2.625rem;      -ms-flex-negative: 0;      flex-shrink: 0;      border-radius: 50%    }    .comment-item .info {      margin-left: .5rem;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1    }    .comment-item .info .hd {      width: 100%;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .comment-item .info .hd .username {      color: #888;      font-size: 15.25px;      font-weight: 400;      line-height: 1.2    }    .comment-item .info .hd .control {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .comment-item .info .hd .control .btn-share {      color: #888;      font-size: .75rem;      margin-right: 1rem    }    .comment-item .info .hd .control .btn-praise {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      font-size: 15.25px;      text-decoration: none    }    .comment-item .info .hd .control .btn-praise i {      color: #888;      display: inline-block;      font-size: .75rem;      margin-right: .3rem;      margin-top: -.01rem    }    .comment-item .info .hd .control .btn-praise i.on,    .comment-item .info .hd .control .btn-praise span {      color: #ff5a05    }    .comment-item .info .bd {      color: #353535;      font-size: 15.25px;      font-weight: 400;      white-space: normal;      word-break: break-all;      line-height: 1.6    }    .comment-item .info .time {      color: #888;      font-size: 9px;      line-height: 1    }    .comment-item .info .reply .reply-hd {      font-size: 15.25px    }    .comment-item .info .reply .reply-hd span {      margin-left: -12px;      color: #888;      font-weight: 400    }    .comment-item .info .reply .reply-hd i {      color: #ff5a05;      font-size: 15.25px    }    .comment-item .info .reply .reply-content {      color: #353535;      font-size: 15.25px;      font-weight: 400;      white-space: normal;      word-break: break-all    }    .comment-item .info .reply .reply-time {      color: #888;      font-size: 9px    }</style><style type="text/css">    .breadcrumb {      padding: 30px 0;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -ms-flex-wrap: wrap;      flex-wrap: wrap;      background: #fff    }    .breadcrumb a.title {      color: #e57c39;      font-size: 15px;      font-weight: 400    }    .breadcrumb span.title {      color: #888;      font-size: 15px;      font-weight: 400    }    .breadcrumb .split {      color: #ccc;      font-size: 10px;      margin-right: 5px    }</style></head><body style=""><div id="app"><div data-v-87ffcada="" class="article"><div data-v-87ffcada="" class="main main-app" style="margin-top: 0px;"><h1 data-v-87ffcada="" class="article-title">          04 | 基础篇：经常说的 CPU 上下文切换是什么意思？（下）</h1><div data-v-87ffcada="" class="article-info"><span data-v-87ffcada="">2018-11-28</span><span data-v-87ffcada="">倪朋飞</span></div><div data-v-87ffcada="" class="article-content typo common-content"><img data-v-87ffcada="" src="https://static001.geekbang.org/resource/image/d0/ec/d05de7616d91d99c3afe11ebd66497ec.jpg"><div data-v-87ffcada="" class="mini-audio-player"><a href="javascript:;" class="btn-play"></a><div class="audio-info"><h3>04 | 基础篇：经常说的 CPU 上下文切换是什么意思？（下）</h3><p><span>朗读人：秭明&nbsp;&nbsp;&nbsp;</span><span>00:11:56 | 5604</span></p></div><audio title="04 | 基础篇：经常说的 CPU 上下文切换是什么意思？（下）" src="https://res001.geekbang.org/resource/audio/68/58/68653d49fda5636f3cdd6063f2accf58.mp3" controls="controls"></audio></div><div data-v-87ffcada="" id="article-content" class=""><div class="text">              <p>你好，我是倪朋飞。</p><p>上一节，我给你讲了CPU上下文切换的工作原理。简单回顾一下，CPU 上下文切换是保证 Linux 系统正常工作的一个核心功能，按照不同场景，可以分为进程上下文切换、线程上下文切换和中断上下文切换。具体的概念和区别，你也要在脑海中过一遍，忘了的话及时查看上一篇。</p><p>今天我们就接着来看，究竟怎么分析CPU上下文切换的问题。</p><h2>怎么查看系统的上下文切换情况</h2><p>通过前面学习我们知道，过多的上下文切换，会把CPU 时间消耗在寄存器、内核栈以及虚拟内存等数据的保存和恢复上，缩短进程真正运行的时间，成了系统性能大幅下降的一个元凶。</p><p>既然上下文切换对系统性能影响那么大，你肯定迫不及待想知道，到底要怎么查看上下文切换呢？在这里，我们可以使用 vmstat 这个工具，来查询系统的上下文切换情况。</p><p>vmstat 是一个常用的系统性能分析工具，主要用来分析系统的内存使用情况，也常用来分析 CPU 上下文切换和中断的次数。</p><p>比如，下面就是一个 vmstat 的使用示例：</p><pre><code># 每隔5秒输出1组数据
+$ vmstat 5
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 0  0      0 7005360  91564 818900    0    0     0     0   25   33  0  0 100  0  0
+</code></pre><p>我们一起来看这个结果，你可以先试着自己解读每列的含义。在这里，我重点强调下，需要特别关注的四列内容：</p><ul>
+<li>
+<p>cs（context switch）是每秒上下文切换的次数。</p>
+</li>
+<li>
+<p>in（interrupt）则是每秒中断的次数。</p>
+</li>
+<li>
+<p>r（Running or Runnable）是就绪队列的长度，也就是正在运行和等待CPU的进程数。</p>
+</li>
+<li>
+<p>b（Blocked）则是处于不可中断睡眠状态的进程数。</p>
+</li>
+</ul><!-- [[[read_end]]] --><p>可以看到，这个例子中的上下文切换次数 cs 是33次，而系统中断次数 in 则是25次，而就绪队列长度r和不可中断状态进程数b都是0。</p><p>vmstat 只给出了系统总体的上下文切换情况，要想查看每个进程的详细情况，就需要使用我们前面提到过的 pidstat  了。给它加上 -w 选项，你就可以查看每个进程上下文切换的情况了。</p><p>比如说：</p><pre><code># 每隔5秒输出1组数据
+$ pidstat -w 5
+Linux 4.15.0 (ubuntu)  09/23/18  _x86_64_  (2 CPU)
+
+08:18:26      UID       PID   cswch/s nvcswch/s  Command
+08:18:31        0         1      0.20      0.00  systemd
+08:18:31        0         8      5.40      0.00  rcu_sched
+...
+</code></pre><p>这个结果中有两列内容是我们的重点关注对象。一个是  cswch  ，表示每秒自愿上下文切换（voluntary context switches）的次数，另一个则是  nvcswch  ，表示每秒非自愿上下文切换（non voluntary context switches）的次数。</p><p>这两个概念你一定要牢牢记住，因为它们意味着不同的性能问题：</p><ul>
+<li>
+<p>所谓<strong>自愿上下文切换，是指进程无法获取所需资源，导致的上下文切换</strong>。比如说， I/O、内存等系统资源不足时，就会发生自愿上下文切换。</p>
+</li>
+<li>
+<p>而<strong>非自愿上下文切换，则是指进程由于时间片已到等原因，被系统强制调度，进而发生的上下文切换</strong>。比如说，大量进程都在争抢 CPU 时，就容易发生非自愿上下文切换。</p>
+</li>
+</ul><h2>案例分析</h2><p>知道了怎么查看这些指标，另一个问题又来了，上下文切换频率是多少次才算正常呢？别急着要答案，同样的，我们先来看一个上下文切换的案例。通过案例实战演练，你自己就可以分析并找出这个标准了。</p><h3>你的准备</h3><p>今天的案例，我们将使用 sysbench 来模拟系统多线程调度切换的情况。</p><p>sysbench 是一个多线程的基准测试工具，一般用来评估不同系统参数下的数据库负载情况。当然，在这次案例中，我们只把它当成一个异常进程来看，作用是模拟上下文切换过多的问题。</p><p>下面的案例基于 Ubuntu 18.04，当然，其他的 Linux 系统同样适用。我使用的案例环境如下所示：</p><ul>
+<li>
+<p>机器配置：2 CPU，8GB 内存</p>
+</li>
+<li>
+<p>预先安装 sysbench 和 sysstat 包，如 apt install sysbench sysstat</p>
+</li>
+</ul><p>正式操作开始前，你需要打开三个终端，登录到同一台 Linux 机器中，并安装好上面提到的两个软件包。包的安装，可以先Google一下自行解决，如果仍然有问题的，在留言区写下你的情况。</p><p>另外注意，下面所有命令，都<strong>默认以 root 用户运行</strong>。所以，如果你是用普通用户登陆的系统，记住先运行 sudo su root 命令切换到 root 用户。</p><p>安装完成后，你可以先用 vmstat 看一下空闲系统的上下文切换次数：</p><pre><code># 间隔1秒后输出1组数据
+$ vmstat 1 1
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 0  0      0 6984064  92668 830896    0    0     2    19   19   35  1  0 99  0  0
+</code></pre><p>这里你可以看到，现在的上下文切换次数 cs 是35，而中断次数 in 是19，r和b都是0。因为这会儿我并没有运行其他任务，所以它们就是空闲系统的上下文切换次数。</p><h3>操作和分析</h3><p>接下来，我们正式进入实战操作。</p><p>首先，在第一个终端里运行 sysbench  ，模拟系统多线程调度的瓶颈：</p><pre><code># 以10个线程运行5分钟的基准测试，模拟多线程切换的问题
+$ sysbench --threads=10 --max-time=300 threads run
+</code></pre><p>接着，在第二个终端运行 vmstat  ，观察上下文切换情况：</p><pre><code># 每隔1秒输出1组数据（需要Ctrl+C才结束）
+$ vmstat 1
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 6  0      0 6487428 118240 1292772    0    0     0     0 9019 1398830 16 84  0  0  0
+ 8  0      0 6487428 118240 1292772    0    0     0     0 10191 1392312 16 84  0  0  0
+</code></pre><p>你应该可以发现，cs 列的上下文切换次数从之前的 35 骤然上升到了 139 万。同时，注意观察其他几个指标：</p><ul>
+<li>
+<p>r 列：就绪队列的长度已经到了 8，远远超过了系统 CPU 的个数 2，所以肯定会有大量的 CPU 竞争。</p>
+</li>
+<li>
+<p>us（user）和 sy（system）列：这两列的CPU 使用率加起来上升到了 100%，其中系统 CPU 使用率，也就是 sy 列高达 84%，说明 CPU 主要是被内核占用了。</p>
+</li>
+<li>
+<p>in  列：中断次数也上升到了1万左右，说明中断处理也是个潜在的问题。</p>
+</li>
+</ul><p>综合这几个指标，我们可以知道，系统的就绪队列过长，也就是正在运行和等待CPU的进程数过多，导致了大量的上下文切换，而上下文切换又导致了系统 CPU 的占用率升高。</p><p>那么到底是什么进程导致了这些问题呢？</p><p>我们继续分析，在第三个终端再用 pidstat 来看一下， CPU 和进程上下文切换的情况：</p><pre><code># 每隔1秒输出1组数据（需要 Ctrl+C 才结束）
+# -w参数表示输出进程切换指标，而-u参数则表示输出CPU使用指标
+$ pidstat -w -u 1
+08:06:33      UID       PID    %usr %system  %guest   %wait    %CPU   CPU  Command
+08:06:34        0     10488   30.00  100.00    0.00    0.00  100.00     0  sysbench
+08:06:34        0     26326    0.00    1.00    0.00    0.00    1.00     0  kworker/u4:2
+
+08:06:33      UID       PID   cswch/s nvcswch/s  Command
+08:06:34        0         8     11.00      0.00  rcu_sched
+08:06:34        0        16      1.00      0.00  ksoftirqd/1
+08:06:34        0       471      1.00      0.00  hv_balloon
+08:06:34        0      1230      1.00      0.00  iscsid
+08:06:34        0      4089      1.00      0.00  kworker/1:5
+08:06:34        0      4333      1.00      0.00  kworker/0:3
+08:06:34        0     10499      1.00    224.00  pidstat
+08:06:34        0     26326    236.00      0.00  kworker/u4:2
+08:06:34     1000     26784    223.00      0.00  sshd
+</code></pre><p>从pidstat的输出你可以发现，CPU 使用率的升高果然是 sysbench 导致的，它的 CPU 使用率已经达到了 100%。但上下文切换则是来自其他进程，包括非自愿上下文切换频率最高的 pidstat  ，以及自愿上下文切换频率最高的内核线程 kworker 和 sshd。</p><p>不过，细心的你肯定也发现了一个怪异的事儿：pidstat 输出的上下文切换次数，加起来也就几百，比 vmstat 的 139 万明显小了太多。这是怎么回事呢？难道是工具本身出了错吗？</p><p>别着急，在怀疑工具之前，我们再来回想一下，前面讲到的几种上下文切换场景。其中有一点提到， Linux 调度的基本单位实际上是线程，而我们的场景 sysbench 模拟的也是线程的调度问题，那么，是不是 pidstat 忽略了线程的数据呢？</p><p>通过运行 man pidstat  ，你会发现，pidstat 默认显示进程的指标数据，加上 -t 参数后，才会输出线程的指标。</p><p>所以，我们可以在第三个终端里，  Ctrl+C 停止刚才的 pidstat 命令，再加上 -t 参数，重试一下看看：</p><pre><code># 每隔1秒输出一组数据（需要 Ctrl+C 才结束）
+# -wt 参数表示输出线程的上下文切换指标
+$ pidstat -wt 1
+08:14:05      UID      TGID       TID   cswch/s nvcswch/s  Command
+...
+08:14:05        0     10551         -      6.00      0.00  sysbench
+08:14:05        0         -     10551      6.00      0.00  |__sysbench
+08:14:05        0         -     10552  18911.00 103740.00  |__sysbench
+08:14:05        0         -     10553  18915.00 100955.00  |__sysbench
+08:14:05        0         -     10554  18827.00 103954.00  |__sysbench
+...
+</code></pre><p>现在你就能看到了，虽然 sysbench 进程（也就是主线程）的上下文切换次数看起来并不多，但它的子线程的上下文切换次数却有很多。看来，上下文切换罪魁祸首，还是过多的 sysbench 线程。</p><p>我们已经找到了上下文切换次数增多的根源，那是不是到这儿就可以结束了呢？</p><p>当然不是。不知道你还记不记得，前面在观察系统指标时，除了上下文切换频率骤然升高，还有一个指标也有很大的变化。是的，正是中断次数。中断次数也上升到了1万，但到底是什么类型的中断上升了，现在还不清楚。我们接下来继续抽丝剥茧找源头。</p><p>既然是中断，我们都知道，它只发生在内核态，而 pidstat 只是一个进程的性能分析工具，并不提供任何关于中断的详细信息，怎样才能知道中断发生的类型呢？</p><p>没错，那就是从 /proc/interrupts 这个只读文件中读取。/proc 实际上是 Linux 的一个虚拟文件系统，用于内核空间与用户空间之间的通信。/proc/interrupts 就是这种通信机制的一部分，提供了一个只读的中断使用情况。</p><p>我们还是在第三个终端里，  Ctrl+C 停止刚才的 pidstat 命令，然后运行下面的命令，观察中断的变化情况：</p><pre><code># -d 参数表示高亮显示变化的区域
+$ watch -d cat /proc/interrupts
+           CPU0       CPU1
+...
+RES:    2450431    5279697   Rescheduling interrupts
+...
+</code></pre><p>观察一段时间，你可以发现，变化速度最快的是<strong>重调度中断</strong>（RES），这个中断类型表示，唤醒空闲状态的 CPU 来调度新的任务运行。这是多处理器系统（SMP）中，调度器用来分散任务到不同 CPU 的机制，通常也被称为<strong>处理器间中断</strong>（Inter-Processor Interrupts，IPI）。</p><p>所以，这里的中断升高还是因为过多任务的调度问题，跟前面上下文切换次数的分析结果是一致的。</p><p>通过这个案例，你应该也发现了多工具、多方面指标对比观测的好处。如果最开始时，我们只用了  pidstat 观测，这些很严重的上下文切换线程，压根儿就发现不了了。</p><p>现在再回到最初的问题，每秒上下文切换多少次才算正常呢？</p><p><strong>这个数值其实取决于系统本身的 CPU 性能</strong>。在我看来，如果系统的上下文切换次数比较稳定，那么从数百到一万以内，都应该算是正常的。但当上下文切换次数超过一万次，或者切换次数出现数量级的增长时，就很可能已经出现了性能问题。</p><p>这时，你还需要根据上下文切换的类型，再做具体分析。比方说：</p><ul>
+<li>
+<p>自愿上下文切换变多了，说明进程都在等待资源，有可能发生了 I/O 等其他问题；</p>
+</li>
+<li>
+<p>非自愿上下文切换变多了，说明进程都在被强制调度，也就是都在争抢 CPU，说明 CPU 的确成了瓶颈；</p>
+</li>
+<li>
+<p>中断次数变多了，说明 CPU 被中断处理程序占用，还需要通过查看 /proc/interrupts 文件来分析具体的中断类型。</p>
+</li>
+</ul><h2>小结</h2><p>今天，我通过一个sysbench的案例，给你讲了上下文切换问题的分析思路。碰到上下文切换次数过多的问题时，<strong>我们可以借助 vmstat  、  pidstat 和 /proc/interrupts 等工具</strong>，来辅助排查性能问题的根源。</p><h2>思考</h2><p>最后，我想请你一起来聊聊，你之前是怎么分析和排查上下文切换问题的。你可以结合这两节的内容和你自己的实际操作，来总结自己的思路。</p><p>欢迎在留言区和我讨论，也欢迎把这篇文章分享给你的同事、朋友。我们一起在实战中演练，在交流中学习。</p><p><img src="https://static001.geekbang.org/resource/image/56/52/565d66d658ad23b2f4997551db153852.jpg" alt=""></p></div></div></div><div data-v-87ffcada="" class="article-comments"><h2 data-v-87ffcada=""><span data-v-87ffcada="">精选留言</span></h2><ul data-v-87ffcada="">            <li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/3b/36/2d61e080.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">行者</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>48</span></a></div>
+	</div>
+	<div class="bd">结合前两节，首先通过uptime查看系统负载，然后使用mpstat结合pidstat来初步判断到底是cpu计算量大还是进程争抢过大或者是io过多，接着使用vmstat分析切换次数，以及切换类型，来进一步判断到底是io过多导致问题还是进程争抢激烈导致问题。</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/51/0f/17bdfdaf.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">郝中阳</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>20</span></a></div>
+	</div>
+	<div class="bd">我用的centos，yum装的sysbench。执行后很快完事了的可以设置下max-requests，默认max-requests是1w所以很快就结束了。<br>sysbench --num-threads=10 --max-time=300 --max-requests=10000000 --test=threads run<br>有的朋友&#47;proc&#47;interrupts时看不见RES是因为窗口开太小了RES在最下面。</div> <span class="time">2018-11-29</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍 谢谢分享经验，其他用centos的同学可以参考一下</p> <p class="reply-time">2018-11-30</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/c7/30/2f8b78e9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">CYH</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>7</span></a></div>
+	</div>
+	<div class="bd">老师请教一下：我的是centos7系统，执行sysbetch后，watch -d cat &#47;proc&#47;interrupts并没有发现您文中描述的重调度中断指标呢？</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/5b/e0/d27145c8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">lucian</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>6</span></a></div>
+	</div>
+	<div class="bd">过多上下文切换会缩短进程运行时间vmstat 1 1：分析内存使用情况、cpu上下文切换和中断的次数。cs每秒上下文切换的次数，in每秒中断的次数，r运行或等待cpu的进程数，b中断睡眠状态的进程数。pidstat -w 5：查看每个进程详细情况。cswch（每秒自愿）上下文切换次数，如系统资源不足导致，nvcswch每秒非自愿上下文切换次数，如cpu时间片用完或高优先级线程案例分析：sysbench：多线程的基准测试工具，模拟context switch终端1：sysbench --threads=10 --max-time=300 threads run终端2：vmstat 1：sys列占用84%说明主要被内核占用，ur占用16%；r就绪队列8；in中断处理1w，cs切换139w==&gt;等待进程过多，频繁上下文切换，内核cpu占用率升高终端3：pidstat -w -u 1：sysbench的cpu占用100%（-wt发现子线程切换过多），其他进程导致上下文切换watch -d cat &#47;proc&#47;interupts ：查看另一个指标中断次数，在&#47;proc&#47;interupts中读取，发现重调度中断res变化速度最快总结：cswch过多说明资源IO问题，nvcswch过多说明调度争抢cpu过多，中断次数变多说明cpu被中断程序调用</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">总结的好👍</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/65/ca/4f6b6dea.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">TERRY.ROD</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>5</span></a></div>
+	</div>
+	<div class="bd">1. stress和sysbench两个工具在压测过程中的对比发现：<br>stress基于多进程的，会fork多个进程，导致进程上下文切换，导致us开销很高；<br>sysbench基于多线程的，会创建多个线程，单一进程基于内核线程切换，导致sy的内核开销很高；<br>具体可以通过vmstat对比<br>stress -c 8 -i 16 -t 600<br>vmstat 1 5<br>sysbench --threads=20 --time=300 threads run<br>vmstat 1 5<br>2. 和鸟哥说的一样，不懂多看man，see also的命令基本涵盖了老师讲解的<br>3. 建议结合操作系统完成后，再看这块教程，整体会更系统性，看问题会更加客观<br><br>希望对大家有帮助</div> <span class="time">2018-12-03</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/1b/82/69581d8a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">姜小鱼</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>5</span></a></div>
+	</div>
+	<div class="bd">老师 为什么我执行sysbench之后很快就结束了？sysbench --num-threads=10 --max-time=600 --test=threads run 我用的是ubuntu16</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">有没有报错误？可以加上—debug看看有没有错误消息</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/36/d2/c7357723.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">发条橙子 。</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>4</span></a></div>
+	</div>
+	<div class="bd">案例分析 ：<br><br>登录到服务器，现在系统负载怎么样 。 高的话有三种情况，首先是cpu使用率 ，其次是io使用率 ，之后就是两者都高 。 <br><br>cpu 使用率高，可能确实是使用率高， 也的可能实际处理不高而是进程太多切换上下文频繁 ， 也可能是进程内线程的上下文切换频繁<br><br>io 使用率高 ， 说明 io 请求比较大， 可能是 文件io 、 网络io 。  <br><br>工具 ：<br>系统负载 ：  uptime   （ watch -d uptime）看三个阶段平均负载<br>系统整体情况 ：  mpstat （mpstat -p ALL 3） 查看 每个cpu当前的整体状况，可以重点看用户态、内核态、以及io等待三个参数<br>系统整体的平均上下文切换情况 ： vmstat   (vmstat 3) 可以重点看 r （进行或等待进行的进程）、b （不可中断进程&#47;io进程） 、in （中断次数） 、cs（上下文切换次数）  <br>查看详细的上下文切换情况 ： pidstat （pidstat -w(进程切换指标)&#47;-u（cpu使用指标）&#47;-wt(线程上下文切换指标)） 注意看是自愿上下文切换、还是被动上下文切换<br>io使用情况 ： iostat<br><br>模拟场景工具 ：<br>stress ： 模拟进程 、 io<br>sysbench ： 模拟线程数</div> <span class="time">2018-12-02</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">总结的很好，继续保持👍</p> <p class="reply-time">2018-12-03</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://thirdwx.qlogo.cn/mmopen/vi_32/DXvDaXhCoK5Av910NOSM1R77rOEvx9muibCswzrp6AxLGIKsUaQichyA4Tbib6XuRrWZ4TVx9Y9CN6qtQicnibJcLicg/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">唐瑞甫</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>4</span></a></div>
+	</div>
+	<div class="bd">发现一个不太严谨的地方，即使没有开sysbench，用watch -d &#47;proc&#47;interrupts的时候 RES的变化也是最大的，这个时候in跟cs都不高</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">中断次数是多少？</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/1a/82/ca3ef12c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Haku</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>4</span></a></div>
+	</div>
+	<div class="bd">Ubuntu16.04LTS下:<br># 以 10 个线程运行 5 分钟的基准测试，模拟多线程切换的问题<br>$ sysbench --num-threads=10 --max-time=300 --test=threads run</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">赞👍</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/0c/e1/e54540b9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">冯宇</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">友情提醒，sudo -i就可以快速切换到root啦😄 不加-i的话是以非登录模式切换，不会拿到root的环境变量</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/PiajxSqBRaEIHvQHWCJ6cjAjFthVAADNWx0uaZicm4UDJCbVbvcian6gFI1gqWWX2tG3lEB2nVNtaVXtwibGOYiauCA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">echo</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">老师你好，有个难题希望能指导一下排查<br>我有个系统，跑的是32核48G的云主机，load经常超过CPU核数，峰值时load5可达到CPU核数的3倍， 但是CPU利用率不超过50%左右。<br>其他关键数据：I&#47;O wait 不超过0.1， 网络流量没超出网卡QOS，R状态的进程数也就一两个，没有D状态的进程。系统只要跑一个CPU密集型的Java进程，线程数2-3k。另外load、CPU、网卡流量的曲线是一致的。<br><br>通读了你的第二篇文章，按文章指导能排查的都排查了，接下来应该从哪方面着手定位load高的根因呢？</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">CPU使用率都是哪种高？具体到每个线程，又是哪种CPU使用率高？先找出最高的类型再继续分析</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/85/3a/bb885be4.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">高峰</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">Pidstats确实是把利器啊</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/9b/ba/333b59e5.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Linuxer</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">我们之前是如果系统CPU不高根本不会去关注上下文切换，但是这种情况下以前也观测到cs有几十万的情况，所以我想请教一个问题，什么情况下需要关注上下文切换呢？</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的，cs值不是绝对的，所以最好是监控起来，看变化情况，比如是不是数量级的增长</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/42/f7/45fd5e3b.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">C家族的铁粉</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">『D5打卡』<br><br>不用root权限的Linux用户，不是好的用户😂<br>这几天访问&#47;proc 只读文件的次数，比以前几个月都多，老实说，学会pidstat、vmstat这些工具的靠谱使用方法，就值了。不过还是要记住，工具不是全部<br>乌班图真的稳，跟着老师操作，基本没啥问题</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTIbas4S4X5W15njMeoEPPSyBZRX37nrTXbMFFeHghXl4Slk6WXE7oq5yxoNnukYfcOQs00RAvUmEA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Geek_5258f8</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">老师，请教一个问题:线程多了会带来性能下降。我们假定一个理想境，所有线程优先级相同，即除了时间片到期切换外，无其他触发条件。那1s内发生的线程切换次数是相同的，即1s&#47;20ms次。从这个角度思考，线程的多少并不影响cpu的整体吞吐量。只是影响对某单个线程的响应时间。我的理解对吗？(这里也去掉了cache失效的影响)</div> <span class="time">2019-01-02</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/7e/32/e569f729.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Lost In The Echo。</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">top里面好像都有这些数据吧</div> <span class="time">2018-12-20</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">top显示的不全</p> <p class="reply-time">2018-12-20</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/15/0f/954be2db.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">茴香根</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">打卡本节课程，在使用Linux一些监控命令行时候常常碰到列宽和下面的的数据错位的情况，比如数据过大，占了两列，导致数据错位，不方便观察，不知老师可有好的工具或方法解决。</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">这是常见的问题，一般用宽显示器会好些</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/ec/2a/b11d5ad8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">曾经瘦过</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">mark  长见识了 &#47;proc下面其实有很多文件都是很有用出的 还有内核态 用户态  系统调用导致的cpu切换  还有中断  让我更加清晰产生native崩溃的时候 android的的运行，对捕获native那部分内容有了更好的认识，同时 以后也对 android  cpu 部分的优化 更加深入了解 PS：曾经纠结了半天 为啥CPU要多任务同时执行。。后来想了一下linux是多用户系统，需要多任务同事执行 额.</div> <span class="time">2019-01-23</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">嗯 是的</p> <p class="reply-time">2019-01-23</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/3e/18/41d88fab.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">董启富</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师您好，<br>如下我的一个测试环境中 vmstat 5 的数目。<br>这个环境的基本情况是：硬件是一个 32核的服务器，在上面只创建了一个VMWare 虚拟机，操作系统是 CentOS 7.3，而且虚拟机本身分配了 32 个核。<br># vmstat 5<br>procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----<br> r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st<br>22  0      0 2443320 478972 24910664    0    0     1    81    5    4 11 12 77  0  0<br>23  0      0 2416304 478972 24925276    0    0     0  7773 195936 333869 26 21 53  0  0<br>22  0      0 2416404 478972 24921072    0    0     0  6907 194218 328692 26 23 51  0  0<br>16  0      0 2407880 478972 24912072    0    0     0 12558 196727 336617 26 23 51  0  0<br>20  0      0 4684464 478972 26460620    0    0     0 57650 173601 306627 20 21 58  1  0<br>14  2      0 4072196 478972 27016744    0    0     0 92974 183439 319716 20 20 57  4  0<br><br>从上面的输出，我的分析是：<br>1）处于可运行状态的进程数目在23及以下，说明总体而言系统的load不高<br>2）中断(in)达到 190k以上，并且上下文切换(cs)达到 330k&#47;s, 说明，因为中断导致频繁的上下文切换。应该检查中断。<br>3）检查系统的软中断，合计的中断数目和平均数目如下：<br>Type	Total	Average<br>HI:	0	0<br>TIMER:	2518204945	78693905<br>NET_TX:	129439	4045<br>NET_RX:	6769136176	211535506<br>BLOCK:	2659530	83110<br>BLOCK_IOPOLL:	0	0<br>TASKLET:	207533812	6485432<br>SCHED:	205349449	6417170<br>HRTIMER:	0	0<br>RCU:	1346323862	42072621<br><br>可以看出 NET_TX， NET_RX, BLOCK 的中断数目比较大，我在服务器上抓了6s左右的tcpdump，合计抓到195994个包，平均包的大小是 670B，请教一下，这样的包算不算小包？程序本身确实在不停地接收来自客户端的数据包，下面具体朝哪个方向做调整来降低中断和上下文切换次数？<br>另外，从软中断输出可以看到 TASKLET 只运行在 9 个CPU上，且平均值为6485432。系统有32个CPU，TASKLET 不能跨CPU。对于TASKLET输出，这个值正常吗？有没有好的替代方案？<br><br></div> <span class="time">2019-01-13</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">TASKLET是内核中的机制，从应用程序角度没法调整。<br><br>从性能角度来看，绝对的中断次数和上下文切换次数意义不大，而是要确认是有什么样的性能瓶颈。比如是网络延迟大、吞吐小还是CPU处理慢？</p> <p class="reply-time">2019-01-14</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/5e/a3/9670d4b4.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Spring</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">不考虑多核心的情况下，是不是可以理解开源组件中多进程和多线程模型考虑是基于实现复杂性方面的考虑，而不仅仅是执行效率吗？</div> <span class="time">2018-12-31</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTKibu8C3CeYGF6JCBribiaEPia5gibaQnj9icryPVwoF6ibosmdicXJIhBEUdn0aDwZQ32oTyJL86DgDswhAg/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">花开蝶自来</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">D2打卡，<br>不是非常懂一些指标的含义，得查查~</div> <span class="time">2018-12-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">嗯嗯 多查文档</p> <p class="reply-time">2018-12-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/1b/bb/5e308838.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">A孙其成</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">D4</div> <span class="time">2018-12-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-12-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/93/43/0e84492d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Maxwell</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">额，这个好像很难理解，实际工作中上下文切换导致性能问题的多么？</div> <span class="time">2018-12-27</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">看场景，实际系统一般都是多个问题综合导致性能问题</p> <p class="reply-time">2018-12-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/fb/7f/321ef0c6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">吕小强</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd"><br>	* 如何查看CPU上下文切换情况？<br>vmstat，指标参数(cs 每秒上下文切换次数、in 每秒中断次数、r 进程就绪队列、b 不可中断睡眠的进程数)，注意该工具只显示进程切换总体状态，不显示具体进程的切换状态<br>pidstat，指标参数(cswch 自愿上下文切换，一般是资源不足导致、nvcswch 非自愿上下文切换，时间片花完，被强制切换)，该工具可以显示具体进程的切换状态，加上 -t 参数之后显示具体的线程切换状态<br>	* 上下文切换次数多少才算正常？综合分析自愿、非自愿上下文切换次数、中断次数(中断会导致上下文切换)，结合系统正常、平稳运行状态下的基线状态来判断<br><br>	* 如何查看中断情况？ cat &#47;proc&#47;interrupts<br><br>注意，我在实验过程中由于虚拟机只配了一个核心CPU，所以RES值为0，因为该中断类型表示，唤醒空闲状态的 CPU 来调度新的任务运行，由于只配置了一个CPU，就没有空闲的CPU可用。当把CPU核数增加到2个之后，该RES值才体现出来。</div> <span class="time">2018-12-26</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍👍</p> <p class="reply-time">2018-12-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/47/bd/3c88b41b.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">管清麟</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡第五天</div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">贼道</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">在系统里看到大量的kworker线程应该如何分析？</div> <span class="time">2018-12-21</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/d8/ee/6e7c2264.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Only now</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">mark </div> <span class="time">2018-12-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/fa/03/619e3e48.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">风清扬</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">root@ubuntu:~# sysbench --threads=10 --max-time=300 threads run<br>WARNING: --max-time is deprecated, use --time instead</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">嗯嗯 谢谢分享</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Eric</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师好，我有两个问题不太明白<br><br>1、我 cat &#47;proc&#47;interrupts   发现 Rescheduling interrupts 只有两位数的变化，变化不大。 但是 Local timer interrupts 有五位数的变化。 请问这个 LOC 是什么，正常吗？<br><br>2、我观察了多台线上业务服务器，中断数平均都在 5000~10000 左右。 CS 都在 10000 以上。  我看了老师在留言中的回复，是根据不同性能的机器，具体值是不一样的。 有没有一个根据CPU核心数，大致正常范围数值的计算公式呢？</div> <span class="time">2018-12-18</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">1. 本地时钟中断，在物理机上会比较高，虚拟机中就比较低了<br>2. 没有，还是要观察变化的趋势，也就要监控起来</p> <p class="reply-time">2018-12-18</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/42/f6/6532d23d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">悬铃木（赵岩）</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">cpu切换会保存当前进程的寄存器，栈等信息。保存在哪里了？</div> <span class="time">2018-12-17</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">内存里</p> <p class="reply-time">2018-12-18</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">陈帅</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">公司机器配置：CPU 32核，内存125G。<br>top了一下，发现sshd2的CPU一直比较高，CPU一直在2000%左右。<br>根据前面老师说的思路排查了下：<br>系统的上下文切换次数在2万左右，中断在3万左右；<br>sshd2的io不高，自愿上下文切换在3左右，非自愿上下文切换在0。<br>不知道怎么解决了，希望老师指导下！<br></div> <span class="time">2018-12-17</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">参考第05的方法分析这个进程的行为</p> <p class="reply-time">2018-12-18</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/30/f9/6dbf31a7.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Schmilençé</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">迟到的打卡，希望年底跟上进度！<br>对了：sysbench 1.1.0下面，--max-time=300这个选项应该改为--time=300，即：<br>sysbench --threads=10 --time=300 threads run</div> <span class="time">2018-12-17</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">嗯嗯 不同版本的参数不一样</p> <p class="reply-time">2018-12-18</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/1a/61/fff6c73e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">嘉神666</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">学到了，补上打卡</div> <span class="time">2018-12-17</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-12-18</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/34/09/898d084e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">呆呆</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">cpu上下文切换属于sys使用率吧？</div> <span class="time">2018-12-15</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的</p> <p class="reply-time">2018-12-17</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/3a/6e/e39e90ca.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">大坏狐狸</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，我这里显示的 Local timer interrupts  按每秒大概2k的速度中断，是因为是centos么？</div> <span class="time">2018-12-14</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/0d/4d/f692ba8b.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">wmmmeng</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师您好，很感谢您的分享，让我了解了Linux的一些基础运行原理。有2句话，我没有太明白“观察一段时间，你可以发现，变化速度最快的是重调度中断（RES），这个中断类型表示，唤醒空闲状态的 CPU 来调度新的任务运行”。1. 变化速度这个怎么理解呢，是指每个cpu的每秒增长值吗，如果是，在有多个interrupts在变动的时候，有什么好的办法方便看变化么（我的是8核的，看到的结果是Local timer interrupts，Performance monitoring interrupts在8个cpu中的高亮也很快，不知道具体有没有什么好的方法看多个cpu多个interripts的变化值）？2. 在老师的配置中，vmstat状态里面r和b状态的进程数远超cpu核数，为啥还会有出现唤醒空闲状态的cpu这一说法呢？望老师不要嫌弃我小白用户，谢谢老师<br></div> <span class="time">2018-12-14</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">1. 可以写个简单的SHELL或者Python命令处理下（其实很多工具都是这么玩的）<br>2. RES 是一种中断，执行的时候选择相对闲的CPU运行</p> <p class="reply-time">2018-12-14</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/66/4c/39a6829c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">鹏</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">cs 是不是太高了<br>procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----<br> r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st<br> 9  0      0 6034444 5992496 337203840    0    0  8166  3102 125230 162468  5  8 87  0  0<br> 5  0      0 6006260 5992624 337229056    0    0  8194  1454 118720 160044  4  8 89  0  0<br> 5  0      0 5877116 5994104 337363040    0    0 20811 11905 126420 164815  4 10 85  1  0<br> 3  0      0 5732156 5994384 337506944    0    0 20307 24907 127620 162254  4  8 87  0  0<br> 5  0      0 5673632 5994580 337549056    0    0  9267 26081 121987 163692  4  8 87  0  0<br> 3  0      0 5592248 5994772 337644992    0    0  8330 32955 122538 162098  5  8 87  0  0<br> 6  0      0 5480484 5994924 337759136    0    0  8149  2719 123734 161787  5  8 87  0  0<br> 1  0      0 5462952 5995076 337776736    0    0  8198  1134 117928 158985  4  7 89  0  0</div> <span class="time">2018-12-13</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">还要看系统的配置和应用的类型，一般看变化情况更好</p> <p class="reply-time">2018-12-14</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/c2/1f/72eb0ab6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Michael</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师好，我有些问题<br>您在试验中，最后中断是因为RES 导致的<br>我自己试验发现是是LOC Local timer interrupts 这个值变化比较大，RES没变化<br>我用的是阿里云单CPU的机器，是否是机器原因导致的试验差别呢<br><br>另外您提到了上下文切换数量是 几百--一万以内<br>因为公司线上机器有台机器正在做数据传输，读一个A服务器的数据再写入到B服务器<br>我用dstat看，每秒的中断高达10W了，上下文切换也是7-8W，机器的idl大概是80，网络读400M+，写200M+<br>机器配置是 2.2G*40核，128G内存，万M网卡，因为只是从网络读，再通过网络写，所以磁盘无压力<br>但这个中断和上下文切换数量比老师说的高了很多，这种算是正常吗？<br><br>我用 watch -d cat &#47;proc&#47;interrupts  看这个机器，因为是40核的，CPU太多了<br>显示都完全乱了，根本看不出来了，对于CPU核太多的，显示上有什么更好的方式吗？<br><br>最后再问下平均负载的问题<br>我看线上机器，1m，5m，15m 平均负载看都是1.2到1.3的样子<br>因为这个机器是40核的，所以每个CPU都满负荷运作的话，平均负载应该是 40.0 吗？<br>现在我看到的负载是1.2，1.3的样子，就表示其实负载还是比较低的？</div> <span class="time">2018-12-13</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">第一个问题单核没有RES是正常的，第二个看起来也是正常的，文中也提了绝对值跟系统有关；第三个负载的确很低</p> <p class="reply-time">2018-12-14</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/4a/fb/70f14340.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">maoxiajun</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">lesson4打卡</div> <span class="time">2018-12-11</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-12-11</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/56/2d/dd3b12b8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">汤🐠🥣昱</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----<br> r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st<br> 1  0    520 3831600    116 7871856    0    0     0    11    0    0  0  0 99  0  0<br> 0  0    520 3831264    116 7871868    0    0     0     0 2285 2400  0  0 100  0  0<br> 0  0    520 3830956    116 7871924    0    0     0    11 2591 2818  2  0 98  0  0<br> 0  0    520 3830268    116 7871972    0    0     0    64 2440 2673  1  0 99  0  0<br>在使用vmstat 5 查看系统性能的时候，第一行cs，us小，之后数值都很大，这是为什么？<br></div> <span class="time">2018-12-10</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">这是vmstat的一个坑，第一行是系统启动以来的平均值，直接忽略即可。后面的各行才是你设置的间隔时间的平均值</p> <p class="reply-time">2018-12-11</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">如果</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">DAY4,打卡</div> <span class="time">2018-12-10</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">+1赞</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/a3/40/e0df3b84.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">力挽狂澜爆炸输出的臭臭宁</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">为什么&#47;proc&#47;interrupts显示的RES中断数有245万多，而vmstat显示的只有1万？</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">第一个是累加值，第二个是vmstat采集时间的差值</p> <p class="reply-time">2018-12-07</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/57/d6/ee9e1e43.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Geng</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">15:     432533   IO-APIC  15-edge      ata_piix<br> 24:          0   PCI-MSI 65536-edge      virtio1-config<br> 25:    5881576   PCI-MSI 65537-edge      virtio1-req.0<br> 26:          0   PCI-MSI 49152-edge      virtio0-config<br> 27:   16526409   PCI-MSI 49153-edge      virtio0-input.0<br> 28:        222   PCI-MSI 49154-edge      virtio0-output.0<br>NMI:          0   Non-maskable interrupts<br>LOC:   39324969   Local timer interrupts<br>SPU:          0   Spurious interrupts<br>MCE:          0   Machine check exceptions<br>MCP:       1352   Machine check polls<br>HYP:          0   Hypervisor callback interrupts<br>我的设备上显示是LOC较高</div> <span class="time">2018-12-06</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/1c/ed/c7719736.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Arwen</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">mark学会几个命令pidstat -wt 1,pidstat -w -t 1</div> <span class="time">2018-12-05</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/ae/95/d1b13c9e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">f</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡</div> <span class="time">2018-12-03</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/4e/c5/abb7bfe3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">lzh</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">D4 vmstat<br>pidstat<br>&#47;proc&#47;interrupts</div> <span class="time">2018-12-03</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">3x3eyes</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">如何才能判断上下文切换数形成性能瓶颈了呢?尤其是服务器环境，有没有一个大概的（阈）值，当cpu核的上下文切换超这个值就代表性能问题了。<br>另外，cpu核心，主频，指令集有没有可能对中断数阈值有影响?</div> <span class="time">2018-12-02</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">这个值跟CPU性能和负载的类型都有关系，一般没有确切的阈值。一般推荐观察它的变化情况而不是绝对值，比如是否有数量级的增长</p> <p class="reply-time">2018-12-03</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/72/4c/4d636a23.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">在路上</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">不压测时，in和cs才几百，&#47;proc&#47;interrupts 中的res就140多万了；10个线程压测，in上升为2万多，cs上升到50多万，但是&#47;proc&#47;interrupts 中的res变化不大，这个怎么来理解呢？<br>另外在ubuntu16.04版本执行命令为：sysbench --num-threads=10 --max-time=3000  --test=threads run 这个命令只显示不到10s就结束了，--max-time怎么不起作用，即使加了--max-requests=1000也一样</div> <span class="time">2018-12-01</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">1.观察下有没有其他的异常变化<br>2.最后的汇总结果是什么？试一下请求数再设置大一点</p> <p class="reply-time">2018-12-02</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/13/56/6a062937.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">gentleman♥️</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师问个问题 像我们一般的应用什么的 就可以说是进程吧<br>它的进程的切换，最后还是要通过内部的线程来体现，也就说实际上一般应用的进程上下文切换，最后反应的都是线程的上下文切换，是吗，<br>那是不是也有只有线程级别内核上下文切换呢，比如一个进程只有一个线程这个是吧<br>但是有其他操作系统内核层面也有这样的上下文切换嘛，就是没有进程附加的内核切换，如果有，老师能举几个例子嘛</div> <span class="time">2018-12-01</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">文中其实已经介绍了中断上下文，比如你去访问一个web服务，就需要网卡中断帮你处理网络数据包的收发</p> <p class="reply-time">2018-12-03</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/57/ed/d96acbd7.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">mj4ever</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">本周外出培训了，不过还是需要坚持跟上，所以，周六先补习下CPU上下文切换的知识。<br>通过两篇知识的学习，掌握了以下内容：<br>1、理解了什么是CPU的上下文切换，以及上下文切换发生的场景有哪些<br>2、理解了系统调用的概念，用户态到内核态的转变，属于特权模式切换<br>3、实操模拟上下文切换的分析：<br>（1）首先，观察上下文切换和中断次数总体情况，可使用 vmstat 命令<br>（2）如果是，上下文切换次数过多，可进一步观察每个进程的详细情况，可使用 pidstat 命令；还要区分出是自愿（cswch）还是非自愿（nvcswch）<br>（3）如果是，中断次数过多，进一步观察系统中断使用情况，可以查看 &#47;proc&#47;interrupts<br><br>有一点小疑问：我模拟的场景下（测试用例和老师给的相同），中断次数并不算高，维持在2000左右，这个时候查看&#47;proc&#47;interrupts，发现LOC（Local timer interrupts）变化率要比RES（Rescheduling interrupts）的高；然后去查了LOC（https:&#47;&#47;stackoverflow.com&#47;questions&#47;10567214&#47;what-are-linux-local-timer-interrupts），发现没有看懂，或许也不是很重要：）<br><br></div> <span class="time">2018-12-01</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">模拟环境几个CPU？需要至少2个才会有RES</p> <p class="reply-time">2018-12-03</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/4a/fb/70f14340.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">maoxiajun</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">lesson4打卡</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/e2/86/53ae8868.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">ageeklet</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">我的RES为什么基本上不会变。。。。</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/54/49/ede4ab2f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">地心引力</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">文章里说的方法是在SMP架构的服务器上使用的，对于NUMA架构的服务器也同样适用吗</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/0f/9b/0683f2da.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">半青</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">找到问题了，cpu只使用了一个</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-11-30</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/0f/9b/0683f2da.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">半青</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，运行sysbench后，RES的指标是0 ，系统是RHEL7.5,&#47;proc&#47;interrupts的指标没有变化。</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/e0/99/5d603697.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">MJ</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师写的太好了，赞！<br><br>努力学习中</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/30/f1/bf7fd8d2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">樊海涛</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">linux调度的基本单位实际上是线程；<br>1、首先用vmstat工具分析系统的cpu上下文切换次数和中断次数；cs是每秒上下文切换次数，in是每秒中断次数，r是就绪队列长度；<br>2、通过pidstat工具具体查看每个进程的上下文切换，主要关注 cswch（每秒自愿上下文切换次数）和nvcswch（每秒非自愿上下文切换次数）；<br>3、从 &#47;proc&#47;interrupts文件查看中断次数；<br><br></div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/2f/eb/5dceac8a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Zenppl</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">ubuntu 16.04 <br>sysbench --num-threads=10 --max-time=300 --max-requests=10000000 --test=threads run</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/d8/7d/76f05d32.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">coolber</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">&#47;proc&#47;interrupts  这个在core系统上终端查看很不方便，大家有好用的工具么</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">划时代</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">操作实践，分析观察，熟悉中断。</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/5f/28/17ed19bc.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">J</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">用stress -i 增加D进程数  为什么 vmstat下面的b(blocked)数目不增加呢？</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/5f/28/17ed19bc.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">J</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">怎么能把vmstat下面的blocked数量增大呢?</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/30/f1/bf7fd8d2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">樊海涛</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">day5打卡，我用的是阿里的云主机，没有执行sysbench工具的时候，系统的cs已经到好几百了<br><br>用pidstat -w -u 1分析，发现自愿上下文切换最高的是rcu_sched进程<br></div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/13/42/762cb313.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">森高</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">感谢老师分享！这边有一个问题想请教一下老师：<br>在使用sysbench提供100并发压力的时候，通过ps aux指令发现sysbench进程状态是Sl+，且使用uptime指令观察到系统平均负载逐渐升高。按照之前的介绍，平均负载指的是系统处于可运行状态（R）和不可中断状态（D）的平均进程数，这里既状态不符合（Sl+），进程数也没变多（只是线程变多），为什么平均负载会升高呢？<br>谢谢老师！</div> <span class="time">2018-11-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">阿西吧</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师我系统是8核的，但用htop命令查看会显示有12个cpu，是因为多线程的关系吗？</div> <span class="time">2018-11-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/84/4c/d909ecc4.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">静静在学习</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">😄</div> <span class="time">2018-11-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/fd/f9/61bdb3f8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">未来小鬼</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">倪老师，我在知乎做了个打卡学习连载，附上了课程目录与课程购买二维码，可行？:)</div> <span class="time">2018-11-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/4a/6f/abb7bfe3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Sunsun</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">有一点不明白，一个进程中的多个线程可以同时在多核cpu运行吗？如果可以是如何做到的？</div> <span class="time">2018-11-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/5b/e5/aaa642da.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">luodi</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡</div> <span class="time">2018-11-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/64/05/6989dce6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">我来也</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师,我又来请教了.<br>还是之前反映的问题,服务器平常负载不到0.1,但是偶尔会飙升到14+.<br>以下是load1:10+时的指标数据,及个人分析.<br> mpstat -P ALL 5 结果:<br> CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest   %idle<br> all   19.85    4.00    7.04    0.05    0.00    0.66    0.00    0.00   68.41<br>该时间段有个定时任务, 用了nice调整了优先级. 该程序本身不占cpu不占内存.<br>可以看到%idle还有68% 说明瓶颈本身不在cpu上.<br>vmstat 1 结果:<br> r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st<br>30  0      0 130560   5840 2154888    0    0     0 11152 13013 35408 17  6 77  0  0<br> 4  0      0 126144   5840 2156296    0    0     0     0 8265 19351 15  4 81  0  0<br> 5  0      0 124764   5848 2157780    0    0     0    32 7470 17824 16  4 80  0  0<br>80%时候r都在0-2,极少数时候会超过5, 零星几次超过10.<br>这里到了30,说明确实运行和等待的程序较多导致负载上升.<br>我用 ps aufx 看STAT 处于R状态的经常就一两个.[不知道有什么办法知道是哪些程序在等待]<br>这里的in cs平常都是 13013 和 35408 这个数量级.平常系统负载就很低,说明不是这里的原因.<br>后面in cs降低是手动停掉了tail | grep 日志.[这两个命令是导致in cs升高的主要原因.]<br>pidstat -wut 1 结果也还好,没有明显变化.<br>watch -d cat &#47;proc&#47;interrupts 结果<br>LOC:  954744422  958342296  960076141  962868552   Local timer interrupts<br>RES:  687327731  702086115  718167508  708951075   Rescheduling interrupts<br>这两个最多 谷歌说LOC多是正常的.<br>个人分析:<br>该机器上的程序既不是CPU密集型 也不是I&#47;O密集型 指标也可以来证明.<br>我单独测i&#47;o时 bi bo 可以到120K+ 这里负载上升时的bo才11K+.<br>结合r的指标,说明确实是瞬时会有大量等待的进程导致负载上升.[但是ps看不出来来]<br>猜测:<br>可能还是云服务器的磁盘i&#47;o有问题.我的很多程序需要写日志,如果卡在磁盘io,确实可以导致程序都在等待. 虽然负载上升时的bi &#47;bo 不算高,但是毕竟是共享的.<br>下次再负载上升时,我再拷贝下大文件,把bi&#47;bo进一步拉上去,看负载会不会继续升高.</div> <span class="time">2018-11-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/e6/ee/e3c4c9b3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Cranliu</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">sysbench --num-threads=20 --max-time=3000 --max-requests=100000 --test=threads run</div> <span class="time">2018-11-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">大飞</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">d1打卡</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/nSvVtStiaQzslFM7YRnlhP7FxdVsz8abjlwY6XZ4guKtkXNUgG8EibxztoeosKL2YuxDsb159NTQhVXFBkj31kBw/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">云开</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">我的也是—max-time=300不管用 只能执行5s多<br>而且加大这个参数值还是同样的效果</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/37/85/8c17d566.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">年年歲歳</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">咨询个问题，vmstat第一列就绪状态为8，是指的进程还是线程？单进程开了8个线程，这8个线程在争抢父进程所在的1个cpu吗？</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">dexter</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡5</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/e0/48/3d72e81c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">封建的风</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">一直不确定的一个问题，请教老师，<br>在一个线程拿到cpu时间片运行时，碰到等待io的情况下，cpu时间片还没耗尽时会发生cs吗？还是在时间片内等io信号返回呢</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/34/bb/0b971fca.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">walker</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">上下文切换的临界值是不固定的，根据cpu性能有所不同。一般情况下cpu上下文切换比较平稳的情况下，正常。当切换变化比较大的时候，说明出现瓶颈。</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Nr8o80t7TVwlXk7eoFYQpknWiayM5NbWKSf4DicTmYxGSoKoUwNurxjvDflgpZu6I9ChWdNr14gbABgq1ibP2cvWg/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">悟空</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">收获颇丰，以前零零散散的知识，终于可以系统的学一下啦，而且，最好的，面试有的说啦</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/fc/b7/6cef8bf0.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">大胃高怕飞</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">+1😊</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/0f/84/d8e63885.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">仲鬼</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师请教两个问题：<br>1. 请问中断会导致非自愿上下文切换吗？<br>2.  为什么其他CPU闲置的时候，需要用RES中断通知闲置CPU调度其他CPU的就绪任务？</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">1. 没有因果关系，但中断返回的时候有可能正好碰到进程重新调度。<br>2. 分散任务到空闲的CPU，这样多个CPU上的任务可以并行运行</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/ff/e4/6431a3b3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">蜗牛</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">vmstat 显示r是345，b是0会是什么原因呢，服务器上面三个tomcat，一个mysql，4核16g服务器<br>[图片]</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">b=0表示没有处于不可能中断状态的进程，r比较大可以继续分析下进程的CPU情况</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/10/7a/b15e6572.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">:(){ :|: };:</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">同问 sysbench --max-time=300 实际只执行了6s 是什么原因呢~</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/e7/47/d0715205.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">D白菜</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">问题处理对象<br>平均负载(uptime)--&gt;vmstat判断问题出在哪方面(队列、内存、swap换页、cpu、io、上下文切换)--&gt;进一步查看有问题方面的性能(mpstat\iostat\netstat\ps\free\sar等)--&gt;pidstat找到具体有问题的对象--&gt;对有问题对象(任务)分析找到解决办法(日志、性能数据文件、strace、应用分析等)。<br>总结：<br>1、通过vmstat(虚拟内存统计)命令和 &#47;proc&#47;interrupts文件种获取服务器总体性能。<br>vmstat命令显示列含义：<br>r(running or runable): 就绪队列长度，包括当前运行和等待执行的任务数。<br>b(blocked)：处在非中断睡眠状态的进程数<br>cs(context switches)每秒上下文切换次数。<br>in(interrupt)，每秒中断次数。<br>2、在通过pidstat(-w)来进一步获取上下文切换情况，找出出现性能问题的对象-进程和线程。<br>cswch(voluntary context switches) 每秒自愿上下文切换次数，资源不够导致的上下文切换。<br>nvcswch(non voluntary context switches)每秒非自愿上下文切换次数，系统强制调度发生的上下文切换。<br>3、判断出上下文切换的类型，并进一步分析具体原因，找到解决问题的办法。<br>1)、自愿上下文切换很多，说明资源等待，有可能是程序问题，比如慢sql，或者资源不足;<br>2)、非自愿上下文切换变多了，说明任务被强制调度争抢CPU，CPU可能已成为瓶颈;<br>3)、中断次数增多(in问题)，说明cpu被中断占用，需要通过watch -d &#47;proc&#47;interrupts进行进一步的分析。</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/64/05/6989dce6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">我来也</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">看了今天的内容，待会再去服务器上看看。昨天也遇到了云服务器上短时负载过高的情况。4cpu 8g内存 load1:9 load5:4 这种。cpu负载在20%（usr 15% sys 5%  iowait 0.05% soft 0.3% idle 79%），上下文切换和中断数稳定在4w，1w，内存还有2g。平常这些指标也这样，load才0.1，但是偶尔会突然高到了9，实在是有点莫名其妙。</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">赶紧用学到的方法分析下</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/f2/2b/7d9751bb.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">许山山</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师我用的是ubuntu 16.04的vps，单核、2G内存，不论是否运行测试程序，RES都是0，in没有明显变化，在100~400间波动，cs从几百激增到十几万。我想问下问什么我这边没有出现明显的中断问题呢？而且我的测试程序也会很快的停止。是因为vps的配置太低了吗？</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">多个CPU才会有这个中断</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/dwehJHP4ycAfDb9MoudXb4QSt7YgmISqwwsa928XZ6aTWqwWh0kx0iatjocSibLa7iajXmbGlJ5svegY3P6LfKJ0w/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">solar</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">一直对上下文切换理解不够深刻，现在又有了更新的认识，收获不错。尤其学习到了pidstat，vmstat等更深入理解进程相关的命令。</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/18/9e/b04d5e6c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">tristan</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡学习。</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/17/07/83f030c9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">kakasir</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡，这些必须自己实际操作才能体会深刻，还处于学习阶段，自己安一些工具也会失败，多实践吧</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/97/05/17cf5840.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">低调</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡第四篇</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/11/fe/de00d8d8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">王涛</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">第4大卡</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83eoEKOMLofrrYkOTRvMoa20WMnEUYvhFu1AreziagediaGy0vezAwrXBlJD7vEx8Faa3UV5wT9D4iaTFA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">周秋平</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">第五篇打卡</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/3c/1a/1806ef25.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">皇家救星</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">谢谢，之前一直觉得我们系统才8个cpu，但是进程有几千个，应该会有严重的调度问题，但是不知道怎么观察。感谢指出方向</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/f9DsnXlr17ibsonA7quWTgMrHq6qSvhWlzz4G5dOBLcY98I6JckYeeDQicjGfNQ1XqibibeUZkvld5YH23JyIribibbw/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">罗盼</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://wx.qlogo.cn/mmopen/vi_32/PiajxSqBRaEKQMM4m7NHuicr55aRiblTSEWIYe0QqbpyHweaoAbG7j2v7UUElqqeP3Ihrm3UfDPDRb1Hv8LvPwXqA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">ninuxer</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">day5，打卡<br>vmstat的输出中，r，b的值结合起来，对应了前一个主题中uptime显示出的平均负载情况；in中断，cs上下文切换<br>pidstat -w输出进程级别的上下文切换情况，-wt输出线程级别上下文切换情况；分自愿切换（得不到必要的资源，如内存，io等），非自愿切换（时间片到期，进程间竞争cpu资源）<br>中断信息可查看&#47;proc&#47;interruptes信息<br></div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/ff/ce/ff215671.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Cloud*</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">带着问题去学习</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83erJR5Kj0Xm6LykFHLaWqHjQiaroVxgdoGI7uHEGz2D3PfibWNkBYP23QLzFmcuicgKLbqUch0ZJ2ZNOA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">湖湘志</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">D4</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/02/5b/ce326cfc.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Orcsir</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">Flag</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li></ul></div></div></div></div><div id="translate-man-app" class="content-3WfBL_0" style="background-color: rgb(255, 255, 255); display: none;"><div data-v-ea0bd11e="" class="outputBox-qe9A4_0"><div data-v-ea0bd11e="" class="outputBox-3oESn_0"><span data-v-ea0bd11e="" class="outputBox-13Ovx_0"></span></div><div data-v-ea0bd11e="" class="outputBox-1GLb__0"><div data-v-ea0bd11e="" class="outputBox-onVZH_0"><img src="chrome-extension://fapgabkkfcaejckbfmfcdgnfefbmlion/static/sound.svg"            class="icon-tprjJ_0"></div></div><div data-v-ea0bd11e="" class="outputBox-2sJgr_0"></div><div data-v-ea0bd11e="" class="outputBox-17RAm_0" style="display: none;"><div data-v-ea0bd11e=""></div></div></div></div><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({        showProcessingMessages: false,        messageStyle: "none",        tex2jax: {          inlineMath: [['$','$'], ['\\(','\\)']],          displayMath: [ ["$$","$$"] ],          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'a']        }      });      MathJax.Hub.Register.MessageHook("End Process", function (message) {        var eve = new Event('mathjaxfini')        window.dispatchEvent(eve)      })</script></body></html>

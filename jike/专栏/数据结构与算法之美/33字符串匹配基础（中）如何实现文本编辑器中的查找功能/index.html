@@ -1,0 +1,1120 @@
+<html class="cye-disabled cye-lm"><head><meta charset="utf-8"><link rel="apple-touch-icon" sizes="180x180" href="http://static001.geekbang.org/static/icon/time/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="http://static001.geekbang.org/static/icon/time/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="http://static001.geekbang.org/static/icon/time/favicon-16x16.png"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="format-detection" content="telephone=no"><title>33 | 字符串匹配基础（中）：如何实现文本编辑器中的查找功能？</title><link href="https://static001.geekbang.org/static/time/css/app.b230db929e53af87acd535637f5011b8.css" rel="stylesheet"><style id="nightModeStyle">    html.cye-enabled.cye-nm:not(*:-webkit-full-screen) body,html.cye-enabled.cye-nm:not(*:-webkit-full-screen) #cye-workaround-body {-webkit-filter:contrast(91%) brightness(84%) invert(1);}</style><style id="cyebody">html.cye-enabled.cye-lm body{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyediv">html.cye-enabled.cye-lm div{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyetable">html.cye-enabled.cye-lm th{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}html.cye-enabled.cye-lm td{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyetextInput">html.cye-enabled.cye-lm input[type=text]{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}html.cye-enabled.cye-lm textarea{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeselect">html.cye-enabled.cye-lm select{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeul">html.cye-enabled.cye-lm ul{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeChangeByClick">html.cye-enabled.cye-lm .cye-lm-tag,html.cye-enabled.cye-lm.cye-lm-tag{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style type="text/css">    .hljs-ln {      border-collapse: collapse    }    .hljs-ln td {      padding: 0    }    .hljs-ln-n:before {      content: attr(data-line-number)    }</style><style type="text/css">    #iv-container {      position: fixed;      background: #0d0d0d;      width: 100%;      height: 100%;      top: 0;      left: 0;      display: none;      z-index: 1000    }    .iv-container {      overflow: hidden    }    .iv-close {      width: 26px;      height: 26px;      position: absolute;      right: 20px;      top: 20px;      cursor: pointer;      text-align: center;      overflow: hidden;      text-shadow: 0 0 3px #6d6d6d;      -webkit-transition: all .2s ease;      -moz-transition: all ease .2s;      -o-transition: all ease .2s;      transition: all .2s ease    }    .iv-close:after,    .iv-close:before {      content: "";      height: 2px;      width: 26px;      background: #fff;      position: absolute;      left: 0;      top: 50%;      margin-top: -2px;      border-radius: 2px    }    .iv-close:before {      -webkit-transform: rotate(45deg);      -moz-transform: rotate(45deg);      -ms-transform: rotate(45deg);      -o-transform: rotate(45deg);      transform: rotate(45deg)    }    .iv-close:after {      -webkit-transform: rotate(-45deg);      -moz-transform: rotate(-45deg);      -ms-transform: rotate(-45deg);      -o-transform: rotate(-45deg);      transform: rotate(-45deg)    }    .iv-close:hover {      -webkit-transform: rotate(90deg);      -moz-transform: rotate(90deg);      -ms-transform: rotate(90deg);      -o-transform: rotate(90deg);      transform: rotate(90deg)    }    .iv-image-view {      position: absolute;      height: 100%;      width: 100%    }    .iv-image-wrap {      display: inline-block    }    .iv-image-wrap:active {      cursor: move    }    .iv-large-image {      cursor: move;      max-width: 100%;      max-height: 100%;      background-color: #ececec;      -moz-transform: translateZ(0);      -o-transform: translateZ(0)    }    .iv-large-image,    .iv-loader {      position: absolute;      -webkit-transform: translateZ(0);      -ms-transform: translateZ(0);      transform: translateZ(0)    }    .iv-loader {      top: 50%;      left: 50%;      border-radius: 50%;      width: 32px;      height: 32px;      z-index: 100;      margin-top: -16px;      margin-left: -16px;      font-size: 5px;      text-indent: -9999em;      border-top: 1em solid hsla(0, 0%, 100%, .2);      border-right: 1em solid hsla(0, 0%, 100%, .2);      border-bottom: 1em solid hsla(0, 0%, 100%, .2);      border-left: 1em solid #fff;      -webkit-animation: load8 1.1s infinite linear;      animation: load8 1.1s infinite linear    }    .iv-loader:after {      width: 10em;      height: 10em;      border-radius: 50%    }    @-webkit-keyframes load8 {      0% {        -webkit-transform: rotate(0deg);        transform: rotate(0deg)      }      to {        -webkit-transform: rotate(1turn);        transform: rotate(1turn)      }    }    @keyframes load8 {      0% {        -webkit-transform: rotate(0deg);        transform: rotate(0deg)      }      to {        -webkit-transform: rotate(1turn);        transform: rotate(1turn)      }    }</style><style type="text/css">    .vue-pull-to-wrapper[data-v-12abd9fb] {      display: -webkit-box;      display: -webkit-flex;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -webkit-flex-direction: column;      flex-direction: column;      height: 100%    }    .scroll-container[data-v-12abd9fb] {      -webkit-box-flex: 1;      -webkit-flex: 1;      flex: 1;      overflow-y: auto;      -webkit-overflow-scrolling: touch    }    .vue-pull-to-wrapper .action-block[data-v-12abd9fb] {      position: relative;      width: 100%    }    .default-text[data-v-12abd9fb] {      height: 100%;      line-height: 50px;      text-align: center    }</style><style type="text/css">    .button-cancel[data-v-87ffcada] {      color: #888;      border: 1px solid #888;      border-radius: 3px;      margin-right: 12px    }    .button-cancel[data-v-87ffcada],    .button-primary[data-v-87ffcada] {      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      height: 35px;      display: inline-block;      font-size: 15px;      text-align: center;      line-height: 36px    }    .button-primary[data-v-87ffcada] {      color: #fff;      background-color: #ff5a05;      border-radius: 3px    }    .article[data-v-87ffcada] {      max-width: 46.25rem;      margin: 0 auto    }    .article .article-unavailable[data-v-87ffcada] {      color: #fff;      text-align: center;      font-size: .875rem;      font-weight: 400;      width: 100%;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 0 15%;      height: 4.9rem;      background-image: url(data:image/jpeg;base64,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);      background-position: 0 0;      background-repeat: no-repeat;      background-size: cover;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center    }    .article .main[data-v-87ffcada] {      padding: 1.25rem 1.375rem;      margin-top: 52px;      margin-bottom: 52px    }    .article-title[data-v-87ffcada] {      color: #353535;      font-weight: 400;      line-height: 1.65rem;      font-size: 1.34375rem    }    .article-info[data-v-87ffcada] {      color: #888;      font-size: .9375rem;      margin-top: 1.0625rem    }    .article-content[data-v-87ffcada] {      margin-top: 1.0625rem    }    .article-content.android video[data-v-87ffcada]::-webkit-media-controls-fullscreen-button {      display: none    }    .audio-player[data-v-87ffcada] {      width: 100%;      margin: 20px 0    }    .to-comment[data-v-87ffcada] {      overflow: hidden;      margin-bottom: -30px    }    .to-comment a.button-primary[data-v-87ffcada] {      float: right;      height: 20px;      font-size: 12px;      line-height: 20px;      padding: 4px 8px;      cursor: pointer    }    .article-comments[data-v-87ffcada] {      margin-top: 2rem    }    .article-comments h2[data-v-87ffcada] {      text-align: center;      color: #888;      position: relative;      z-index: 1;      margin-bottom: 1rem    }    .article-comments h2[data-v-87ffcada]:before {      border-top: 1px dotted #888;      content: "";      position: absolute;      top: 56%;      left: 0;      width: 100%;      z-index: -1    }    .article-comments h2 span[data-v-87ffcada] {      font-size: 15.25px;      font-weight: 400;      padding: 0 1rem;      background: #fff;      display: inline-block    }    .article-sub-bottom[data-v-87ffcada] {      z-index: 10;      cursor: pointer    }    @media (max-width:769px) {      .article .breadcrumb[data-v-87ffcada] {        padding: 10px 0      }    }</style><style type="text/css">    .share-poster-wrapper {      position: fixed;      background-color: #fff;      left: 0;      bottom: 0;      z-index: 100;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      overflow: hidden;      width: 100%;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -moz-user-select: -moz-none;      -webkit-user-select: none;      -ms-user-select: none;      user-select: none    }    .share-poster-wrapper .poster-bottom,    .share-poster-wrapper .poster-middle,    .share-poster-wrapper .poster-top {      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .poster-middle {      padding: 16px 32px;      -webkit-box-sizing: border-box;      box-sizing: border-box    }    .share-poster-wrapper .poster-middle .poster-userinfo {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      padding-bottom: 18px    }    .share-poster-wrapper .poster-middle .poster-userinfo .poster-avatar {      min-width: 45px;      min-height: 45px;      width: 7vw;      height: 7vw;      border-radius: 50%;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .poster-middle .nickname {      font-size: 5vw;      font-weight: 400;      margin-left: 18px    }    .share-poster-wrapper .poster-middle .time {      font-size: 3.2vw    }    .share-poster-wrapper .poster-middle .poster-middle-content {      font-size: 4vw;      font-weight: 400;      white-space: normal;      word-wrap: break-word;      word-break: break-word;      letter-spacing: 1px    }    .share-poster-wrapper .poster-middle .poster-middle-content p {      margin-bottom: 22px    }    .share-poster-wrapper .poster-middle .quote-content {      font-size: 3.7vw;      padding: 32px 0    }    .share-poster-wrapper .poster-middle .quote-content p {      margin-bottom: 22px    }    .share-poster-wrapper .poster-middle .quote-info {      border-left: 1px solid #000;      padding-left: 10px;      margin-top: 38px    }    .share-poster-wrapper .poster-middle .quote-info p {      font-size: 3.2vw;      line-height: 1.5    }    .share-poster-wrapper.theme0 .poster-top {      width: 100%;      height: 25px;      margin-top: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/top.png") no-repeat 15px 1px    }    .share-poster-wrapper.theme0 .poster-middle {      width: 100%;      padding-left: 56px;      padding-right: 56px;      background-image: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/middle.png");      background-repeat: repeat-y;      background-position: 15px 0    }    .share-poster-wrapper.theme0 .poster-middle .time {      margin-bottom: 45px    }    .share-poster-wrapper.theme0 .poster-middle .quote-content {      border-top: 1px solid #e3e1dc;      margin-top: 30px    }    .share-poster-wrapper.theme0 .poster-bottom {      width: 100%;      height: 25px;      margin-bottom: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/bottom.png") no-repeat 15px -10px    }    .share-poster-wrapper.theme1 .poster-top {      width: 100%;      height: 25px;      margin-top: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/top.png") no-repeat 38px 1px    }    .share-poster-wrapper.theme1 .poster-middle {      width: 100%;      padding: 0 42px 10px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/middle.png") repeat-y 38px 0    }    .share-poster-wrapper.theme1 .poster-middle .poster-userinfo {      border-bottom: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .poster-userinfo .poster-avatar {      margin-left: 38px    }    .share-poster-wrapper.theme1 .poster-middle .poster-middle-wrapper {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      min-height: 260px;      border-bottom: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .time {      max-width: 65px;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      text-align: center;      vertical-align: middle;      border-right: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .time span {      white-space: nowrap;      -webkit-transform: rotate(90deg);      transform: rotate(90deg)    }    .share-poster-wrapper.theme1 .poster-middle .poster-middle-content {      padding: 30px    }    .share-poster-wrapper.theme1 .poster-middle .quote-content {      font-size: 3.7vw;      margin-left: 36px;      margin-right: 36px    }    .share-poster-wrapper.theme1 .poster-middle .quote-info {      margin-left: 36px;      margin-right: 36px    }    .share-poster-wrapper.theme1 .poster-middle .footer {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      margin-right: 30px    }    .share-poster-wrapper.theme1 .poster-bottom {      width: 100%;      height: 25px;      margin-bottom: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/bottom.png") no-repeat 38px -10px    }    .share-poster-wrapper .share-poster {      background: #fefdf8;      -webkit-box-sizing: border-box;      box-sizing: border-box;      color: #9b8d73;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      overflow: auto;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-overflow-scrolling: touch;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .share-poster-wrapper .share-poster.color0 {      background-color: #fefdf8    }    .share-poster-wrapper .share-poster.color1 {      background-color: #4d4d4d    }    .share-poster-wrapper .share-poster .footer {      margin-top: 2rem;      position: relative;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: end;      -ms-flex-pack: end;      justify-content: flex-end;      -webkit-box-align: end;      -ms-flex-align: end;      align-items: flex-end    }    .share-poster-wrapper .share-poster .footer p {      margin: 0;      line-height: 1.4;      margin-left: 20px;      text-align: right;      padding-right: 20px    }    .share-poster-wrapper .controls {      background: #fff;      border-top: 1px solid #f5f5f5;      width: 100%;      padding-top: 5px;      -webkit-box-shadow: 0 -4px 10px 0 rgba(0, 0, 0, .1);      box-shadow: 0 -4px 10px 0 rgba(0, 0, 0, .1);      z-index: 1;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .controls>div {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      padding: 10px 0    }    .share-poster-wrapper .controls>div span {      font-size: .85rem    }    .share-poster-wrapper .controls>div button {      width: 100px;      height: 24px;      background: #eee;      margin: 0 10px;      border-radius: 5px;      border: 2px solid #b2b2b2;      outline: none    }    .share-poster-wrapper .controls>div button.on {      border: 2px solid #ff5a05    }    .share-poster-wrapper .controls .controls-themes button {      color: #b2b2b2;      font-size: 12px;      background: #fff;      text-align: center    }    .share-poster-wrapper .controls .controls-themes button.on {      color: #ff5a05    }    .share-poster-wrapper .buttons {      background: #fff;      border-top: 1px solid #f5f5f5;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .buttons a {      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      text-align: center;      color: #000;      font-weight: 400;      height: 3rem;      line-height: 3rem    }    .share-poster-wrapper .buttons a:last-child {      border-left: 1px solid #f5f5f5    }    .share-poster-wrapper img {      max-width: 100%    }    .share-poster-wrapper.android .poster-middle .nickname {      font-size: 10vw    }    .share-poster-wrapper.android .poster-middle .time {      font-size: 6.4vw    }    .share-poster-wrapper.android .poster-middle .poster-middle-content {      font-size: 8vw    }    .share-poster-wrapper.android .poster-middle .quote-content {      font-size: 7.4vw    }    .share-poster-wrapper.android .poster-middle .quote-info p {      font-size: 6.4vw    }</style><style type="text/css">    .mobile-tips {      width: 100%;      height: 51px;      background: rgba(0, 0, 0, .8);      position: fixed;      top: 0;      left: 0;      z-index: 20;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 0 12px;      -webkit-transition: opacity .35s;      transition: opacity .35s;      opacity: 0;      pointer-events: none    }    .mobile-tips.istop {      opacity: 1;      pointer-events: auto    }    .mobile-tips .mobile-tips-info {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: start;      -ms-flex-pack: start;      justify-content: flex-start    }    .mobile-tips .mobile-tips-info i {      width: 36px;      height: 36px;      background-image: url(data:image/png;base64,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);      background-position: 0 0;      background-repeat: no-repeat;      background-size: contain;      border-radius: 7px    }    .mobile-tips .mobile-tips-info h2 {      font-size: 15px;      color: #fff;      font-weight: 400;      margin-left: 6px    }    .mobile-tips .mobile-tips-info h2 span {      font-size: 11px    }    .mobile-tips a {      width: 72px;      height: 31px;      text-align: center;      border: 1px solid #ff5a05;      border-radius: 3px;      font-size: 13px;      color: #ff5a05;      line-height: 31px    }</style><style type="text/css">    .mini-audio-player {      width: 100%;      height: 5.25rem;      border: 1px solid #d9d9d9;      background: #fafafa;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 1rem;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      margin: 1rem 0    }    .mini-audio-player>a {      border: none;      -ms-flex-negative: 0;      flex-shrink: 0    }    .mini-audio-player .btn-play {      background-image: url(data:image/png;base64,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)    }    .mini-audio-player .btn-pause,    .mini-audio-player .btn-play {      width: 2.6875rem;      height: 2.6875rem;      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain;      text-decoration: none    }    .mini-audio-player .btn-pause {      background-image: url(data:image/png;base64,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)    }    .mini-audio-player .audio-info {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      margin-left: .6875rem;      min-width: 0    }    .mini-audio-player .audio-info h3 {      color: #353535;      font-size: 15.25px;      margin: 0;      white-space: nowrap;      overflow: hidden;      text-overflow: ellipsis    }    .mini-audio-player .audio-info p {      margin: 0;      margin-top: .125rem;      font-size: 11px;      line-height: 1rem    }    .mini-audio-player .audio-info p span {      color: #888    }    .mini-audio-player .btn-download {      width: 1.25rem;      height: 1.25rem;      position: relative;      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAA+CAYAAACbQR1vAAABS2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxMzggNzkuMTU5ODI0LCAyMDE2LzA5LzE0LTAxOjA5OjAxICAgICAgICAiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIi8+CiA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgo8P3hwYWNrZXQgZW5kPSJyIj8+IEmuOgAAA4hJREFUaIHtm8lOFFEUhr9qCWGHGxcaY1joK2h0YRzAtYmsWbAGGidEXOACbAYRxfgAPoEPoInGxJgg86gsJTHMw86EhS7O7TDk3uqq6qo6HahvQ7pOce7//1U0feve9vr6+lAiD3QC/4AC8FZDRJXGoMB14PWB1yPANPA1bSG5tAc0XLEcu5y6CvQCOGU5pnI3agVQMWQBaAvQJgtAW4A2WQDaArTJAtAWoE0WgLYAbbIAtAVokwWgLUCbLABtAdpkAfjU6oC7wKV0pCTCRcRDnesEVwDNwC/gg/nZHbeyFOgGltj30Gw7yRZALfAOqDavPeA50BO7xOToQTR75nU14qn26Im2AM4DNZbjz4DeePQlSi+i9Sg1iLdD2AJYApYdzbuo7BBeIBptLCPeDmELYA9oBHYdjbqQpaxKowA8ddR2gXuIt0O43gRHgTu4Q+ikskIoIJps7AINwA9b0e/fYJAQ1FZWD9CP2/wOUI/DPJT+IDRqGrhCeGIEaNEPdDhqO8iVH/NrEOST4BgSwo6j3gEMBOgTNwP4m6+nhHkI/lG4VAiPgcGAveJg0IxpYxvROh6kUZi5wLhpvO2oPyKdEF6asWyEMg/hJ0PjyN+VXwhDIXuGYQh46KhtIeYnwjSMMhss3glbjvoDkglhyPS2Eck8RJ8OTyB3gl8IryL2tjGM2/wmYn4ySuNyngdMmIE3HfX7iHDPUQ+CZ3q0O+qbyIWIZB7KfyAyaQS4QmhH7oQoIZQyv0EZV75IHE+EJvG/E9oJfyd4yC6yvKO+gQQ/FaKnlbgeiU0hIWw46nnEUJAQiubbHPV1M1bZ5iHeZ4KlQmgD3uAfgofsGfQz34DsKYyFuLemTSMhfATOWOqtiMk/llrRfIuj9zpwG5gtX+Y+SezNK4bwCXsILdgDaAXOOnomYh6Seyw+gwhed9TPWY75mb9FAuYh2XWBWUS4K4QgrAE3gblYFFlIemFkDjEQJYQ1JMD5WBUdIY2VoXkkhLUQv7NqfidR85De0liYEFaRK7+QqCJDmmuDC0gIqz7nrJhzUjEP6S+O+oWwglz5xTQFaawOLwI3gO8Hjo2ZY6maB72vzPwErgEXkO8MuVaiEkcrgCK/lcfPNkhkAWgL0KYKmZiMIG9Ktn0Bx5G/wDcgXwW8R6avJ41G4HQOufInlas5ZO5+UpnJAU3AFyy7J44xe8BnoOk/JruwYo92bigAAAAASUVORK5CYII=);      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain;      text-decoration: none;      padding-right: .25rem    }    .mini-audio-player .btn-download .icon-download-done {      width: .45rem;      height: .45rem;      position: absolute;      bottom: 0;      right: 0;      display: inline-block;      background-image: url(data:image/png;base64,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);      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain    }</style><style type="text/css">    .MathJax_Display {      overflow: auto    }    .poster {      position: fixed;      left: -10000px;      top: -10000px;      overflow: hidden;      padding: 1rem;      background: #ececec    }    .richcontent-pre-copy {      font-size: 13px;      color: #888;      position: absolute;      right: 1em;      top: .2em;      cursor: pointer;      -webkit-user-select: none;      -moz-user-select: none;      -ms-user-select: none;      user-select: none    }    .richcontent-pre-copy .iconfont {      font-size: 12px;      margin-right: .2em    }</style><style type="text/css">    .comment-item {      list-style-position: inside;      width: 100%;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      margin-bottom: 1rem    }    .comment-item a {      border-bottom: none    }    .comment-item .avatar {      width: 2.625rem;      height: 2.625rem;      -ms-flex-negative: 0;      flex-shrink: 0;      border-radius: 50%    }    .comment-item .info {      margin-left: .5rem;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1    }    .comment-item .info .hd {      width: 100%;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .comment-item .info .hd .username {      color: #888;      font-size: 15.25px;      font-weight: 400;      line-height: 1.2    }    .comment-item .info .hd .control {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .comment-item .info .hd .control .btn-share {      color: #888;      font-size: .75rem;      margin-right: 1rem    }    .comment-item .info .hd .control .btn-praise {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      font-size: 15.25px;      text-decoration: none    }    .comment-item .info .hd .control .btn-praise i {      color: #888;      display: inline-block;      font-size: .75rem;      margin-right: .3rem;      margin-top: -.01rem    }    .comment-item .info .hd .control .btn-praise i.on,    .comment-item .info .hd .control .btn-praise span {      color: #ff5a05    }    .comment-item .info .bd {      color: #353535;      font-size: 15.25px;      font-weight: 400;      white-space: normal;      word-break: break-all;      line-height: 1.6    }    .comment-item .info .time {      color: #888;      font-size: 9px;      line-height: 1    }    .comment-item .info .reply .reply-hd {      font-size: 15.25px    }    .comment-item .info .reply .reply-hd span {      margin-left: -12px;      color: #888;      font-weight: 400    }    .comment-item .info .reply .reply-hd i {      color: #ff5a05;      font-size: 15.25px    }    .comment-item .info .reply .reply-content {      color: #353535;      font-size: 15.25px;      font-weight: 400;      white-space: normal;      word-break: break-all    }    .comment-item .info .reply .reply-time {      color: #888;      font-size: 9px    }</style><style type="text/css">    .breadcrumb {      padding: 30px 0;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -ms-flex-wrap: wrap;      flex-wrap: wrap;      background: #fff    }    .breadcrumb a.title {      color: #e57c39;      font-size: 15px;      font-weight: 400    }    .breadcrumb span.title {      color: #888;      font-size: 15px;      font-weight: 400    }    .breadcrumb .split {      color: #ccc;      font-size: 10px;      margin-right: 5px    }</style></head><body style=""><div id="app"><div data-v-87ffcada="" class="article"><div data-v-87ffcada="" class="main main-app" style="margin-top: 0px;"><h1 data-v-87ffcada="" class="article-title">          33 | 字符串匹配基础（中）：如何实现文本编辑器中的查找功能？</h1><div data-v-87ffcada="" class="article-info"><span data-v-87ffcada="">2018-12-07</span><span data-v-87ffcada="">王争</span></div><div data-v-87ffcada="" class="article-content typo common-content"><img data-v-87ffcada="" src="https://static001.geekbang.org/resource/image/d0/ec/d05de7616d91d99c3afe11ebd66497ec.jpg"><div data-v-87ffcada="" class="mini-audio-player"><a href="javascript:;" class="btn-play"></a><div class="audio-info"><h3>33 | 字符串匹配基础（中）：如何实现文本编辑器中的查找功能？</h3><p><span>朗读人：秭明&nbsp;&nbsp;&nbsp;</span><span>00:18:20 | 17199</span></p></div><audio title="33 | 字符串匹配基础（中）：如何实现文本编辑器中的查找功能？" src="https://static001.geekbang.org/resource/audio/73/a1/736b0c95a01feff4e12b1eb6ba8cbca1.mp3" controls="controls"></audio></div><div data-v-87ffcada="" id="article-content" class=""><div class="text">              <p>文本编辑器中的查找替换功能，我想你应该不陌生吧？比如，我们在Word中把一个单词统一替换成另一个，用的就是这个功能。你有没有想过，它是怎么实现的呢？</p><p>当然，你用上一节讲的BF算法和RK算法，也可以实现这个功能，但是在某些极端情况下，BF算法性能会退化的比较严重，而RK算法需要用到哈希算法，而设计一个可以应对各种类型字符的哈希算法并不简单。</p><p>对于工业级的软件开发来说，我们希望算法尽可能的高效，并且在极端情况下，性能也不要退化的太严重。那么，<strong><span class="orange">对于查找功能是重要功能的软件来说，比如一些文本编辑器，它们的查找功能都是用哪种算法来实现的呢？有没有比BF算法和RK算法更加高效的字符串匹配算法呢？</span></strong></p><p>今天，我们就来学习BM（Boyer-Moore）算法。它是一种非常高效的字符串匹配算法，有实验统计，它的性能是著名的<a href="https://zh.wikipedia.org/wiki/%E5%85%8B%E5%8A%AA%E6%96%AF-%E8%8E%AB%E9%87%8C%E6%96%AF-%E6%99%AE%E6%8B%89%E7%89%B9%E7%AE%97%E6%B3%95">KMP算法</a>的3到4倍<strong>。</strong>BM算法的原理很复杂，比较难懂，学起来会比较烧脑，我会尽量给你讲清楚，同时也希望你做好打硬仗的准备。好，现在我们正式开始！</p><h2>BM算法的核心思想</h2><p>我们把模式串和主串的匹配过程，看作模式串在主串中不停地往后滑动。当遇到不匹配的字符时，BF算法和RK算法的做法是，模式串往后滑动一位，然后从模式串的第一个字符开始重新匹配。我举个例子解释一下，你可以看我画的这幅图。</p><!-- [[[read_end]]] --><p><img src="https://static001.geekbang.org/resource/image/43/f9/4316dd98eac500a01a0fd632bb5e77f9.jpg" alt=""></p><p>在这个例子里，主串中的c，在模式串中是不存在的，所以，模式串向后滑动的时候，只要c与模式串有重合，肯定无法匹配。所以，我们可以一次性把模式串往后多滑动几位，把模式串移动到c的后面。</p><p><img src="https://static001.geekbang.org/resource/image/cf/15/cf362f9e59c01aaf40a34d2f10e1ef15.jpg" alt=""></p><p>由现象找规律，你可以思考一下，当遇到不匹配的字符时，有什么固定的规律，可以将模式串往后多滑动几位呢？这样一次性往后滑动好几位，那匹配的效率岂不是就提高了？</p><p>我们今天要讲的BM算法，本质上其实就是在寻找这种规律。借助这种规律，在模式串与主串匹配的过程中，当模式串和主串某个字符不匹配的时候，能够跳过一些肯定不会匹配的情况，将模式串往后多滑动几位。</p><h2>BM算法原理分析</h2><p>BM算法包含两部分，分别是<strong>坏字符规则</strong>（bad character rule）和<strong>好后缀规则</strong>（good suffix shift）。我们下面依次来看，这两个规则分别都是怎么工作的。</p><h3>1.坏字符规则</h3><p>前面两节讲的算法，在匹配的过程中，我们都是按模式串的下标从小到大的顺序，依次与主串中的字符进行匹配的。这种匹配顺序比较符合我们的思维习惯，而BM算法的匹配顺序比较特别，它是按照模式串下标从大到小的顺序，倒着匹配的。我画了一张图，你可以看下。</p><p><img src="https://static001.geekbang.org/resource/image/29/e1/29521f541dd45e13162013b3364fece1.jpg" alt=""><img src="https://static001.geekbang.org/resource/image/54/9e/540809418354024206d9989cb6cdd89e.jpg" alt=""></p><p>我们从模式串的末尾往前倒着匹配，当我们发现某个字符没法匹配的时候。我们把这个没有匹配的字符叫作<strong>坏字符</strong>（主串中的字符）。</p><p><img src="https://static001.geekbang.org/resource/image/22/da/220daef736418df84367215647bca5da.jpg" alt=""></p><p>我们拿坏字符c在模式串中查找，发现模式串中并不存在这个字符，也就是说，字符c与模式串中的任何字符都不可能匹配。这个时候，我们可以将模式串直接往后滑动三位，将模式串滑动到c后面的位置，再从模式串的末尾字符开始比较。</p><p><img src="https://static001.geekbang.org/resource/image/4e/64/4e36c4d48d1b6c3b499fb021f03c7f64.jpg" alt=""></p><p>这个时候，我们发现，模式串中最后一个字符d，还是无法跟主串中的a匹配，这个时候，还能将模式串往后滑动三位吗？答案是不行的。因为这个时候，坏字符a在模式串中是存在的，模式串中下标是0的位置也是字符a。这种情况下，我们可以将模式串往后滑动两位，让两个a上下对齐，然后再从模式串的末尾字符开始，重新匹配。</p><p><img src="https://static001.geekbang.org/resource/image/a8/ca/a8d229aa217a67051fbb31b8aeb2edca.jpg" alt=""></p><p>第一次不匹配的时候，我们滑动了三位，第二次不匹配的时候，我们将模式串后移两位，那具体滑动多少位，到底有没有规律呢？</p><p>当发生不匹配的时候，我们把坏字符对应的模式串中的字符下标记作si。如果坏字符在模式串中存在，我们把这个坏字符在模式串中的下标记作xi。如果不存在，我们把xi记作-1。那模式串往后移动的位数就等于si-xi。（注意，我这里说的下标，都是字符在模式串的下标）。</p><p><img src="https://static001.geekbang.org/resource/image/8f/2e/8f520fb9d9cec0f6ea641d4181eb432e.jpg" alt=""></p><p>这里我要特别说明一点，如果坏字符在模式串里多处出现，那我们在计算xi的时候，选择最靠后的那个，因为这样不会让模式串滑动过多，导致本来可能匹配的情况被滑动略过。</p><p>利用坏字符规则，BM算法在最好情况下的时间复杂度非常低，是O(n/m)。比如，主串是aaabaaabaaabaaab，模式串是aaaa。每次比对，模式串都可以直接后移四位，所以，匹配具有类似特点的模式串和主串的时候，BM算法非常高效。</p><p>不过，单纯使用坏字符规则还是不够的。因为根据si-xi计算出来的移动位数，有可能是负数，比如主串是aaaaaaaaaaaaaaaa，模式串是baaa。不但不会向后滑动模式串，还有可能倒退。所以，BM算法还需要用到“好后缀规则”。</p><h3>2.好后缀规则</h3><p>好后缀规则实际上跟坏字符规则的思路很类似。你看我下面这幅图。当模式串滑动到图中的位置的时候，模式串和主串有2个字符是匹配的，倒数第3个字符发生了不匹配的情况。</p><p><img src="https://static001.geekbang.org/resource/image/d7/8a/d78990dbcb794d1aa2cf4a3c646ae58a.jpg" alt=""></p><p>这个时候该如何滑动模式串呢？当然，我们还可以利用坏字符规则来计算模式串的滑动位数，不过，我们也可以使用好后缀处理规则。两种规则到底如何选择，我稍后会讲。抛开这个问题，现在我们来看，好后缀规则是怎么工作的？</p><p>我们把已经匹配的bc叫作好后缀，记作{u}。我们拿它在模式串中查找，如果找到了另一个跟{u}相匹配的子串{u*}，那我们就将模式串滑动到子串{u*}与主串中{u}对齐的位置。</p><p><img src="https://static001.geekbang.org/resource/image/b9/63/b9785be3e91e34bbc23961f67c234b63.jpg" alt=""></p><p>如果在模式串中找不到另一个等于{u}的子串，我们就直接将模式串，滑动到主串中{u}的后面，因为之前的任何一次往后滑动，都没有匹配主串中{u}的情况。</p><p><img src="https://static001.geekbang.org/resource/image/de/cd/de97c461b9b9dbc42d35768db59908cd.jpg" alt=""></p><p>不过，当模式串中不存在等于{u}的子串时，我们直接将模式串滑动到主串{u}的后面。这样做是否有点太过头呢？我们来看下面这个例子。这里面bc是好后缀，尽管在模式串中没有另外一个相匹配的子串{u*}，但是如果我们将模式串移动到好后缀的后面，如图所示，那就会错过模式串和主串可以匹配的情况。</p><p><img src="https://static001.geekbang.org/resource/image/9b/70/9b3fa3d1cd9c0d0f914a9b1f518ad070.jpg" alt=""></p><p>如果好后缀在模式串中不存在可匹配的子串，那在我们一步一步往后滑动模式串的过程中，只要主串中的{u}与模式串有重合，那肯定就无法完全匹配。但是当模式串滑动到前缀与主串中{u}的后缀有部分重合的时候，并且重合的部分相等的时候，就有可能会存在完全匹配的情况。</p><p><img src="https://static001.geekbang.org/resource/image/05/23/0544d2997d8bb57c10e13ccac4015e23.jpg" alt=""></p><p>所以，针对这种情况，我们不仅要看好后缀在模式串中，是否有另一个匹配的子串，我们还要考察好后缀的后缀子串，是否存在跟模式串的前缀子串匹配的。</p><p>所谓某个字符串s的后缀子串，就是最后一个字符跟s对齐的子串，比如abc的后缀子串就包括c, bc。所谓前缀子串，就是起始字符跟s对齐的子串，比如abc的前缀子串有a，ab。我们从好后缀的后缀子串中，找一个最长的并且能跟模式串的前缀子串匹配的，假设是{v}，然后将模式串滑动到如图所示的位置。</p><p><img src="https://static001.geekbang.org/resource/image/6c/f9/6caa0f61387fd2b3109fe03d803192f9.jpg" alt=""></p><p>坏字符和好后缀的基本原理都讲完了，我现在回答一下前面那个问题。当模式串和主串中的某个字符不匹配的时候，如何选择用好后缀规则还是坏字符规则，来计算模式串往后滑动的位数？</p><p>我们可以分别计算好后缀和坏字符往后滑动的位数，然后取两个数中最大的，作为模式串往后滑动的位数。这种处理方法还可以避免我们前面提到的，根据坏字符规则，计算得到的往后滑动的位数，有可能是负数的情况。</p><h2>BM算法代码实现</h2><p>学习完了基本原理，我们再来看，如何实现BM算法？</p><p>“坏字符规则”本身不难理解。当遇到坏字符时，要计算往后移动的位数si-xi，其中xi的计算是重点，我们如何求得xi呢？或者说，如何查找坏字符在模式串中出现的位置呢？</p><p>如果我们拿坏字符，在模式串中顺序遍历查找，这样就会比较低效，势必影响这个算法的性能。有没有更加高效的方式呢？我们之前学的散列表，这里可以派上用场了。我们可以将模式串中的每个字符及其下标都存到散列表中。这样就可以快速找到坏字符在模式串的位置下标了。</p><p>关于这个散列表，我们只实现一种最简单的情况，假设字符串的字符集不是很大，每个字符长度是1字节，我们用大小为256的数组，来记录每个字符在模式串中出现的位置。数组的下标对应字符的ASCII码值，数组中存储这个字符在模式串中出现的位置。</p><p><img src="https://static001.geekbang.org/resource/image/bf/02/bf78f8a0506e069fa318f36c42a95e02.jpg" alt=""></p><p>如果将上面的过程翻译成代码，就是下面这个样子。其中，变量b是模式串，m是模式串的长度，bc表示刚刚讲的散列表。</p><pre><code>private static final int SIZE = 256; // 全局变量或成员变量
+private void generateBC(char[] b, int m, int[] bc) {
+  for (int i = 0; i &lt; SIZE; ++i) {
+    bc[i] = -1; // 初始化bc
+  }
+  for (int i = 0; i &lt; m; ++i) {
+    int ascii = (int)b[i]; // 计算b[i]的ASCII值
+    bc[ascii] = i;
+  }
+}
+</code></pre><p>掌握了坏字符规则之后，我们先把BM算法代码的大框架写好，先不考虑好后缀规则，仅用坏字符规则，并且不考虑si-xi计算得到的移动位数可能会出现负数的情况。</p><pre><code>public int bm(char[] a, int n, char[] b, int m) {
+  int[] bc = new int[SIZE]; // 记录模式串中每个字符最后出现的位置
+  generateBC(b, m, bc); // 构建坏字符哈希表
+  int i = 0; // i表示主串与模式串对齐的第一个字符
+  while (i &lt;= n - m) {
+    int j;
+    for (j = m - 1; j &gt;= 0; --j) { // 模式串从后往前匹配
+      if (a[i+j] != b[j]) break; // 坏字符对应模式串中的下标是j
+    }
+    if (j &lt; 0) {
+      return i; // 匹配成功，返回主串与模式串第一个匹配的字符的位置
+    }
+    // 这里等同于将模式串往后滑动j-bc[(int)a[i+j]]位
+    i = i + (j - bc[(int)a[i+j]]); 
+  }
+  return -1;
+}
+</code></pre><p>代码里的注释已经很详细了，我就不再赘述了。不过，为了你方便理解，我画了一张图，将其中的一些关键变量标注在上面了，结合着图，代码应该更好理解。</p><p><img src="https://static001.geekbang.org/resource/image/53/c6/5380b6ef906a5210f782fccd044b36c6.jpg" alt=""></p><p>至此，我们已经实现了包含坏字符规则的框架代码，只剩下往框架代码中填充好后缀规则了。现在，我们就来看看，如何实现好后缀规则。它的实现要比坏字符规则复杂一些。</p><p>在讲实现之前，我们先简单回顾一下，前面讲过好后缀的处理规则中最核心的内容：</p><ul>
+<li>
+<p>在模式串中，查找跟好后缀匹配的另一个子串；</p>
+</li>
+<li>
+<p>在好后缀的后缀子串中，查找最长的、能跟模式串前缀子串匹配的后缀子串；</p>
+</li>
+</ul><p>在不考虑效率的情况下，这两个操作都可以用很“暴力”的匹配查找方式解决。但是，如果想要BM算法的效率很高，这部分就不能太低效。如何来做呢？</p><p>因为好后缀也是模式串本身的后缀子串，所以，我们可以在模式串和主串正式匹配之前，通过预处理模式串，预先计算好模式串的每个后缀子串，对应的另一个可匹配子串的位置。这个预处理过程比较有技巧，很不好懂，应该是这节最难懂的内容了，你要认真多读几遍。</p><p>我们先来看，<strong>如何表示模式串中不同的后缀子串呢？</strong>因为后缀子串的最后一个字符的位置是固定的，下标为m-1，我们只需要记录长度就可以了。通过长度，我们可以确定一个唯一的后缀子串。</p><p><img src="https://static001.geekbang.org/resource/image/77/c8/7742f1d02d0940a1ef3760faf4929ec8.jpg" alt=""></p><p>现在，我们要<strong>引入最关键的变量suffix数组</strong>。suffix数组的下标k，表示后缀子串的长度，下标对应的数组值存储的是，在模式串中跟好后缀{u}相匹配的子串{u*}的起始下标值。这句话不好理解，我举一个例子。</p><p><img src="https://static001.geekbang.org/resource/image/99/c2/99a6cfadf2f9a713401ba8feac2484c2.jpg" alt=""></p><p>但是，如果模式串中有多个（大于1个）子串跟后缀子串{u}匹配，那suffix数组中该存储哪一个子串的起始位置呢？为了避免模式串往后滑动得过头了，我们肯定要存储模式串中最靠后的那个子串的起始位置，也就是下标最大的那个子串的起始位置。不过，这样处理就足够了吗？</p><p>实际上，仅仅是选最靠后的子串片段来存储是不够的。我们再回忆一下好后缀规则。</p><p>我们不仅要在模式串中，查找跟好后缀匹配的另一个子串，还要在好后缀的后缀子串中，查找最长的能跟模式串前缀子串匹配的后缀子串。</p><p>如果我们只记录刚刚定义的suffix，实际上，只能处理规则的前半部分，也就是，在模式串中，查找跟好后缀匹配的另一个子串。所以，除了suffix数组之外，我们还需要另外一个boolean类型的prefix数组，来记录模式串的后缀子串是否能匹配模式串的前缀子串。</p><p><img src="https://static001.geekbang.org/resource/image/27/83/279be7d64e6254dac1a32d2f6d1a2383.jpg" alt=""></p><p>现在，我们来看下，<strong>如何来计算并填充这两个数组的值</strong>？这个计算过程非常巧妙。</p><p>我们拿下标从0到i的子串（i可以是0到m-2）与整个模式串，求公共后缀子串。如果公共后缀子串的长度是k，那我们就记录suffix[k]=j（j表示公共后缀子串的起始下标）。如果j等于0，也就是说，公共后缀子串也是模式串的前缀子串，我们就记录prefix[k]=true。</p><p><img src="https://static001.geekbang.org/resource/image/57/7c/5723be3c77cdbddb64b1f8d6473cea7c.jpg" alt=""></p><p>我们把suffix数组和prefix数组的计算过程，用代码实现出来，就是下面这个样子：</p><pre><code>// b表示模式串，m表示长度，suffix，prefix数组事先申请好了
+private void generateGS(char[] b, int m, int[] suffix, boolean[] prefix) {
+  for (int i = 0; i &lt; m; ++i) { // 初始化
+    suffix[i] = -1;
+    prefix[i] = false;
+  }
+  for (int i = 0; i &lt; m - 1; ++i) { // b[0, i]
+    int j = i;
+    int k = 0; // 公共后缀子串长度
+    while (j &gt;= 0 &amp;&amp; b[j] == b[m-1-k]) { // 与b[0, m-1]求公共后缀子串
+      --j;
+      ++k;
+      suffix[k] = j+1; //j+1表示公共后缀子串在b[0, i]中的起始下标
+    }
+    i
+    if (j == -1) prefix[k] = true; //如果公共后缀子串也是模式串的前缀子串
+  }
+}
+</code></pre><p>有了这两个数组之后，我们现在来看，<strong>在模式串跟主串匹配的过程中，遇到不能匹配的字符时，如何根据好后缀规则，计算模式串往后滑动的位数？</strong></p><p>假设好后缀的长度是k。我们先拿好后缀，在suffix数组中查找其匹配的子串。如果suffix[k]不等于-1（-1表示不存在匹配的子串），那我们就将模式串往后移动j-suffix[k]+1位（j表示坏字符对应的模式串中的字符下标）。如果suffix[k]等于-1，表示模式串中不存在另一个跟好后缀匹配的子串片段。我们可以用下面这条规则来处理。</p><p><img src="https://static001.geekbang.org/resource/image/1d/72/1d046df5cc40bc57d3f92ff7c51afb72.jpg" alt=""></p><p>好后缀的后缀子串b[r, m-1]（其中，r取值从j+2到m-1）的长度k=m-r，如果prefix[k]等于true，表示长度为k的后缀子串，有可匹配的前缀子串，这样我们可以把模式串后移r位。</p><p><img src="https://static001.geekbang.org/resource/image/63/0d/63a357abc9766393a77a9a006a31b10d.jpg" alt=""></p><p>如果两条规则都没有找到可以匹配好后缀及其后缀子串的子串，我们就将整个模式串后移m位。</p><p><img src="https://static001.geekbang.org/resource/image/d9/a1/d982db00467964666de18ed5ac647fa1.jpg" alt=""></p><p>至此，好后缀规则的代码实现我们也讲完了。我们把好后缀规则加到前面的代码框架里，就可以得到BM算法的完整版代码实现。</p><pre><code>// a,b表示主串和模式串；n，m表示主串和模式串的长度。
+public int bm(char[] a, int n, char[] b, int m) {
+  int[] bc = new int[SIZE]; // 记录模式串中每个字符最后出现的位置
+  generateBC(b, m, bc); // 构建坏字符哈希表
+  int[] suffix = new int[m];
+  boolean[] prefix = new boolean[m];
+  generateGS(b, m, suffix, prefix);
+  int i = 0; // j表示主串与模式串匹配的第一个字符
+  while (i &lt;= n - m) {
+    int j;
+    for (j = m - 1; j &gt;= 0; --j) { // 模式串从后往前匹配
+      if (a[i+j] != b[j]) break; // 坏字符对应模式串中的下标是j
+    }
+    if (j &lt; 0) {
+      return i; // 匹配成功，返回主串与模式串第一个匹配的字符的位置
+    }
+    int x = j - bc[(int)a[i+j]];
+    int y = 0;
+    if (j &lt; m-1) { // 如果有好后缀的话
+      y = moveByGS(j, m, suffix, prefix);
+    }
+    i = i + Math.max(x, y);
+  }
+  return -1;
+}
+
+// j表示坏字符对应的模式串中的字符下标; m表示模式串长度
+private int moveByGS(int j, int m, int[] suffix, boolean[] prefix) {
+  int k = m - 1 - j; // 好后缀长度
+  if (suffix[k] != -1) return j - suffix[k] +1;
+  for (int r = j+2; r &lt;= m-1; ++r) {
+    if (prefix[m-r] == true) {
+      return r;
+    }
+  }
+  return m;
+}
+</code></pre><h2>BM算法的性能分析及优化</h2><p>我们先来分析BM算法的内存消耗。整个算法用到了额外的3个数组，其中bc数组的大小跟字符集大小有关，suffix数组和prefix数组的大小跟模式串长度m有关。</p><p>如果我们处理字符集很大的字符串匹配问题，bc数组对内存的消耗就会比较多。因为好后缀和坏字符规则是独立的，如果我们运行的环境对内存要求苛刻，可以只使用好后缀规则，不使用坏字符规则，这样就可以避免bc数组过多的内存消耗。不过，单纯使用好后缀规则的BM算法效率就会下降一些了。</p><p>对于执行效率来说，我们可以先从时间复杂度的角度来分析。</p><p>实际上，我前面讲的BM算法是个初级版本。为了让你能更容易理解，有些复杂的优化我没有讲。基于我目前讲的这个版本，在极端情况下，预处理计算suffix数组、prefix数组的性能会比较差。</p><p>比如模式串是aaaaaaa这种包含很多重复的字符的模式串，预处理的时间复杂度就是O(m^2)。当然，大部分情况下，时间复杂度不会这么差。关于如何优化这种极端情况下的时间复杂度退化，如果感兴趣，你可以自己研究一下。</p><p>实际上，BM算法的时间复杂度分析起来是非常复杂，这篇论文“<a href="http://dl.acm.org/citation.cfm?id=1382431.1382552">A new proof of the linearity of the Boyer-Moore string searching algorithm</a>”证明了在最坏情况下，BM算法的比较次数上限是5n。这篇论文“<a href="http://dl.acm.org/citation.cfm?id=127830">Tight bounds on the complexity of the Boyer-Moore string matching algorithm</a>”证明了在最坏情况下，BM算法的比较次数上限是3n。你可以自己阅读看看。</p><h2>解答开篇&amp;内容小结</h2><p>今天，我们讲了一种比较复杂的字符串匹配算法，BM算法。尽管复杂、难懂，但匹配的效率却很高，在实际的软件开发中，特别是一些文本编辑器中，应用比较多。如果一遍看不懂的话，你就多看几遍。</p><p>BM算法核心思想是，利用模式串本身的特点，在模式串中某个字符与主串不能匹配的时候，将模式串往后多滑动几位，以此来减少不必要的字符比较，提高匹配的效率。BM算法构建的规则有两类，坏字符规则和好后缀规则。好后缀规则可以独立于坏字符规则使用。因为坏字符规则的实现比较耗内存，为了节省内存，我们可以只用好后缀规则来实现BM算法。</p><h2>课后思考</h2><p>你熟悉的编程语言中的查找函数，或者工具、软件中的查找功能，都是用了哪种字符串匹配算法呢？</p><p>欢迎留言和我分享，也欢迎点击“<span class="orange">请朋友读</span>”，把今天的内容分享给你的好友，和他一起讨论、学习。</p><p><img src="https://static001.geekbang.org/resource/image/8e/d3/8e603e3d795fc0ab2698f6f5eabf14d3.jpg" alt=""></p></div></div></div><div data-v-87ffcada="" class="article-comments"><h2 data-v-87ffcada=""><span data-v-87ffcada="">精选留言</span></h2><ul data-v-87ffcada="">            <li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/78/51/4790e13e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Smallfly</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>38</span></a></div>
+	</div>
+	<div class="bd">BM 算法分析着实比较复杂，不过按照老师的思路，一步一步走，看懂应该没问题的。但其实有些代码实现细节看不懂关系也不大。我们学算法主要目的是学习算法的思想，能在需要的时候加以应用就好。<br><br>但对于平时工作，几乎不可能遇到，需要自己手写一个字符串匹配算法的场景。那我们还要学，图的是什么？<br><br>我认为文章中值得学习借鉴的思想有：<br><br>1、要有优化意识，前面的 BF，RK 算法已经能够满足我们需求了，为什么发明 BM 算法？是为了减少时间复杂度，但是带来的弊端是，优化代码变得复杂，维护成本变高。<br><br>2、需要查找，需要减少时间复杂度，应该想到什么？散列表。<br><br>3、如果某个表达式计算开销比较大，又需要频繁的使用怎么办？预处理，并缓存。<br><br>（一点拙见，可能文中还有其它优秀的思想，没能 Get 到）</div> <span class="time">2018-12-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">meng</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>25</span></a></div>
+	</div>
+	<div class="bd">我对这次课的内容一知半解，于是在网上搜到一个文档，里面的图挺好的，跟大家分享一下：http:&#47;&#47;www.cs.jhu.edu&#47;~langmea&#47;resources&#47;lecture_notes&#47;boyer_moore.pdf</div> <span class="time">2018-12-09</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">meng</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>9</span></a></div>
+	</div>
+	<div class="bd">这篇文章啃了很长时间了，有个问题请教：是否可以不要prefix数组，直接通过suffix[k]==0来判断前缀子串的匹配与否？</div> <span class="time">2018-12-23</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">suke</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>8</span></a></div>
+	</div>
+	<div class="bd">老师以后的代码中的变量能不能起的有意义一些，这样更加方便大家理解代码啊，不要总拿a b c bc这种完全没有意义的名字来命名变量</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/b3/c5/7fc124e2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Liam</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>7</span></a></div>
+	</div>
+	<div class="bd">好后缀原则下，最后一种情况为什么移到坏字符后面呢，不能移到好后缀的后面吗？即m+1,而不是j + 1</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">你说的对 👍 我改下</p> <p class="reply-time">2018-12-07</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/63/14/06eff9a4.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Jerry银银</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>6</span></a></div>
+	</div>
+	<div class="bd">曾经一度觉得字符串匹配的几大算法，都是高山仰止的，难以理解。<br><br>但是前阵子受两句话启发，从此以后对字符串匹配问题，至少在战略层面藐视了它：<br>1. 善用之前信息(从信息论的角度：消除信息的不确定性，就是引入信息)<br><br>2. 增加效率，在资源有限的情况下，只有想办法少做事情</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/40/10/b6bf3c3c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">纯洁的憎恶</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>5</span></a></div>
+	</div>
+	<div class="bd">大体思路应该是看懂了，不过具体实现和代码细节还需要时间消化。BM算法的核心思想是通过将模式串沿着主串大踏步的向后滑动，从而大大减少比较次数，降低时间复杂度。而算法的关键在于如何兼顾步子迈得足够大与无遗漏，同时要尽量提高执行效率。这就需要模式串在向后滑动时，遵守坏字符规则与好后缀规则，同时采用一些技巧。<br><br>坏字符规则：从后往前逐位比较模式串与主串的字符，当找到不匹配的坏字符时，记录模式串的下标值si，并找到坏字符在模式串中，位于下标si前的最近位置xi（若无则记为-1），si-xi即为向后滑动距离。（PS：我觉得加上xi必须在si前面，也就是比si小的条件，就不用担心计算出的距离为负了）。但是坏字符规则向后滑动的步幅还不够大，于是需要好后缀规则。<br><br>好后缀规则：从后往前逐位比较模式串与主串的字符，当出现坏字符时停止。若存在已匹配成功的子串｛u｝，那么在模式串的｛u｝前面找到最近的｛u｝，记作｛u&#39;｝。再将模式串后移，使得模式串的｛u&#39;｝与主串的｛u｝重叠。若不存在｛u&#39;｝，则直接把模式串移到主串的｛u｝后面。为了没有遗漏，需要找到最长的、能够跟模式串的前缀子串匹配的，好后缀的后缀子串（同时也是模式串的后缀子串）。然后把模式串向右移到其左边界，与这个好后缀的后缀子串在主串中的左边界对齐。<br><br>何时使用坏字符规则和好后缀规则呢？首先在每次匹配过程中，一旦发现坏字符，先执行坏字符规则，如果发现存在好后缀，还要执行好后缀规则，并从两者中选择后移距离最大的方案执行。<br><br>技巧：<br>1.通过散列表实现，坏字符在模式串中下标位置的快速查询。<br>2.每次执行好后缀原则时，都会计算多次能够与模式串前缀子串相匹配的好后缀的最长后缀子串。为了提高效率，可以预先计算模式串的所有后缀子串，在模式串中与之匹配的另一个子串的位置。同时预计算模式串中（同长度的）后缀子串与前缀子串是否匹配并记录。在具体操作中直接使用，大大提高效率。<br>3.如何快速记录模式串后缀子串匹配的另一个子串位置，以及模式串（相同长度）前缀与后缀子串石否匹配呢？先用一个suffix数组，下标值k为后缀子串的长度，从模式串下标为i（0~m-2）的字符为最后一个字符，查找这个子串是否与后缀子串匹配，若匹配则将子串起始位置的下标值j赋给suffix[k]。若j为0，说明这个匹配子串的起始位置为模式串的起始位置，则用一个数组prefix，将prefix[k]设为true，否则设为false。k从0到m（模式串的长度）于是就得到了模式串所有前缀与后缀子串的匹配情况。</div> <span class="time">2018-12-10</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/08/eb/fed61050.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">五岳寻仙</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>5</span></a></div>
+	</div>
+	<div class="bd">老师好！今天讲的BM算法确实有点复杂，不过听的时候有熟悉的感觉，似乎跟之前接触过的Boyer Moore算法很像，查了一下才发现原来是同一种算法😂<br><br>在工作中遇到过这样的情况，需要在一个长度为n (比如十亿级)的巨大的主串中查找长度为m(比如几百)的模式串。主串是固定的，从直观上讲，要加快搜索速度，就需要对主串建索引。BWT-FM算法是解决这类问题最经典的算法，刚接触时也是不好理解，但感觉非常神奇，可以将搜索的时间复杂度降到O(m)，是我认为最伟大的算法之一。</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/40/5e/b8fada94.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Ryoma</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">跟课程以来觉得最难的一次，也有可能之前使用手机看的原因。总体上，拿手机看了3次，今天在电脑上看了第一次，终于将好后缀那部分理解清晰。学生时代接触的性能较高字符串匹配算法就是KMP，个人感觉BM比KMP更难理解，大家如果有没理解的，还是要多多看，或者拿着笔画一画</div> <span class="time">2018-12-13</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/18/c4/e55fdc1c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">cygnus</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">generateGS函数里suffix和prefix的赋值应该放到while循环内，即每次k变动时都要赋值。<br>另外请问下：好后缀的后缀子串 b[r, m-1]，这里的r的初值j+2是怎么得来的啊？<br></div> <span class="time">2018-12-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">j表示坏字符的下标 好狗追其实下标j+1</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/e2/d7/7f95119d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">seniusen</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">好后缀原则中，最后一种情况，应该是移动 m 位吧，移动整个模式串的长度。<br></div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/d3/34/5dee4f70.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">P@tricK</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">老师，suffix和prefix的赋值那里有BUG，应该在每一次k的变动都要有suffix赋值。</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的 多谢</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/b3/c5/7fc124e2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Liam</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">好后缀原则中，最后一种情况，为什么是移动j + 1 位，而不是m+1位</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">移动到坏字符后面 移动m+1位是怎么理解的呢</p> <p class="reply-time">2018-12-07</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/e5/f7/70ae6368.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">不凉青年</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">这块断断续续看了好几天- -</div> <span class="time">2018-12-21</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/d3/34/5dee4f70.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">P@tricK</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">高票那个留言，是移动m位，不是m+1位。<br><br>这节课细节上小问题有点多，不过瑕不掩瑜，思想重要，细节自己钻研。</div> <span class="time">2018-12-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/f4/9f/c41c0142.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">nopsky</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">讲shuffix的第一个图中shuffix[4] = -1，这个-1怎么来的，不能理解，能不能再讲一下</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/e9/27/2aa8fb31.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">dapaul</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">坏字符规则那，算xi的位置时，应该只从坏字符对齐时模式串往前的字符中匹配，这样就不会出现si-xi为负了</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">代码实现就难了 也没那么高效了</p> <p class="reply-time">2018-12-07</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/71/7d/43c27c12.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">叶明</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">@meng 这篇文章啃了很长时间了，有个问题请教：是否可以不要prefix数组，直接通过suffix[k]==0来判断前缀子串的匹配与否？<br>这个应该不行，如果模式串中存在多个与好后缀匹配的子串，比如模式串是ababab，好后缀是ab，那么此时suffix[2] = 2(此时suffix[2]不等于0，因为为了移动步数最小，要匹配后一个ab)，prefix[2]=true</div> <span class="time">2019-01-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/1b/49/ddefc656.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">MrTrans</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">硬啃了两天，发现自己对每一节课的内容都会斟酌，都特别有意思，而且发现算法的思想真的博大精深，希望自己每一天都有进步。特别是这节课，虽然说很难，但是老师已经说了要打硬仗的准备，匹配，滑动，每一个步骤的讲得易懂，好后缀也是模式串本身的后缀，这句话特别让我醍醐灌顶，从而明白suffix数组怎么来的，根据长度又能在程序中体现他这一步的重要性。prefix体现的前缀匹配，能想到这样真的很厉害。BM算法确实很巧妙！</div> <span class="time">2019-01-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/f9/ab/374fe105.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Alan</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">在计算suffix 数组和 prefix 数组的代码中，第15行的i是不是多余的诶~？</div> <span class="time">2018-12-12</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Jamin</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">generateGS code第15行 没有写完吗？<br></div> <span class="time">2018-12-11</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">距离</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">对于还没毕业的我有点坚持不下去了</div> <span class="time">2018-12-10</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>编辑回复</span></div> 
+	<p class="reply-content">再坚持一下</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/df/1e/cea897e8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">传说中的成大大</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">在用一个256的数组 用字符的ascii码做下标 记录该字符出现的位置 如果存在相同字符怎么办呢？之前的会被新的覆盖掉的把！</div> <span class="time">2018-12-10</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的 就是要覆盖掉 留最大的</p> <p class="reply-time">2018-12-11</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/f3/58/026fc232.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">weizhe</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">老师，为什么suffix数组的代码实现中只记录了模式串中最长的后缀且在子串出现的情况，而没有记录其他子串{u*}的起始下标值?<br>（感觉generateGS方法中的每一条while判断成功后都应该在suffix数组中记录下来）<br></div> <span class="time">2018-12-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">已改正 不好意思</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/25/0b/f9fc5255.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">DADDYHINS</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">这 倒是能看懂，但是代码实现自己写还是一脑袋浆糊</div> <span class="time">2018-12-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">看懂就行了</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/f9/90/f90903e5.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">SyndromePolynomial</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">老师，您好，文中得generateGS函数，似乎不能求得模式串中存在多个好后缀得时候，靠右好后缀的起始下标。</div> <span class="time">2018-12-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">已经改正</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/c2/2e/c4a527d9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">blacknhole</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">有几点疑问：<br>1，“BM 算法的性能分析及优化”小节中说“suffix 数组的大小跟字符集大小有关”，这是书写错误吗？suffix数组长度应该与字符集大小无关，只跟模式串长度有关。与字符集大小有关的是bc数组。<br>2，BM 算法的完整版代码实现中的语句for (int r = j+2; r &lt; m-1; ++r) { if (prefix[m-r+1] == true) { return r; } }有误吧？应为r &lt; m和prefix[m-r]，即for (int r = j+2; r &lt; m; ++r) { if (prefix[m-r] == true) { return r; } }。</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">1 笔误 是bc数组<br>2 我改下 多谢指正</p> <p class="reply-time">2018-12-07</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/eb/81/43f4b52c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">杨伟</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">这个算法用的多么？老师为什么讲解这个算法？</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">怎么讲呢 平常不大可能会自己去实现一个bm算法 顶多就用个bf算法。不过bm算法号称最高效的 比如grep命令就是用它实现的 所以有必要讲一下 不然不完整啊 你全当思维训练吧</p> <p class="reply-time">2018-12-07</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/49/5e/855768b0.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">深蓝...</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">有点掉队的节奏</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">正常的。但凡是上难度的 都会有掉队的 就看谁能跟上了</p> <p class="reply-time">2018-12-07</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/6f/5d/f0a19f09.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">ldd</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">BM算法中坏字符规则，HashTable只存储模式串中的字符，可以不用存全部字符，取的时候，先判断是否存在，不存在就当 -1 处理，这样子坏字符规则的空间复杂度就是O(m)了，老师，不知道这样子可不可以？</div> <span class="time">2019-02-12</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/fe/4f/3a7b8033.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">幻大米</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">“模式串向后滑动的时候，只要 c 与模式串有重合，肯定无法匹配。”<br><br>以上有笔误，应该是“只要 c 与模式串没有重合，肯定无法匹配”。</div> <span class="time">2019-02-06</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/d2/cc/b473ed5a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">彭川宇</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">suffix【4】应该等于2吧</div> <span class="time">2019-01-31</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/8a/87/7ad32df9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">z</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，变量名请尽量不要简写或简写加点注释哇，翻下翻下，读起来费劲啊</div> <span class="time">2019-01-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">哈哈，主要是如果不简写的话，一行代码贼长，在手机上看会很痛苦的。</p> <p class="reply-time">2019-01-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/H8NxrljQXliccaT5fjdXJQYS3ou3Z9ykAuKw6EgicicEA9L4jQLz3h85P0odgDSaK0cA9oTyUKibbiagdNvnHuuV5mQ/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">匆匆</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">字符串匹配<br><br>主串长n，模式串长m；<br><br>BF算法：也叫暴力匹配算法。即将再主串中从前到后依次检查长度为m的字串，共n-m+1个字串，看有没有和模式串完全匹配的。时间复杂度O(n*m)。<br><br>RK算法：算是BF算法升级版，引入哈希算法。对主串的n-m+1个字串分别求哈希值，哈希算法是这样的：a-z的字母依次对应0-25，所以每个字串都可计算出一个值（如cba=2*26*26+1*26+0），而下一个字串的哈希值可以借助上一个字串的来求得（为了减少计算量），通过哈希值来进行匹配。如何处理哈希冲突的情况？当哈希值对应多个字串时，只需暴力匹配即可。<br><br><br>BM算法：是一个高效的字符串匹配算法。原则是将模式串大踏步的沿着主串向后移动，减少比较次数提高效率。中间涉及到坏字符规则、好后缀规则、将后缀字串存散列表等。<br><br>后面还要再看、实现。<br></div> <span class="time">2019-01-21</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/4d/4d/58c2ffa1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">smartjia</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师写的还是很有条理的，一些小细节读第二遍就比较清晰了。<br><br>比如，meng 同学的问题：是否可以不要prefix数组，直接通过suffix[k]==0来判断前缀子串的匹配与否？<br><br>suffix 存储的是模式串中最靠后的那个子串的起始位置，也就是下标最大的那个子串的起始位置，如果模式串中有多个（大于 1 个）子串跟后缀子串{u}匹配，这种情况下就需要 prefix 数组。<br><br>这个文章中也有讨论，如果之前没接触过的话，只读一遍可能忽略掉了</div> <span class="time">2019-01-18</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/00/f6/f6cf138c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">青月北照</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，提个意见， 每次看到参数 a, b, c 这种入参都很头疼， 入参时候没有注明每个参数是什么， 还要看源码分析，能不能够用对应英文替代一下</div> <span class="time">2019-01-18</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">还好吧。我基本上都解释了每个变量的含义了：）</p> <p class="reply-time">2019-01-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/ec/8f/c7884530.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">🍏</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">正则表达式各种匹配模式是怎么实现的，感觉很复杂</div> <span class="time">2019-01-17</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/cb/ab/1aac53bf.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">董航</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">我觉得看代码看不懂的时候，应该先思考如果是你，你该怎么设计，再看看王老师写的代码，这样不仅收获更多，也更容易理解代码，最近很多不好的事蛮烦躁的，今天静下心来了。加油</div> <span class="time">2019-01-17</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/2e/3d/b0a45cc7.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">郭星志</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">看错了，确实会出现向后滑动；坏字符串为a，si=0，xi=3。</div> <span class="time">2019-01-16</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/2e/3d/b0a45cc7.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">郭星志</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">单纯使用坏字符串，怎么能出现后退滑动呢？我理解不回出现后退滑动呀<br>主串是 aaaaaaaaaaaaaaaa，模式串是 baaa；第一次比对是，坏字符串是b，si=0，xi=-1；滑动位置为si-xi，求得滑动位置为1。所以不回出现后退滑动呀。</div> <span class="time">2019-01-16</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/69/3d/3cfb9b87.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">左瞳</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">bc用散列表不是就不会占很多空间了吗？</div> <span class="time">2019-01-16</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/0f/c0/e6151cce.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">碧玉簪</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，好后缀代码实现中，第二种情况就是模式串中没有匹配好后缀，但是有好前缀匹配好后缀情况下，为啥滑动的是r位，在上面例子中c,b,a,c,a,b,c中，bc为好后缀，这样m=7，r=5,好后缀是[5,6],k=2,应该向后滑动6位是r+1位的呀?</div> <span class="time">2019-01-15</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/0f/c0/e6151cce.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">碧玉簪</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，你好，suffix和prefix数组生成的那段代码while循环中是不是应该是i++, 而不是i</div> <span class="time">2019-01-15</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/69/3d/3cfb9b87.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">左瞳</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">这篇今天没有消化完，明天还得继续看</div> <span class="time">2019-01-14</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/18/d0/49b06424.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">qinggeouye</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">「现在，引入最关键的变量 suffix 数组。suffix 数组的下标 k ，表示后缀字串的长度，下标对应的数组值存储的是，在模式串中跟好后缀 {u} 相匹配的子串 {u~} 的起始下标值」<br>这里我的理解是：<br>结合上文提到的「好后缀本身也是模式串的后缀子串」，上面这段话下的图例中的后缀子串，首先将它作为好后缀 {u}，然后在「模式串中，查找跟好后缀匹配的另一个子串」，该子串 {u*} 的起始下标值存入数组 suffix，子串{u*}的起始下标值是指在模式串中的下标值。<br></div> <span class="time">2019-01-11</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/18/d0/49b06424.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">qinggeouye</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">「现在，引入最关键的变量 suffix 数组。suffix 数组的下标 k ，表示后缀字串的长度，下标对应的数组值存储的是，在模式串中跟好后缀 {u} 相匹配的子串 {u~} 的起始下标值」<br>您好，请问，这里的好后缀 {u} 是 cab 吗？我是根据这段话下面的图例推倒的。</div> <span class="time">2019-01-10</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/87/46/2850b4a9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">luo</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">大部分理解了，但是代码实现上的公共后缀子串那一块表示不大明白，不过花了些功夫总算理解了。<br>什么是公共后缀子串？其实就是模式串中后缀子串与之前子串的 公共子串。这么理解应该是对的吧。</div> <span class="time">2019-01-09</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">😂 应该是公共后缀子串</p> <p class="reply-time">2019-01-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/3c/be/2bce7512.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">几多不几多</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，看了下面的评论有同学问如下的字符串:  a b c d a a d<br>a a d <br>他计算出来si-xi=2 老师说计算出来是1 我计算出来却是3，坏字符为c，si为2，xi为-1，si-xi=3。请问老师我这样计算哪里错了呢？</div> <span class="time">2019-01-09</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">si指的模式串的下标 字符串从0开始编号。坏字符对应模式串中的第二个a 所以si是1。si-xi=2</p> <p class="reply-time">2019-01-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/76/de/5349a2e2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">叽咕叽咕噗噗</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师你好，有个疑问。针对坏匹配规则，我理解只要额外用散列表存储模式串中的出现的字符就可以了，key是模式串中的字符，value是在模式串中出现的相对位置。匹配的时候在散列表中查找坏匹配字符，查不到就整体往后移动，查到了就移动到相应位置。这样需要的额外空间就是模式串的长度的散列表</div> <span class="time">2019-01-08</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/f8/c3/1d557354.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">o my love</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">断断续续看了N遍，今天终于看懂了</div> <span class="time">2019-01-08</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/fa/52/4781da3f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Mr.M</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">假设好后缀的长度是k。我们先拿好后缀，在suffix数组中查找其匹配的子串。如果suffix[k]不等于-1，那我们就将模式串往后移动j-suffix[k]+1位，为什么是移动j-suffix[k]+1位啊？</div> <span class="time">2019-01-07</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">wei</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，我想对于大的字符集，把 bc 改为 HashMap，内存消耗就没问题了，应该可以的。是这样么？老师</div> <span class="time">2019-01-05</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">😄，可以</p> <p class="reply-time">2019-01-17</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/ee/04/81d19d82.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">佛学渣</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">在好字符匹配时，suffix为-1时从当前往前找第一个不为-1的就好了么，prexfix数组是否有点多余？(看不出prefix为true的时候而suffix为-1的情况)</div> <span class="time">2019-01-03</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不行啊  suffix跟prefix是两个东西 一个是前缀 一个是后缀</p> <p class="reply-time">2019-01-12</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/0c/c2/310f15a4.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Geek_zy</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd"><br>老师你好。<br>suffix[k] = j+1; 这句代码是不是可以放在while循环外边。<br></div> <span class="time">2019-01-02</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/df/1e/cea897e8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">传说中的成大大</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">把留言又翻了一遍 感觉好多大神啊.... 看老师的回复 这一节的内容只要了解思想就行了,但是我还是想把他写出来</div> <span class="time">2018-12-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/df/1e/cea897e8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">传说中的成大大</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">不过对于老师 的代码实现 理解起来还是懵逼 还是没理解到 尤其是suffix数组 和prefix数组</div> <span class="time">2018-12-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/df/1e/cea897e8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">传说中的成大大</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">今天又看了一遍 才把大体思路了解了 大概是 遇到好后缀的时候如果好后缀不能在模式串中找到另一个完全匹配的模式子串的时候就从好后缀的后缀子串中找一个能和模式串前缀子串中最长的一个 来决定移动好多位 同时 还要跟坏字符移动位数做比较来决定最后该移动多少位, 坏字符移动的逻辑过程中会出现怀字符出现在模式串串首位置 计算移动的时候坏字符 对应字符下标为si 但是si后面存在和坏字符相同的字符时 此时下标为xi 此时xi 大于si si-xi为负数 导致整个模式串向前移动</div> <span class="time">2018-12-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/e1/31/eb103bdc.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">kakasi</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">java String类中的indexof用了字符匹配。但让我没想到的是它竟然只是暴力匹配的基础上小优化了下，并没有用到RK, BM, KMP</div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/a0/cb/aab3b3e7.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">张三丰</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">因为根据 si-xi 计算出来的移动位数，有可能是负数，比如主串是 aaaaaaaaaaaaaaaa，模式串是 baaa。<br><br>si=0<br>xi=1   <br><br>老师 这样分析对吗<br></div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/ef/64/126bb06b.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">满地可</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">这篇文章啃了很长时间了，有个问题请教：是否可以不要prefix数组，直接通过suffix[k]==0来判断前缀子串的匹配与否？<br>-------------<br>同问这个问题，即：是否存在suffix[k]=-1，但prefix[k]=true的情况呢，<br>如果存在，为什么suffix[k]没能把这种情况识别出来呢？<br>希望老师解答，感谢~</div> <span class="time">2018-12-23</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/3b/bd/f9f780a4.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">james</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">看到一半，忍不住赞一个。文字比语言有力量多了。</div> <span class="time">2018-12-21</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/8c/3e/e767c15f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">western</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">我的亲娘咧，这个算法老师写了几遍才学会？实际工作中也需要自己手写吗</div> <span class="time">2018-12-20</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">我估计搞了一个礼拜吧。不会手写的。</p> <p class="reply-time">2018-12-20</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/22/af/1a31bc11.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">The Sword of Damocles</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">全文搜索“如果公共后缀子串也是模式串的前缀子串”，位于代码块的16行，它的上面一行15行，好像多敲了一个字母i</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">suke</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">同问suffix[4]=-1是怎么来的，求老师回答啊</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/30/1c/e160955d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">sky</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">看了好几天，终于看懂了</div> <span class="time">2018-12-18</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/27/06/b38cdd37.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Brandon</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">BM 比 KMP算法快3倍以上；<br>1、坏字符规则------都是总结出来的规律，不能从数量级层面提高效率，但成倍的提速是杠杠的<br>主要对象是模式串，在模式串中标记<br> 2、好后缀规则<br>主要对象是主串，在模式串和主串中找规律移动<br><br>BM算法的核心思想，利用模式串本身的特点，在模式串中摸个字符串与主串不能匹配的时候，将模式串往后滑动纪委，以此减少不必要的字符比较，提高匹配效率</div> <span class="time">2018-12-17</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/50/99/44378317.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">李皮皮皮皮皮</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">关于这个散列表，我们只实现一种最简单的情况，假设字符串的字符集不是很大，每个字符长度是 8 字节，我们用大小为 256 的数组，来记录每个字符在模式串中出现的位置。<br><br>—————————<br><br>这里每个字符应该是1个字节吧，1byte=8bit</div> <span class="time">2018-12-17</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">嗯嗯 多谢指正 笔误</p> <p class="reply-time">2018-12-17</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/05/88/d3f0341d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">linus</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">a b c  d  a  a  d<br>          a  a  d<br>对于上述情况，按照si-xi的计算应该是移动两位，但实际应该移动1位即可<br></div> <span class="time">2018-12-16</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">si-xi也是1吧</p> <p class="reply-time">2018-12-17</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/f8/87/0491e9e5.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Lisa Li</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">同问：“好后缀的后缀子串 b[r, m-1]，这里的r的初值j+2是怎么得来的啊” 回答是 “作者回复<br>j表示坏字符的下标 好狗追其实下标j+1”。 没有看懂好狗是什么。：P<br><br>我的理解是： j 是坏字符的下标。{u} 是好后缀，用b表示为， b[r, m-1]（其中，r 取值从 j+1 到 m-1。{v}是{u}的子集，其最早开始的下标是j+2，因为，我们已经验证过模式串中不存在和{u}完全相同的子串。其实，这里写成 j+1也可，就是多比一次。对吗？<br><br></div> <span class="time">2018-12-16</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/16/5b/83a35681.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Monday</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">如果好后缀在模式串中不存在可匹配的子串，那在我们一步一步往后滑动模式串的过程中，【只要主串中的{u}与模式串有重合】，那肯定就无法完全匹配。但是当模式串滑动到前缀与主串中{u}的后缀有部分重合的时候，并且重合的部分相等的时候，就有可能会存在完全匹配的情况。<br>中括号内那句是不是写反了？</div> <span class="time">2018-12-15</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/18/0e/39307052.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Laughing_Lz</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">终于看完了，好难···问下老师两个问题：<br>1、单使用坏字符规则，你提到根据si-xi计算移动位数会出现为负数，如主串aaaaaaaaaa，模式串baaa。请问这里是指si=0,xi=3吗？xi=3应该犹豫BC方法计算哈希值得到的结果。那能否使得移动位数不出现负数呢？<br>2、最后提到好后缀规则可以独立于坏字符规则使用。那坏字符规则是否也可以独立于好后缀规则使用呢？（如果不会出现移动位数为负数）</div> <span class="time">2018-12-15</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/43/24/3f9f7c70.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">zixuan</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">应该是最适合m不太大的场景。文本编辑器的场景很合适。</div> <span class="time">2018-12-13</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/03/a2/ceb37046.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">crazyone</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">如果好后缀在模式串中不存在可匹配的子串，那在我们一步一步往后滑动模式串的过程中，只要<br>主串中的{u}与模式串有重合，那肯定就无法完全匹配。<br>------------------------<br>总是感觉这里看着别扭，这个主串中的{u}指的就是好后缀吧？重合就是指匹配上的意思？</div> <span class="time">2018-12-12</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的</p> <p class="reply-time">2018-12-13</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/e0/26/4d458ce3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">猫头鹰爱拿铁</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师这篇真让我受益匪浅。逻辑条理都好清晰，一点点剖析下来，基本理解了这个算法的原理。<br>可是自己练习了下，发现很容易在边界的情况下很容易写错。。。比如说多计算或者少计算一位。</div> <span class="time">2018-12-11</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">写错正常的 我也写错了好几个地方 还是小伙伴给我指出的</p> <p class="reply-time">2018-12-13</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/64/05/6989dce6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">我来也</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">第一遍没看懂,今天再来看了一遍.感觉差不多了,就有一处疑问.<br>-----------<br>文中有一句:<br>&quot;如果好后缀在模式串中不存在可匹配的子串，那在我们一步一步往后滑动模式串的过程中，只要主串中的{u}与模式串有重合，那肯定就无法完全匹配。&quot;<br>-----------<br>我的疑问:<br>既然&quot;好后缀在模式串中不存在可匹配的子串&quot;了,应该就不存在往后滑动模式串的过程中,出现&quot;主串中的{u}与模式串有重合&quot;的情况了吧.<br>-----------<br>还请老师和同学们来答疑,谢谢!</div> <span class="time">2018-12-11</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/f5/99/454b17c1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">他在她城断了弦</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">因为根据 si-xi 计算出来的移动位数，有可能是负数，比如主串是 aaaaaaaaaaaaaaaa，模式串是 baaa。不但不会向后滑动模式串，还有可能倒退。<br>这里不太懂，老师能解释下吗？</div> <span class="time">2018-12-10</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/40/10/b6bf3c3c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">纯洁的憎恶</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">太精妙啦～不知道是怎么想出来的</div> <span class="time">2018-12-10</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/10/a6/564f9143.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">sarahsnow</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">例子中，prefix数组的值有误吧？<br>suffix b和ab，可以在模式串cabcab的前缀中找到<br>应该是：<br>prefix[1] = true<br>prefix[2] = true<br></div> <span class="time">2018-12-09</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">必须是前缀才是true</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/0f/ab/9748f40b.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">微秒</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，我们从好后缀的后缀子串中，找一个最长的并且能跟模式串的前缀子串匹配的。为什么会是最长呢？万一公共的后缀子串中出现更小的公共子串，这种情况也有可能出现匹配的情况吧。</div> <span class="time">2018-12-09</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">最长的 模式串往后滑动的最少 这就避免了滑动过头</p> <p class="reply-time">2018-12-11</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/da/7f/8069035d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">ZX</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">用js写了一遍<br><br>&#47;**<br> * BM算法，取好坏部分，进行模式串的移动<br> * 1.主串从左往右匹配模式串<br> * 2.模式串从右往左每个字符匹配<br> * 3.如果出现不匹配的字符，取坏字符规则和好字符规则中较大的值进行移动<br> * 4.坏字符规则：看不匹配的值在模式串前面是否还有出现过，进行相应的移动<br> * 5.好字符规则：先看好字符串在前面是否有出现，没有就看好字符的后缀子串是否是模式串的前缀子串，进行相应的移动<br> * 6.技巧，模式串是固定的，可以预先构建一个查找某个字符在模式串位置的对象(方便后面查找坏字符)，构建一个后缀串是否在模式串出现和后缀串是否是前缀串的数组(方便进行好字符规则进行匹配)<br> *&#47;<br><br>&#47;**<br> * @param {*} s 模式串<br> * @param {*} m 主串<br> *&#47;<br>function BM(s, m) {<br>  const bc = {}<br>  generateBC(bc, s)<br>  const suffix = [] &#47;&#47; 模式串后缀串在模式串前面是否有出现<br>  const prefix = [] &#47;&#47; 模式串后缀串是否是模式串前缀串<br>  generateSP(s, suffix, prefix)<br><br>  const mLength = m.length<br>  const sLength = s.length<br><br>  let i = sLength - 1<br>  while (i &lt; mLength) {<br>    let j = sLength - 1<br>    while (j &gt;=0 &amp;&amp; m[i] === s[j]) {<br>      i--<br>      j--<br>    }<br>    if (j === -1) return i + 1<br>    const badMove = j - bc[m[i]]<br>    const goodMove = moveByGood(s, j, suffix, prefix)<br>    i += Math.max(badMove, goodMove)<br>  }<br>  return false<br>}<br><br>&#47;**<br> * 计算好后缀规则需要移动的步数<br> * @param {} s <br> * @param {*} j <br> * @param {*} suffix <br> * @param {*} prefix <br> *&#47;<br>function moveByGood(s, j, suffix, prefix) {<br>  const m = s.length<br>  const k = m - j - 1<br>  if (typeof suffix[k] !== &#39;undefined&#39;) return j - suffix[k]<br>  for (let i = k; i &gt; 0 ; i--) {<br>    if (prefix[i] === true) return m - i<br>  }<br>  return m<br>}<br><br>&#47;**<br> * 构建坏字符<br> * @param {*} bc <br> * @param {*} s <br> *&#47;<br>function generateBC(bc, s) {<br>  const length = s.length<br>  for(let i = 0; i&lt; length - 1; i++) {<br>    bc[s[i]] = i<br>  }<br>}<br><br>&#47;**<br> * 构建模式串后缀和前缀的数组<br> * @param {*} s <br> * @param {*} suffix <br> * @param {*} prefix <br> *&#47;<br>function generateSP(s, suffix, prefix) {<br>  const length = s.length<br>  for(let i = 0; i &lt; length - 1; i++) {<br>    let j = i<br>    let k = 0<br>    while(j &gt;= 0 &amp;&amp; s[j] === s[length - k - 1]) {<br>      j--<br>      k++<br>    }<br>    if (k !== 0) suffix[k] = j<br>    if (j === -1) prefix[k] = true<br>  }<br>}</div> <span class="time">2018-12-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/77/4b/ede8aa13.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">喵吉豆豆</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">如果我们处理字符集很大的字符串匹配问题，suffix 数组对内存的消耗就会比较多。因为好后缀和坏字符规则是独立的，如果我们运行的环境对内存要求苛刻，可以只使用好后缀规则，不使用坏字符规则，这样就可以避免 suffix 数组过多的内存消耗。不过，单纯使用好后缀规则的 BM 算法效率就会下降一些了。<br>这里应该是bc数组吧</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的 已经改正</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/8b/e0/9a79ddac.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">🐱您的好友William🐱</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">懂了是懂了，但是你让我自己实现是不可能实现的，这辈子。。。。之后有可能实现。。。。<br>其实精髓都在最后那三张移动的图里，记住两原则取最大的，好后缀按“suffix”，“prefix”，“都没对上”，三个顺序输出。其中一旦在原则中出现了匹配到多次的情况，都按最保守最接近右侧的取。</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">看懂就够了 能看懂我就没白画这文章中的22张图 </p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/69/4d/81c44f45.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">拉欧</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">花了一下午时间全弄明白了，感觉字符串匹配算法方面精进不少</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/03/b8/961a5342.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">吴月月鸟</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">0	1	2	3	4	5		0	1	2	3	4	5<br>c	a	b	c	a	b		c	a	b	c	a	b<br>												<br>					b		c					<br>				a	b		c	a				<br>			c	a	b		c	a	b			<br>		b	c	a	b		c	a	b	c		<br>	a	b	c	a	b		c	a	b	c	a	<br>这是我在excel中画的suffix和prefix值的图，重点要理解suffix和prefix公式的含义，后续的内容才好理解，希望能帮助大家方便理解。</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/11/82/ab3f0985.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">槛外人</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">最后为什么是从这两个移动位数中取最大值而不是最小值来避免错过了？<br></div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">两个算法是独立的 坏字符移动3 是对的 好后缀移动5也是对的 那我们就选最大的移动</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/4e/3a/a7bd1801.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">walor</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">BM 算法的性能分析及优化<br>我们先来分析 BM 算法的内存消耗。整个算法用到了额外的 2 个数组，其中 suffix 数组的大小跟<br>字符集大小有关，prefix 数组的大小跟模式串长度 m 有关。<br><br>问题：<br>这里说的 suffix 数组，应该是 bc 数组吧</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的 已经改正</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/d5/f0/1f86793d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">sherry</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">上面有个同学提到，“坏字符规则计算xi的位置时，从坏字符对齐时模式串往前的字符中匹配，这样就不会出现si-xi为负”。我觉得这样是可行的，并且这样操作之后只使用坏字符规则就能完成字符串的匹配了，但是效率不一定会更高。因为老师在讲解代码实现时提到：为了更高效地查找坏字符的xi，所以使用了散列表，从例子中可以看出，相同字符在散列之后前面的就被覆盖掉了（只留下相同字符的最后位置在散列表中，数组的下标为字符的ASCII码，值为该字符出现的最后位置），这样获取xi简单有效。如果从对齐位置往前查找模式串中是否有该字符，那么要么使用顺序遍历查找这种低效的方法，要么就要解决散列冲突，所以这种方法不一定会更好。<br><br>另外我的问题是老师给了两篇文章的链接，证明了在最坏情况下BM的比较次数上限分别为5n和3n，这两个证明都是正确的吗？还没有读论文，但是第一感觉看起来这句话是矛盾的呀，对于确定问题怎么会有不同结果呢？</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不矛盾 比如有10个人 我量了一下这10人的身高 说身高上限是1.8m。你又量了一遍说是1.79m。我俩都没错 你更精确</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/31/34/ba1c8fc7.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">任雪龙</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">坏字节匹配时，构造的 bc 数组这里是不是有问题，模式串中出现两个 a 的情况下，数组下标为 97 的地方值只会保存模式串中最后一个 a 字符在串中的位置，这样出现坏字符时怎么能确定上一个 a 的位置呢？</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">就是只保存最后一个  再看看文章</p> <p class="reply-time">2018-12-07</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/15/78/8298abb8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">MSN</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">suffix数组的下标是后缀字符的长度，那不应该和模式串的长度m有关系吗，跟字符集有什么关系？希望老师解答</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是bc 已经改正</p> <p class="reply-time">2018-12-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/4f/e7/7e51052a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">fumeck.com🍋🌴summer sky</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">看得有点懵逼哎</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">那就多看几遍啊 内容的难度摆在那里 要么多思考搞定它 要么就放弃这篇 直接看后面的 其他没啥办法了</p> <p class="reply-time">2018-12-07</p>
+	</div>
+</div>
+</li></ul></div></div></div></div><div id="translate-man-app" class="content-3WfBL_0" style="background-color: rgb(255, 255, 255); display: none;"><div data-v-ea0bd11e="" class="outputBox-qe9A4_0"><div data-v-ea0bd11e="" class="outputBox-3oESn_0"><span data-v-ea0bd11e="" class="outputBox-13Ovx_0"></span></div><div data-v-ea0bd11e="" class="outputBox-1GLb__0"><div data-v-ea0bd11e="" class="outputBox-onVZH_0"><img src="chrome-extension://fapgabkkfcaejckbfmfcdgnfefbmlion/static/sound.svg"            class="icon-tprjJ_0"></div></div><div data-v-ea0bd11e="" class="outputBox-2sJgr_0"></div><div data-v-ea0bd11e="" class="outputBox-17RAm_0" style="display: none;"><div data-v-ea0bd11e=""></div></div></div></div><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({        showProcessingMessages: false,        messageStyle: "none",        tex2jax: {          inlineMath: [['$','$'], ['\\(','\\)']],          displayMath: [ ["$$","$$"] ],          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'a']        }      });      MathJax.Hub.Register.MessageHook("End Process", function (message) {        var eve = new Event('mathjaxfini')        window.dispatchEvent(eve)      })</script></body></html>

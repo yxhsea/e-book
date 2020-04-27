@@ -1,0 +1,1860 @@
+<html class="cye-disabled cye-lm"><head><meta charset="utf-8"><link rel="apple-touch-icon" sizes="180x180" href="http://static001.geekbang.org/static/icon/time/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="http://static001.geekbang.org/static/icon/time/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="http://static001.geekbang.org/static/icon/time/favicon-16x16.png"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="format-detection" content="telephone=no"><title>03 | 基础篇：经常说的 CPU 上下文切换是什么意思？（上）</title><link href="https://static001.geekbang.org/static/time/css/app.b230db929e53af87acd535637f5011b8.css" rel="stylesheet"><style id="nightModeStyle">    html.cye-enabled.cye-nm:not(*:-webkit-full-screen) body,html.cye-enabled.cye-nm:not(*:-webkit-full-screen) #cye-workaround-body {-webkit-filter:contrast(91%) brightness(84%) invert(1);}</style><style id="cyebody">html.cye-enabled.cye-lm body{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyediv">html.cye-enabled.cye-lm div{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyetable">html.cye-enabled.cye-lm th{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}html.cye-enabled.cye-lm td{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyetextInput">html.cye-enabled.cye-lm input[type=text]{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}html.cye-enabled.cye-lm textarea{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeselect">html.cye-enabled.cye-lm select{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeul">html.cye-enabled.cye-lm ul{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeChangeByClick">html.cye-enabled.cye-lm .cye-lm-tag,html.cye-enabled.cye-lm.cye-lm-tag{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style type="text/css">    .hljs-ln {      border-collapse: collapse    }    .hljs-ln td {      padding: 0    }    .hljs-ln-n:before {      content: attr(data-line-number)    }</style><style type="text/css">    #iv-container {      position: fixed;      background: #0d0d0d;      width: 100%;      height: 100%;      top: 0;      left: 0;      display: none;      z-index: 1000    }    .iv-container {      overflow: hidden    }    .iv-close {      width: 26px;      height: 26px;      position: absolute;      right: 20px;      top: 20px;      cursor: pointer;      text-align: center;      overflow: hidden;      text-shadow: 0 0 3px #6d6d6d;      -webkit-transition: all .2s ease;      -moz-transition: all ease .2s;      -o-transition: all ease .2s;      transition: all .2s ease    }    .iv-close:after,    .iv-close:before {      content: "";      height: 2px;      width: 26px;      background: #fff;      position: absolute;      left: 0;      top: 50%;      margin-top: -2px;      border-radius: 2px    }    .iv-close:before {      -webkit-transform: rotate(45deg);      -moz-transform: rotate(45deg);      -ms-transform: rotate(45deg);      -o-transform: rotate(45deg);      transform: rotate(45deg)    }    .iv-close:after {      -webkit-transform: rotate(-45deg);      -moz-transform: rotate(-45deg);      -ms-transform: rotate(-45deg);      -o-transform: rotate(-45deg);      transform: rotate(-45deg)    }    .iv-close:hover {      -webkit-transform: rotate(90deg);      -moz-transform: rotate(90deg);      -ms-transform: rotate(90deg);      -o-transform: rotate(90deg);      transform: rotate(90deg)    }    .iv-image-view {      position: absolute;      height: 100%;      width: 100%    }    .iv-image-wrap {      display: inline-block    }    .iv-image-wrap:active {      cursor: move    }    .iv-large-image {      cursor: move;      max-width: 100%;      max-height: 100%;      background-color: #ececec;      -moz-transform: translateZ(0);      -o-transform: translateZ(0)    }    .iv-large-image,    .iv-loader {      position: absolute;      -webkit-transform: translateZ(0);      -ms-transform: translateZ(0);      transform: translateZ(0)    }    .iv-loader {      top: 50%;      left: 50%;      border-radius: 50%;      width: 32px;      height: 32px;      z-index: 100;      margin-top: -16px;      margin-left: -16px;      font-size: 5px;      text-indent: -9999em;      border-top: 1em solid hsla(0, 0%, 100%, .2);      border-right: 1em solid hsla(0, 0%, 100%, .2);      border-bottom: 1em solid hsla(0, 0%, 100%, .2);      border-left: 1em solid #fff;      -webkit-animation: load8 1.1s infinite linear;      animation: load8 1.1s infinite linear    }    .iv-loader:after {      width: 10em;      height: 10em;      border-radius: 50%    }    @-webkit-keyframes load8 {      0% {        -webkit-transform: rotate(0deg);        transform: rotate(0deg)      }      to {        -webkit-transform: rotate(1turn);        transform: rotate(1turn)      }    }    @keyframes load8 {      0% {        -webkit-transform: rotate(0deg);        transform: rotate(0deg)      }      to {        -webkit-transform: rotate(1turn);        transform: rotate(1turn)      }    }</style><style type="text/css">    .vue-pull-to-wrapper[data-v-12abd9fb] {      display: -webkit-box;      display: -webkit-flex;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -webkit-flex-direction: column;      flex-direction: column;      height: 100%    }    .scroll-container[data-v-12abd9fb] {      -webkit-box-flex: 1;      -webkit-flex: 1;      flex: 1;      overflow-y: auto;      -webkit-overflow-scrolling: touch    }    .vue-pull-to-wrapper .action-block[data-v-12abd9fb] {      position: relative;      width: 100%    }    .default-text[data-v-12abd9fb] {      height: 100%;      line-height: 50px;      text-align: center    }</style><style type="text/css">    .button-cancel[data-v-87ffcada] {      color: #888;      border: 1px solid #888;      border-radius: 3px;      margin-right: 12px    }    .button-cancel[data-v-87ffcada],    .button-primary[data-v-87ffcada] {      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      height: 35px;      display: inline-block;      font-size: 15px;      text-align: center;      line-height: 36px    }    .button-primary[data-v-87ffcada] {      color: #fff;      background-color: #ff5a05;      border-radius: 3px    }    .article[data-v-87ffcada] {      max-width: 46.25rem;      margin: 0 auto    }    .article .article-unavailable[data-v-87ffcada] {      color: #fff;      text-align: center;      font-size: .875rem;      font-weight: 400;      width: 100%;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 0 15%;      height: 4.9rem;      background-image: url(data:image/jpeg;base64,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);      background-position: 0 0;      background-repeat: no-repeat;      background-size: cover;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center    }    .article .main[data-v-87ffcada] {      padding: 1.25rem 1.375rem;      margin-top: 52px;      margin-bottom: 52px    }    .article-title[data-v-87ffcada] {      color: #353535;      font-weight: 400;      line-height: 1.65rem;      font-size: 1.34375rem    }    .article-info[data-v-87ffcada] {      color: #888;      font-size: .9375rem;      margin-top: 1.0625rem    }    .article-content[data-v-87ffcada] {      margin-top: 1.0625rem    }    .article-content.android video[data-v-87ffcada]::-webkit-media-controls-fullscreen-button {      display: none    }    .audio-player[data-v-87ffcada] {      width: 100%;      margin: 20px 0    }    .to-comment[data-v-87ffcada] {      overflow: hidden;      margin-bottom: -30px    }    .to-comment a.button-primary[data-v-87ffcada] {      float: right;      height: 20px;      font-size: 12px;      line-height: 20px;      padding: 4px 8px;      cursor: pointer    }    .article-comments[data-v-87ffcada] {      margin-top: 2rem    }    .article-comments h2[data-v-87ffcada] {      text-align: center;      color: #888;      position: relative;      z-index: 1;      margin-bottom: 1rem    }    .article-comments h2[data-v-87ffcada]:before {      border-top: 1px dotted #888;      content: "";      position: absolute;      top: 56%;      left: 0;      width: 100%;      z-index: -1    }    .article-comments h2 span[data-v-87ffcada] {      font-size: 15.25px;      font-weight: 400;      padding: 0 1rem;      background: #fff;      display: inline-block    }    .article-sub-bottom[data-v-87ffcada] {      z-index: 10;      cursor: pointer    }    @media (max-width:769px) {      .article .breadcrumb[data-v-87ffcada] {        padding: 10px 0      }    }</style><style type="text/css">    .share-poster-wrapper {      position: fixed;      background-color: #fff;      left: 0;      bottom: 0;      z-index: 100;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      overflow: hidden;      width: 100%;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -moz-user-select: -moz-none;      -webkit-user-select: none;      -ms-user-select: none;      user-select: none    }    .share-poster-wrapper .poster-bottom,    .share-poster-wrapper .poster-middle,    .share-poster-wrapper .poster-top {      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .poster-middle {      padding: 16px 32px;      -webkit-box-sizing: border-box;      box-sizing: border-box    }    .share-poster-wrapper .poster-middle .poster-userinfo {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      padding-bottom: 18px    }    .share-poster-wrapper .poster-middle .poster-userinfo .poster-avatar {      min-width: 45px;      min-height: 45px;      width: 7vw;      height: 7vw;      border-radius: 50%;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .poster-middle .nickname {      font-size: 5vw;      font-weight: 400;      margin-left: 18px    }    .share-poster-wrapper .poster-middle .time {      font-size: 3.2vw    }    .share-poster-wrapper .poster-middle .poster-middle-content {      font-size: 4vw;      font-weight: 400;      white-space: normal;      word-wrap: break-word;      word-break: break-word;      letter-spacing: 1px    }    .share-poster-wrapper .poster-middle .poster-middle-content p {      margin-bottom: 22px    }    .share-poster-wrapper .poster-middle .quote-content {      font-size: 3.7vw;      padding: 32px 0    }    .share-poster-wrapper .poster-middle .quote-content p {      margin-bottom: 22px    }    .share-poster-wrapper .poster-middle .quote-info {      border-left: 1px solid #000;      padding-left: 10px;      margin-top: 38px    }    .share-poster-wrapper .poster-middle .quote-info p {      font-size: 3.2vw;      line-height: 1.5    }    .share-poster-wrapper.theme0 .poster-top {      width: 100%;      height: 25px;      margin-top: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/top.png") no-repeat 15px 1px    }    .share-poster-wrapper.theme0 .poster-middle {      width: 100%;      padding-left: 56px;      padding-right: 56px;      background-image: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/middle.png");      background-repeat: repeat-y;      background-position: 15px 0    }    .share-poster-wrapper.theme0 .poster-middle .time {      margin-bottom: 45px    }    .share-poster-wrapper.theme0 .poster-middle .quote-content {      border-top: 1px solid #e3e1dc;      margin-top: 30px    }    .share-poster-wrapper.theme0 .poster-bottom {      width: 100%;      height: 25px;      margin-bottom: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/bottom.png") no-repeat 15px -10px    }    .share-poster-wrapper.theme1 .poster-top {      width: 100%;      height: 25px;      margin-top: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/top.png") no-repeat 38px 1px    }    .share-poster-wrapper.theme1 .poster-middle {      width: 100%;      padding: 0 42px 10px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/middle.png") repeat-y 38px 0    }    .share-poster-wrapper.theme1 .poster-middle .poster-userinfo {      border-bottom: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .poster-userinfo .poster-avatar {      margin-left: 38px    }    .share-poster-wrapper.theme1 .poster-middle .poster-middle-wrapper {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      min-height: 260px;      border-bottom: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .time {      max-width: 65px;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      text-align: center;      vertical-align: middle;      border-right: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .time span {      white-space: nowrap;      -webkit-transform: rotate(90deg);      transform: rotate(90deg)    }    .share-poster-wrapper.theme1 .poster-middle .poster-middle-content {      padding: 30px    }    .share-poster-wrapper.theme1 .poster-middle .quote-content {      font-size: 3.7vw;      margin-left: 36px;      margin-right: 36px    }    .share-poster-wrapper.theme1 .poster-middle .quote-info {      margin-left: 36px;      margin-right: 36px    }    .share-poster-wrapper.theme1 .poster-middle .footer {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      margin-right: 30px    }    .share-poster-wrapper.theme1 .poster-bottom {      width: 100%;      height: 25px;      margin-bottom: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/bottom.png") no-repeat 38px -10px    }    .share-poster-wrapper .share-poster {      background: #fefdf8;      -webkit-box-sizing: border-box;      box-sizing: border-box;      color: #9b8d73;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      overflow: auto;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-overflow-scrolling: touch;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .share-poster-wrapper .share-poster.color0 {      background-color: #fefdf8    }    .share-poster-wrapper .share-poster.color1 {      background-color: #4d4d4d    }    .share-poster-wrapper .share-poster .footer {      margin-top: 2rem;      position: relative;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: end;      -ms-flex-pack: end;      justify-content: flex-end;      -webkit-box-align: end;      -ms-flex-align: end;      align-items: flex-end    }    .share-poster-wrapper .share-poster .footer p {      margin: 0;      line-height: 1.4;      margin-left: 20px;      text-align: right;      padding-right: 20px    }    .share-poster-wrapper .controls {      background: #fff;      border-top: 1px solid #f5f5f5;      width: 100%;      padding-top: 5px;      -webkit-box-shadow: 0 -4px 10px 0 rgba(0, 0, 0, .1);      box-shadow: 0 -4px 10px 0 rgba(0, 0, 0, .1);      z-index: 1;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .controls>div {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      padding: 10px 0    }    .share-poster-wrapper .controls>div span {      font-size: .85rem    }    .share-poster-wrapper .controls>div button {      width: 100px;      height: 24px;      background: #eee;      margin: 0 10px;      border-radius: 5px;      border: 2px solid #b2b2b2;      outline: none    }    .share-poster-wrapper .controls>div button.on {      border: 2px solid #ff5a05    }    .share-poster-wrapper .controls .controls-themes button {      color: #b2b2b2;      font-size: 12px;      background: #fff;      text-align: center    }    .share-poster-wrapper .controls .controls-themes button.on {      color: #ff5a05    }    .share-poster-wrapper .buttons {      background: #fff;      border-top: 1px solid #f5f5f5;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .buttons a {      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      text-align: center;      color: #000;      font-weight: 400;      height: 3rem;      line-height: 3rem    }    .share-poster-wrapper .buttons a:last-child {      border-left: 1px solid #f5f5f5    }    .share-poster-wrapper img {      max-width: 100%    }    .share-poster-wrapper.android .poster-middle .nickname {      font-size: 10vw    }    .share-poster-wrapper.android .poster-middle .time {      font-size: 6.4vw    }    .share-poster-wrapper.android .poster-middle .poster-middle-content {      font-size: 8vw    }    .share-poster-wrapper.android .poster-middle .quote-content {      font-size: 7.4vw    }    .share-poster-wrapper.android .poster-middle .quote-info p {      font-size: 6.4vw    }</style><style type="text/css">    .mobile-tips {      width: 100%;      height: 51px;      background: rgba(0, 0, 0, .8);      position: fixed;      top: 0;      left: 0;      z-index: 20;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 0 12px;      -webkit-transition: opacity .35s;      transition: opacity .35s;      opacity: 0;      pointer-events: none    }    .mobile-tips.istop {      opacity: 1;      pointer-events: auto    }    .mobile-tips .mobile-tips-info {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: start;      -ms-flex-pack: start;      justify-content: flex-start    }    .mobile-tips .mobile-tips-info i {      width: 36px;      height: 36px;      background-image: url(data:image/png;base64,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);      background-position: 0 0;      background-repeat: no-repeat;      background-size: contain;      border-radius: 7px    }    .mobile-tips .mobile-tips-info h2 {      font-size: 15px;      color: #fff;      font-weight: 400;      margin-left: 6px    }    .mobile-tips .mobile-tips-info h2 span {      font-size: 11px    }    .mobile-tips a {      width: 72px;      height: 31px;      text-align: center;      border: 1px solid #ff5a05;      border-radius: 3px;      font-size: 13px;      color: #ff5a05;      line-height: 31px    }</style><style type="text/css">    .mini-audio-player {      width: 100%;      height: 5.25rem;      border: 1px solid #d9d9d9;      background: #fafafa;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 1rem;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      margin: 1rem 0    }    .mini-audio-player>a {      border: none;      -ms-flex-negative: 0;      flex-shrink: 0    }    .mini-audio-player .btn-play {      background-image: url(data:image/png;base64,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)    }    .mini-audio-player .btn-pause,    .mini-audio-player .btn-play {      width: 2.6875rem;      height: 2.6875rem;      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain;      text-decoration: none    }    .mini-audio-player .btn-pause {      background-image: url(data:image/png;base64,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)    }    .mini-audio-player .audio-info {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      margin-left: .6875rem;      min-width: 0    }    .mini-audio-player .audio-info h3 {      color: #353535;      font-size: 15.25px;      margin: 0;      white-space: nowrap;      overflow: hidden;      text-overflow: ellipsis    }    .mini-audio-player .audio-info p {      margin: 0;      margin-top: .125rem;      font-size: 11px;      line-height: 1rem    }    .mini-audio-player .audio-info p span {      color: #888    }    .mini-audio-player .btn-download {      width: 1.25rem;      height: 1.25rem;      position: relative;      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAA+CAYAAACbQR1vAAABS2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxMzggNzkuMTU5ODI0LCAyMDE2LzA5LzE0LTAxOjA5OjAxICAgICAgICAiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIi8+CiA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgo8P3hwYWNrZXQgZW5kPSJyIj8+IEmuOgAAA4hJREFUaIHtm8lOFFEUhr9qCWGHGxcaY1joK2h0YRzAtYmsWbAGGidEXOACbAYRxfgAPoEPoInGxJgg86gsJTHMw86EhS7O7TDk3uqq6qo6HahvQ7pOce7//1U0feve9vr6+lAiD3QC/4AC8FZDRJXGoMB14PWB1yPANPA1bSG5tAc0XLEcu5y6CvQCOGU5pnI3agVQMWQBaAvQJgtAW4A2WQDaArTJAtAWoE0WgLYAbbIAtAVokwWgLUCbLABtAdpkAfjU6oC7wKV0pCTCRcRDnesEVwDNwC/gg/nZHbeyFOgGltj30Gw7yRZALfAOqDavPeA50BO7xOToQTR75nU14qn26Im2AM4DNZbjz4DeePQlSi+i9Sg1iLdD2AJYApYdzbuo7BBeIBptLCPeDmELYA9oBHYdjbqQpaxKowA8ddR2gXuIt0O43gRHgTu4Q+ikskIoIJps7AINwA9b0e/fYJAQ1FZWD9CP2/wOUI/DPJT+IDRqGrhCeGIEaNEPdDhqO8iVH/NrEOST4BgSwo6j3gEMBOgTNwP4m6+nhHkI/lG4VAiPgcGAveJg0IxpYxvROh6kUZi5wLhpvO2oPyKdEF6asWyEMg/hJ0PjyN+VXwhDIXuGYQh46KhtIeYnwjSMMhss3glbjvoDkglhyPS2Eck8RJ8OTyB3gl8IryL2tjGM2/wmYn4ySuNyngdMmIE3HfX7iHDPUQ+CZ3q0O+qbyIWIZB7KfyAyaQS4QmhH7oQoIZQyv0EZV75IHE+EJvG/E9oJfyd4yC6yvKO+gQQ/FaKnlbgeiU0hIWw46nnEUJAQiubbHPV1M1bZ5iHeZ4KlQmgD3uAfgofsGfQz34DsKYyFuLemTSMhfATOWOqtiMk/llrRfIuj9zpwG5gtX+Y+SezNK4bwCXsILdgDaAXOOnomYh6Seyw+gwhed9TPWY75mb9FAuYh2XWBWUS4K4QgrAE3gblYFFlIemFkDjEQJYQ1JMD5WBUdIY2VoXkkhLUQv7NqfidR85De0liYEFaRK7+QqCJDmmuDC0gIqz7nrJhzUjEP6S+O+oWwglz5xTQFaawOLwI3gO8Hjo2ZY6maB72vzPwErgEXkO8MuVaiEkcrgCK/lcfPNkhkAWgL0KYKmZiMIG9Ktn0Bx5G/wDcgXwW8R6avJ41G4HQOufInlas5ZO5+UpnJAU3AFyy7J44xe8BnoOk/JruwYo92bigAAAAASUVORK5CYII=);      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain;      text-decoration: none;      padding-right: .25rem    }    .mini-audio-player .btn-download .icon-download-done {      width: .45rem;      height: .45rem;      position: absolute;      bottom: 0;      right: 0;      display: inline-block;      background-image: url(data:image/png;base64,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);      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain    }</style><style type="text/css">    .MathJax_Display {      overflow: auto    }    .poster {      position: fixed;      left: -10000px;      top: -10000px;      overflow: hidden;      padding: 1rem;      background: #ececec    }    .richcontent-pre-copy {      font-size: 13px;      color: #888;      position: absolute;      right: 1em;      top: .2em;      cursor: pointer;      -webkit-user-select: none;      -moz-user-select: none;      -ms-user-select: none;      user-select: none    }    .richcontent-pre-copy .iconfont {      font-size: 12px;      margin-right: .2em    }</style><style type="text/css">    .comment-item {      list-style-position: inside;      width: 100%;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      margin-bottom: 1rem    }    .comment-item a {      border-bottom: none    }    .comment-item .avatar {      width: 2.625rem;      height: 2.625rem;      -ms-flex-negative: 0;      flex-shrink: 0;      border-radius: 50%    }    .comment-item .info {      margin-left: .5rem;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1    }    .comment-item .info .hd {      width: 100%;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .comment-item .info .hd .username {      color: #888;      font-size: 15.25px;      font-weight: 400;      line-height: 1.2    }    .comment-item .info .hd .control {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .comment-item .info .hd .control .btn-share {      color: #888;      font-size: .75rem;      margin-right: 1rem    }    .comment-item .info .hd .control .btn-praise {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      font-size: 15.25px;      text-decoration: none    }    .comment-item .info .hd .control .btn-praise i {      color: #888;      display: inline-block;      font-size: .75rem;      margin-right: .3rem;      margin-top: -.01rem    }    .comment-item .info .hd .control .btn-praise i.on,    .comment-item .info .hd .control .btn-praise span {      color: #ff5a05    }    .comment-item .info .bd {      color: #353535;      font-size: 15.25px;      font-weight: 400;      white-space: normal;      word-break: break-all;      line-height: 1.6    }    .comment-item .info .time {      color: #888;      font-size: 9px;      line-height: 1    }    .comment-item .info .reply .reply-hd {      font-size: 15.25px    }    .comment-item .info .reply .reply-hd span {      margin-left: -12px;      color: #888;      font-weight: 400    }    .comment-item .info .reply .reply-hd i {      color: #ff5a05;      font-size: 15.25px    }    .comment-item .info .reply .reply-content {      color: #353535;      font-size: 15.25px;      font-weight: 400;      white-space: normal;      word-break: break-all    }    .comment-item .info .reply .reply-time {      color: #888;      font-size: 9px    }</style><style type="text/css">    .breadcrumb {      padding: 30px 0;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -ms-flex-wrap: wrap;      flex-wrap: wrap;      background: #fff    }    .breadcrumb a.title {      color: #e57c39;      font-size: 15px;      font-weight: 400    }    .breadcrumb span.title {      color: #888;      font-size: 15px;      font-weight: 400    }    .breadcrumb .split {      color: #ccc;      font-size: 10px;      margin-right: 5px    }</style></head><body style=""><div id="app"><div data-v-87ffcada="" class="article"><div data-v-87ffcada="" class="main main-app" style="margin-top: 0px;"><h1 data-v-87ffcada="" class="article-title">          03 | 基础篇：经常说的 CPU 上下文切换是什么意思？（上）</h1><div data-v-87ffcada="" class="article-info"><span data-v-87ffcada="">2018-11-26</span><span data-v-87ffcada="">倪朋飞</span></div><div data-v-87ffcada="" class="article-content typo common-content"><img data-v-87ffcada="" src="https://static001.geekbang.org/resource/image/d0/ec/d05de7616d91d99c3afe11ebd66497ec.jpg"><div data-v-87ffcada="" class="mini-audio-player"><a href="javascript:;" class="btn-play"></a><div class="audio-info"><h3>03 | 基础篇：经常说的 CPU 上下文切换是什么意思？（上）</h3><p><span>朗读人：秭明&nbsp;&nbsp;&nbsp;</span><span>00:12:38 | 5934</span></p></div><audio title="03 | 基础篇：经常说的 CPU 上下文切换是什么意思？（上）" src="https://static001.geekbang.org/resource/audio/be/3a/bea8e1df9d4cbddc0b66fc753e8cee3a.mp3" controls="controls"></audio></div><div data-v-87ffcada="" id="article-content" class=""><div class="text">              <p>你好，我是倪朋飞。</p><p>上一节，我给你讲了要怎么理解平均负载（ Load Average），并用三个案例展示了不同场景下平均负载升高的分析方法。这其中，多个进程竞争 CPU 就是一个经常被我们忽视的问题。</p><p>我想你一定很好奇，进程在竞争 CPU 的时候并没有真正运行，为什么还会导致系统的负载升高呢？看到今天的主题，你应该已经猜到了，CPU 上下文切换就是罪魁祸首。</p><p>我们都知道，Linux 是一个多任务操作系统，它支持远大于 CPU 数量的任务同时运行。当然，这些任务实际上并不是真的在同时运行，而是因为系统在很短的时间内，将 CPU 轮流分配给它们，造成多任务同时运行的错觉。</p><p>而在每个任务运行前，CPU 都需要知道任务从哪里加载、又从哪里开始运行，也就是说，需要系统事先帮它设置好 <strong>CPU 寄存器和程序计数器</strong>（Program Counter，PC）。</p><p>CPU 寄存器，是 CPU 内置的容量小、但速度极快的内存。而程序计数器，则是用来存储 CPU 正在执行的指令位置、或者即将执行的下一条指令位置。它们都是 CPU 在运行任何任务前，必须的依赖环境，因此也被叫做 <strong>CPU 上下文</strong>。</p><p><img src="https://static001.geekbang.org/resource/image/98/5f/98ac9df2593a193d6a7f1767cd68eb5f.png" alt=""></p><p>知道了什么是 CPU 上下文，我想你也很容易理解 <strong>CPU 上下文切换</strong>。CPU 上下文切换，就是先把前一个任务的 CPU 上下文（也就是 CPU 寄存器和程序计数器）保存起来，然后加载新任务的上下文到这些寄存器和程序计数器，最后再跳转到程序计数器所指的新位置，运行新任务。</p><!-- [[[read_end]]] --><p>而这些保存下来的上下文，会存储在系统内核中，并在任务重新调度执行时再次加载进来。这样就能保证任务原来的状态不受影响，让任务看起来还是连续运行。</p><p>我猜肯定会有人说，CPU 上下文切换无非就是更新了 CPU 寄存器的值嘛，但这些寄存器，本身就是为了快速运行任务而设计的，为什么会影响系统的 CPU 性能呢？</p><p>在回答这个问题前，不知道你有没有想过，操作系统管理的这些“任务”到底是什么呢？</p><p>也许你会说，任务就是进程，或者说任务就是线程。是的，进程和线程正是最常见的任务。但是除此之外，还有没有其他的任务呢？</p><p>不要忘了，硬件通过触发信号，会导致中断处理程序的调用，也是一种常见的任务。</p><p>所以，<span class="orange">根据任务的不同</span>，CPU 的上下文切换就可以分为几个不同的场景，也就是<strong>进程上下文切换</strong>、<strong>线程上下文切换</strong>以及<strong>中断上下文切换</strong>。</p><p>这节课我就带你来看看，怎么理解这几个不同的上下文切换，以及它们为什么会引发 CPU 性能相关问题。</p><h2>进程上下文切换</h2><p>Linux 按照特权等级，把进程的运行空间分为内核空间和用户空间，分别对应着下图中， CPU 特权等级的 Ring 0 和 Ring 3。</p><ul>
+<li>
+<p>内核空间（Ring 0）具有最高权限，可以直接访问所有资源；</p>
+</li>
+<li>
+<p>用户空间（Ring 3）只能访问受限资源，不能直接访问内存等硬件设备，必须通过系统调用陷入到内核中，才能访问这些特权资源。</p>
+</li>
+</ul><p><img src="https://static001.geekbang.org/resource/image/4d/a7/4d3f622f272c49132ecb9760310ce1a7.png" alt=""></p><p>换个角度看，也就是说，进程既可以在用户空间运行，又可以在内核空间中运行。进程在用户空间运行时，被称为进程的用户态，而陷入内核空间的时候，被称为进程的内核态。</p><p>从用户态到内核态的转变，需要通过<strong>系统调用</strong>来完成。比如，当我们查看文件内容时，就需要多次系统调用来完成：首先调用 open() 打开文件，然后调用 read() 读取文件内容，并调用 write() 将内容写到标准输出，最后再调用 close() 关闭文件。</p><p>那么，系统调用的过程有没有发生 CPU 上下文的切换呢？答案自然是肯定的。</p><p>CPU 寄存器里原来用户态的指令位置，需要先保存起来。接着，为了执行内核态代码，CPU 寄存器需要更新为内核态指令的新位置。最后才是跳转到内核态运行内核任务。</p><p>而系统调用结束后，CPU寄存器需要<strong>恢复</strong>原来保存的用户态，然后再切换到用户空间，继续运行进程。<span class="orange">所以，一次系统调用的过程，其实是发生了两次 CPU 上下文切换。</span></p><p>不过，需要注意的是，系统调用过程中，并不会涉及到虚拟内存等进程用户态的资源，也不会切换进程。这跟我们通常所说的进程上下文切换是不一样的：</p><ul>
+<li>
+<p>进程上下文切换，是指从一个进程切换到另一个进程运行。</p>
+</li>
+<li>
+<p>而系统调用过程中一直是同一个进程在运行。</p>
+</li>
+</ul><p>所以，<strong>系统调用过程通常称为特权模式切换，而不是上下文切换</strong>。但实际上，系统调用过程中，CPU 的上下文切换还是无法避免的。</p><p>那么，进程上下文切换跟系统调用又有什么区别呢？</p><p>首先，你需要知道，进程是由内核来管理和调度的，进程的切换只能发生在内核态。所以，进程的上下文不仅包括了虚拟内存、栈、全局变量等用户空间的资源，还包括了内核堆栈、寄存器等内核空间的状态。</p><p>因此，进程的上下文切换就比系统调用时多了一步：在保存当前进程的内核状态和CPU寄存器之前，需要先把该进程的虚拟内存、栈等保存下来；而加载了下一进程的内核态后，还需要刷新进程的虚拟内存和用户栈。</p><p>如下图所示，保存上下文和恢复上下文的过程并不是“免费”的，需要内核在 CPU 上运行才能完成。</p><p><img src="https://static001.geekbang.org/resource/image/39/6b/395666667d77e718da63261be478a96b.png" alt=""></p><p>根据<a href="https://blog.tsunanet.net/2010/11/how-long-does-it-take-to-make-context.html"> Tsuna </a>的测试报告，每次上下文切换都需要几十纳秒到数微秒的 CPU 时间。这个时间还是相当可观的，特别是在进程上下文切换次数较多的情况下，很容易导致 CPU 将大量时间耗费在寄存器、内核栈以及虚拟内存等资源的保存和恢复上，进而大大缩短了真正运行进程的时间。这也正是上一节中我们所讲的，导致平均负载升高的一个重要因素。</p><p>另外，我们知道， Linux 通过 TLB（Translation Lookaside Buffer）来管理虚拟内存到物理内存的映射关系。当虚拟内存更新后，TLB 也需要刷新，内存的访问也会随之变慢。特别是在多处理器系统上，缓存是被多个处理器共享的，刷新缓存不仅会影响当前处理器的进程，还会影响共享缓存的其他处理器的进程。</p><p>知道了进程上下文切换潜在的性能问题后，我们再来看，究竟什么时候会切换进程上下文。</p><p>显然，进程切换时才需要切换上下文，换句话说，只有在进程调度的时候，才需要切换上下文。Linux 为每个 CPU 都维护了一个就绪队列，将活跃进程（即正在运行和正在等待CPU的进程）按照优先级和等待 CPU 的时间排序，然后选择最需要 CPU 的进程，也就是优先级最高和等待CPU时间最长的进程来运行。</p><p>那么，进程在什么时候才会被调度到 CPU 上运行呢？</p><p>最容易想到的一个时机，就是进程执行完终止了，它之前使用的CPU会释放出来，这个时候再从就绪队列里，拿一个新的进程过来运行。<span class="orange">其实还有很多其他场景，也会触发进程调度，在这里我给你逐个梳理下</span>。</p><p>其一，为了保证所有进程可以得到公平调度，CPU时间被划分为一段段的时间片，这些时间片再被轮流分配给各个进程。这样，当某个进程的时间片耗尽了，就会被系统挂起，切换到其它正在等待 CPU 的进程运行。</p><p>其二，进程在系统资源不足（比如内存不足）时，要等到资源满足后才可以运行，这个时候进程也会被挂起，并由系统调度其他进程运行。</p><p>其三，当进程通过睡眠函数  sleep 这样的方法将自己主动挂起时，自然也会重新调度。</p><p>其四，当有优先级更高的进程运行时，为了保证高优先级进程的运行，当前进程会被挂起，由高优先级进程来运行。</p><p>最后一个，发生硬件中断时，CPU上的进程会被中断挂起，转而执行内核中的中断服务程序。</p><p>了解这几个场景是非常有必要的，因为一旦出现上下文切换的性能问题，它们就是幕后凶手。</p><h2>线程上下文切换</h2><p>说完了进程的上下文切换，我们再来看看线程相关的问题。</p><p>线程与进程最大的区别在于，<strong>线程是调度的基本单位，而进程则是资源拥有的基本单位</strong>。说白了，所谓内核中的任务调度，实际上的调度对象是线程；而进程只是给线程提供了虚拟内存、全局变量等资源。所以，对于线程和进程，我们可以这么理解：</p><ul>
+<li>
+<p>当进程只有一个线程时，可以认为进程就等于线程。</p>
+</li>
+<li>
+<p>当进程拥有多个线程时，这些线程会共享相同的虚拟内存和全局变量等资源。这些资源在上下文切换时是不需要修改的。</p>
+</li>
+<li>
+<p>另外，线程也有自己的私有数据，比如栈和寄存器等，这些在上下文切换时也是需要保存的。</p>
+</li>
+</ul><p>这么一来，线程的上下文切换其实就可以分为两种情况：</p><p>第一种， 前后两个线程属于不同进程。此时，因为资源不共享，所以切换过程就跟进程上下文切换是一样。</p><p>第二种，前后两个线程属于同一个进程。此时，因为虚拟内存是共享的，所以在切换时，虚拟内存这些资源就保持不动，只需要切换线程的私有数据、寄存器等不共享的数据。</p><p>到这里你应该也发现了，虽然同为上下文切换，但同进程内的线程切换，要比多进程间的切换消耗更少的资源，而这，也正是多线程代替多进程的一个优势。</p><h2>中断上下文切换</h2><p>除了前面两种上下文切换，还有一个场景也会切换 CPU 上下文，那就是中断。</p><p>为了快速响应硬件的事件，<strong>中断处理会打断进程的正常调度和执行</strong>，转而调用中断处理程序，响应设备事件。而在打断其他进程时，就需要将进程当前的状态保存下来，这样在中断结束后，进程仍然可以从原来的状态恢复运行。</p><p>跟进程上下文不同，中断上下文切换并不涉及到进程的用户态。所以，即便中断过程打断了一个正处在用户态的进程，也不需要保存和恢复这个进程的虚拟内存、全局变量等用户态资源。中断上下文，其实只包括内核态中断服务程序执行所必需的状态，包括CPU 寄存器、内核堆栈、硬件中断参数等。</p><p><strong>对同一个 CPU 来说，中断处理比进程拥有更高的优先级</strong>，所以中断上下文切换并不会与进程上下文切换同时发生。同样道理，由于中断会打断正常进程的调度和执行，所以大部分中断处理程序都短小精悍，以便尽可能快的执行结束。</p><p>另外，跟进程上下文切换一样，中断上下文切换也需要消耗CPU，切换次数过多也会耗费大量的 CPU，甚至严重降低系统的整体性能。所以，当你发现中断次数过多时，就需要注意去排查它是否会给你的系统带来严重的性能问题。</p><h2>小结</h2><p>总结一下，不管是哪种场景导致的上下文切换，你都应该知道：</p><ol>
+<li>
+<p>CPU 上下文切换，是保证 Linux 系统正常工作的核心功能之一，一般情况下不需要我们特别关注。</p>
+</li>
+<li>
+<p>但过多的上下文切换，会把CPU时间消耗在寄存器、内核栈以及虚拟内存等数据的保存和恢复上，从而缩短进程真正运行的时间，导致系统的整体性能大幅下降。</p>
+</li>
+</ol><p>今天主要为你介绍这几种上下文切换的工作原理，下一节，我将继续案例实战，说说上下文切换问题的分析方法。</p><h2>思考</h2><p>最后，我想邀请你一起来聊聊，你所理解的 CPU 上下文切换。你可以结合今天的内容，总结自己的思路和看法，写下你的学习心得。</p><p>欢迎在留言区和我讨论。</p><p><img src="https://static001.geekbang.org/resource/image/56/52/565d66d658ad23b2f4997551db153852.jpg" alt=""></p></div></div></div><div data-v-87ffcada="" class="article-comments"><h2 data-v-87ffcada=""><span data-v-87ffcada="">精选留言</span></h2><ul data-v-87ffcada="">            <li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/e7/47/d0715205.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">D白菜</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>56</span></a></div>
+	</div>
+	<div class="bd">今天的课抽象的东西很多，还需要时间理解消化。对学习做了个简单的总结，初学者有何很多地方理解不对，请老师和童鞋们多多指正。<br>1、多任务竞争CPU，cpu变换任务的时候进行CPU上下文切换(context switch)。CPU执行任务有4种方式：进程、线程、或者硬件通过触发信号导致中断的调用。<br>2、当切换任务的时候，需要记录任务当前的状态和获取下一任务的信息和地址(指针)，这就是上下文的内容。因此，上下文是指某一时间点CPU寄存器(CPU register)和程序计数器(PC)的内容, 广义上还包括内存中进程的虚拟地址映射信息.<br>3、上下文切换的过程：<br>      (1)记录当前任务的上下文(即寄存器和计算器等所有的状态)；<br>      (2)找到新任务的上下文并加载；<br>      (3)切换到新任务的程序计算器位置，恢复其任务。<br>4、根据任务的执行形式，相应的下上文切换，有进程上下文切换、线程上下文切换、以及中断上下文切换三类。<br>5、进程和线程的区别：<br>进程是资源分配和执行的基本单位；线程是任务调度和运行的基本单位。线程没有资源，进程给指针提供虚拟内存、栈、变量等共享资源，而线程可以共享进程的资源。<br>6、进程上下文切换：是指从一个进程切换到另一个进程。<br>(1)进程运行态为内核运行态和进程运行态。内核空间态资源包括内核的堆栈、寄存器等；用户空间态资源包括虚拟内存、栈、变量、正文、数据等<br>(2)系统调用(软中断)在内核态完成的，需要进行2次CPU上下文切换(用户空间--&gt;内核空间--&gt;用户空间)，不涉及用户态资源，也不会切换进程。<br>(3)进程是由内核来管理和调度的，进程的切换只能发生在内核态。所以，进程的上下文不仅包括了用户空间的资源，也包括内核空间资源。<br>(4)进程的上下文切换过程：<br>   (a)接收到切换信号，挂起进程，记录当前进程的虚拟内存、栈等资源存储;<br>   (b)将这个进程在 CPU 中的上下文状态存储于起来;<br>   (c)然后在内存中检索下一个进程的上下文;<br>   (d)并将其加载到 CPU的寄存器中恢复;<br>   (3)还需要刷新进程的虚拟内存和用户栈;<br>   (f)最后跳转到程序计数器所指向的位置（即跳转到进程被中断时的代码行），以恢复该进程。<br>(5)、下列将会触发进程上下文切换的场景：<br>  (a)、根据调度策略，将CPU时间划片为对应的时间片，当时间片耗尽，当前进程必须挂起。<br>  (b)、资源不足的，在获取到足够资源之前进程挂起。<br>  (c)、进程sleep挂起进程。<br>  (d)、高优先级进程导致当前进度挂起<br>  (e)、硬件中断，导致当前进程挂起<br>7、线程上下文切换：<br>(1)、不通进程之间的线程上下文切换，其过程和进程上下文切换大致相同。<br>(2)、进程内部的线程进上下文切换。不需要切换进程的用户资源，只需要切换线程私有的数据和寄存器等。这会比进程上下文进程切换消耗的资源少，所以多线程相比多进程的优势。<br>8、中断上下文切换<br>快速响应硬件的事件，中断处理会打断进程的正常调度和执行。同一CPU内，硬件中断优先级高于进程。切换过程类似于系统调用的时候，不涉及到用户运行态资源。但大量的中断上下文切换同样可能引发性能问题。<br><br>有些疑惑，想请教老师，<br>(1)从用户态和内核态之间的转变过程通过系统调用，那么系统调用属于一种上下文切换吗？如果是上下文切换，属于哪一类上下文切换呢，和进程上下文切换的关系是什么？<br>(2)指令寄存器和程序计算器，这两个东东比较模糊。<br></div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍课代表来了<br><br>（1）系统调用属于同进程内的CPU上下文切换；<br>（2）分别是CPU用来存储指令和下一条要执行指令的寄存器</p> <p class="reply-time">2018-11-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/12/b3/7aef77fd.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">MoFanDon</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>14</span></a></div>
+	</div>
+	<div class="bd">以前的确是没怎么注意 CPU上下文切换，进程上下文切换 是不同的。学习了。</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">龙猫</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>9</span></a></div>
+	</div>
+	<div class="bd">怎么知道cpu是耗费在上下文切换呢？</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/4a/2c/f8451d77.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">石维康</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>9</span></a></div>
+	</div>
+	<div class="bd">课程内容中说&quot;用户空间（Ring 3）只能访问受限资源，不能直接访问内存等..&quot;，其实在用户态，还是可以直接访问属于用户态的内存的吧</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/a4/39/6a5cd1d8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">sotey</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>7</span></a></div>
+	</div>
+	<div class="bd">交作业: 老师，在我的理解，CPU上下文是指程序执行的指令和环境变量和内存位置，上下文切换是CPU把当前正在执行的程序上下文从CPU内容(寄存器和计数器)保存到内存，内存的分层结构这里暂不关注(因为我也一知半解)，再把需要执行的程序从内存里保存的上下文加载到CPU内(寄存器)交给CPU执行。进程和线程以及中断其实大致过程是一样的，由于离内核的距离不同，需要切换的内容量不同，因此切换效率是不同的。以上为今天的作业，请老师审阅。</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/93/43/0e84492d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Maxwell</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>6</span></a></div>
+	</div>
+	<div class="bd">上下文切换多高算高呢？</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/06/81/28418795.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">衣申人</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>5</span></a></div>
+	</div>
+	<div class="bd">老师您好，有三个问题不是很理解：<br><br>1.系统调用的过程是上下文切换的话，那么函数调用是不是也可以叫上下文切换？<br>2.进程上下文切换，还需要刷新虚拟内存，是什么意思呢？上下文切换应该是把进程在cpu中的状态信息保存到内存，然后读取另一个进程内存中的状态信息到cpu，为什么涉及虚拟内存的刷新？还会影响到TLB？<br>3.CPU时间片是固定大小的吗？如果是，那么如果每个进程都正常获得时间片和到期释放，那么不管进程数量多少，是不是单位时间内的上下文切换次数是一定的？<br><br>盼望老师解答，谢谢。</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/86/fa/4bcd7365.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">玉剑冰锋</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>4</span></a></div>
+	</div>
+	<div class="bd">Ring1和Ring2代表啥意思？</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/d9/d3/04f6f64f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">炀☁️</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>4</span></a></div>
+	</div>
+	<div class="bd">cpu上下文切换就好比一个人有好多朋友要拜访，有的朋友房子大（进程），进进出出里三层外三层，有的朋友住帐篷（线程），就拉开帐篷聊聊天，有的朋友就隔着窗户说两句话打个照面路过（中断）</div> <span class="time">2018-11-27</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">😊很棒的比喻</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/e7/e0/33521e13.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">付坤</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>4</span></a></div>
+	</div>
+	<div class="bd">请老师帮忙解答一个疑问，在 Kubernetes 编排的这种虚拟化技术中，当给某个容器限定只有一个 CPU 时，容器内的镜像是拥有 24 CPU 的，那么在这种情况下，业务内是当成只存在一个 CPU 使用，还是 拥有 24 个，但每个 CPU 的能力只有一个正常CPU的 1&#47;24 ？不同的使用方式，应该会影响到 CPU 的上下文切换。</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/fb/7f/321ef0c6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">吕小强</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">学习总结:<br><br>* 上下文切换是什么？<br>上下文切换是对任务当前运行状态的暂存和恢复<br>* CPU为什么要进行上下文切换？<br>当多个进程竞争CPU的时候，CPU为了保证每个进程能公平被调度运行，采取了处理任务时间分片的机制，轮流处理多个进程，由于CPU处理速度非常快，在人类的感官上认为是并行处理，实际是&quot;伪&quot;并行，同一时间只有一个任务在运行处理。<br>* 上下文切换主要消耗什么资源，为什么说上下文切换次数过多不可取？<br>根据 Tsuna 的测试报告，每次上下文切换都需要几十纳秒到到微秒的CPU时间，这些时间对CPU来说，就好比人类对1分钟或10分钟的感觉概念。在分秒必争的计算机处理环境下，浪费太多时间在切换上，只能会降低真正处理任务的时间，表象上导致延时、排队、卡顿现象发生。<br>* 上下文切换分几种？<br>进程上下文切换、线程上下文切换、中断上下文切换<br>* 什么情况下会触发上下文切换？<br>系统调用、进程状态转换(运行、就绪、阻塞)、时间片耗尽、系统资源不足、sleep、优先级调度、硬件中断等<br>* 线程上下文切换和进程上下文切换的最大区别？<br>线程是调度的基本单位，进程是资源拥有的基本单位，同属一个进程的线程，发生上下文切换，只切换线程的私有数据，共享数据不变，因此速度非常快。<br>* 中断上下文切换，如何理解？<br>为了快速响应硬件的事件(如USB接入)，中断处理会打断进程的正常调度和执行，转而调用中断处理程序，响应设备事件。而打断其它进程执行时，需要进行上下文切换。中断事件过多，会无谓的消耗CPU资源，导致进程处理时间延长。<br>* 有哪些减少上下文切换的技术用例？<br>数据库连接池（复用连接）、合理设置应用的最大进程，线程数、直接内存访问DMA、零拷贝技术</div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-12-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/18/fb/c1334976.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">王崧霁</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">进程是资源分配的最小单位，线程是任务调度执行的最小单位，每个进程都有一个主线程，从这个角度说是不是只有线程的上下文切换，而所谓进程上下文切换实则是进程之间获取地址空间等资源的系统调用; 中断分硬中断和软中断，他们的上下文切换又有什么区别哪?</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/fc/fc/1e235814.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">耿长学</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">老师，推荐基本性能相关的书籍吧</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/49/5d/fd0c908c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">王晓冉</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">内核堆栈能详细介绍下吗？</div> <span class="time">2018-11-27</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/9b/ba/333b59e5.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Linuxer</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">进程上下文切换包括，进程之间上下文切换，线程之间上下文切换，中断上下文切换。其中跨进程的线程上下文切换等同进程上下文切换，前面关于cpu寄存器，全局变量等需不需要保存都好理解，只是中断上下文切换为什么不需要保存虚拟内存和全局变量等?</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/d0/69/5dbdc245.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">张德</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">打卡打卡  小白变大神</div> <span class="time">2018-12-06</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/61/bc/88a905a5.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">赵强强</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">倪老师，进程调度时间片轮转受CONFIG_HZ控制，线程呢?因为本节实验非自愿线程上下文切换次数每秒高达10万次，这个调度频率好高。</div> <span class="time">2018-12-05</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/61/bc/88a905a5.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">赵强强</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">倪老师，您好，有两个问题想咨询：<br>1、上下文切换（保存当前进程状态，恢复下一个进程状态）的时间是算到cpu system时间里的吗?<br>2、中断上下文切换，上下文切换时间和中断处理程序运行时间分别算在哪个字段呢？</div> <span class="time">2018-12-03</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">都是算到系统时间里面，</p> <p class="reply-time">2018-12-03</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/96/50/bde525b1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">北卡</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">课代表牛逼</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/54/49/ede4ab2f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">地心引力</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">进程调用系统调用，从用户态切换到内核态需要保存进程的上下文，而中断发生时，中断处理程序也是在内核态运行，但此时为什么就不需要保存进程的上下文呢，这种差别的本质原因是什么，望老师指教</div> <span class="time">2018-11-29</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不是不保存进程上下文，而是不需要刷新虚拟内存这些用户空间的数据，但具体到内核中的状态肯定还是要刷新的</p> <p class="reply-time">2018-11-30</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTIfQHOCVibxib3GfYKUZonqCibM8Weic5BIOJDGz4QjcBDUYkQPK9tThzibF0Rdd704z85zZl3fQy7H8xw/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Karis0901</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">1、主要的概念是：任务、cpu上下文、cpu上下文切换、资源。<br>2、任务类型有：进程、线程和中断任务<br>3、cpu上下文：是任务在cpu上运行的状态，包括cpu中寄存器(Register)和程序计数器(PC)的值。任务的cpu上下文是保存在内核中的。<br>4、cpu上下文切换：按照三种任务类型，有三种切换场景：<br>（1）进程cpu上下文切换：进程内特权模式切换，比如IO操作就涉及用户态和内核态之间转换的系统调用过程；进程间切换则涉及更多资源，不仅爆了cpu上下文，还包括进程的虚拟内存和栈；<br>（2）线程cpu上下文切换：区分进程内的线程切换和进程间的线程切换。前者因为共享进程内的虚拟内存，需要切换的资源少；后者同进程切换。<br>（3）中断的cpu上下文切换：不需要保存进程的用户态，也不需要保存此进程的内核态资源（虚拟内存和全局变量等资源），只需要保存中断任务的状态。中断任务的优先级更高。<br><br>总结：cpu上下文切换过程中涉及任务的资源越多，对性能的影响越大！</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/3c/93/88febcb3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Bugsy</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">因为内核态是cpu的一种特权模式，在这种模式下，内核可以访问系统资源（包括内存、cpu和其他IO设备），所以cpu上下文切换（包括进程上下文切换、线程上下文切换和中断切换）均是发生在内核态。<br>对于应用程序，在最开始都是运行在用户态，当程序中需要调用或者使用系统资源时（包括内存、cpu和其他io设备），由于受到安全性限制，他们只能能通过系统调用来运行部分内核的代码实现对系统资源的调用使用，这个过程就是从用户态陷入内核态的过程，在系统调用过程中一直是在同一个进程中实现。简短总结下，老师有没有其他资料可以推荐学习下。</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍 后续推荐一些书籍</p> <p class="reply-time">2018-11-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/ff/fb/2f99df3e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">蔡泳</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">hello，对您这句话有些许不理解<br>&#39;因此，进程的上下文切换就比系统调用时多了一步：在保存当前进程的内核状态和 CPU 寄存器之前，需要先把该进程的虚拟内存、栈等保存下来；而加载了下一进程的内核态后，还需要刷新进程的虚拟内存和用户栈。&#39;<br>不理解的地方有：<br>1. 进程上下文切换前，需要先保存虚拟内存，具体而言这个&#39;虚拟内存&#39;在内存中的如何表示的？<br>2. 虚拟内存是如何被保存，恢复的？<br><br>我有个人的理解，但不知是否正确，如下：<br>1. 内核维护了一个进程id到虚拟内存的表，通过进程id可以查询当前进程对应的虚拟内存，通过虚拟内存又可以对应到物理内存地址上<br>2. 进程运行过程中会对上面虚拟内存进行修改，比如内存映射新增了某段虚拟内存到物理内存的映射，所以进程切换需要对这些修改进行保存？具体而言怎么保存的不清楚了</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/b5/da/016731f1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">黄隆</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">一直不明白线程调度和进程调度有什么不同，从本文好像了解到了一点</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/3b/36/2d61e080.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">行者</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">补充下中断这个点，<br>中断分为软中断和硬件中断，软中断有内存溢出等问题处理恢复，硬中断是处理硬件设备发出信号，比如鼠标点击事件。<br>中断具有更好的优先级，需要及时处理。</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/3b/36/2d61e080.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">行者</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">我理解过多的cpu切换，会导致过多的加载不同内存到cpu缓存中，而加载缓存需要等待，花费更多的时间。<br>今天收获到一个点，调度的是线程，之前一直以为是进程。<br>联想到go中的协程，go不鼓励大家直接使用线程而是协程，目的就是避免过多的上下文切换。</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/e4/27/73359af3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">骑车吃火锅</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">如果是上下文切换比较吃CPU，那么我理解一秒内，两个线程之间互相切换与几百个甚至上千个线程互相切换的对系统的开销应该是一样的？</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/ff/ce/ff215671.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Cloud*</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">mark</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/42/f7/45fd5e3b.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">C家族的铁粉</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">『D4打卡』<br><br>今天学了进程上下文切换、线程上下文切换、中断上下文切换。进程上下文切换和系统调用的区别。<br>另外，刚刚发现，原来进程、线程我一直都不是特别清楚，尴尬，白学白用了这么久的感觉</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83erJR5Kj0Xm6LykFHLaWqHjQiaroVxgdoGI7uHEGz2D3PfibWNkBYP23QLzFmcuicgKLbqUch0ZJ2ZNOA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">湖湘志</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">沙发D3</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/af/27/abb7bfe3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">sunsweet</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">开销排名：进程上线文切换&gt;同进程线程上线文切换&gt;中断上线文切换&gt;内核模式切换&gt;协程上线文切换&gt;用户态函数调用上下文切换<br>对吗？？？</div> <span class="time">2019-02-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">差不多，不过最后两个应该要看具体情况的</p> <p class="reply-time">2019-02-08</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/af/27/abb7bfe3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">sunsweet</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">cpu上下文切换还有用户态函数调用的上下文切换，这是最轻量级的，嘿嘿</div> <span class="time">2019-02-08</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/af/27/abb7bfe3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">sunsweet</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">今天才明白 为什么要尽量少的调用系统调用，原来陷入内核态也有不小的额外开销，虽然比进程上下文切换开销小很多。满满的干货，感谢老师</div> <span class="time">2019-02-08</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/fa/ef/9d3fcb40.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">lq</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">总结：上下文切换包括 进程上下文切换，线程上下文切换，响应中断事件的上下文切换（如鼠标按键等），用户态进程陷入内核时进行系统调用时的上下文切换（如打开文件）。<br>进程上下文切换需要保存当前进程虚拟内存，cpu寄存器，pc寄存器等的上下文信息。<br>线程上下文切换包括不同进程的上下文切换与同一进程的上下文切换，不同进程的切换等同进程上下文切换。同一进程中的线程上下文切换需要保存当前线程的堆栈，pc寄存器等信息。<br>中断及系统调用上下文切换不涉及用户态上下文切换，仅切换内核态上下文</div> <span class="time">2019-02-01</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2019-02-03</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/f6/2f/d3f1dae6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">L33K</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">mark</div> <span class="time">2019-02-01</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/2a/6d/0e436c1c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">梦回汉唐</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师好，我有个疑问没明白。进程上下文切换的时候，为什么需要刷新虚拟内存，进而刷新TLB。在我理解，进程上下文切换，保存虚拟内存的地址，当该进程再次切换回来的时候，只需要照当上次保存的虚拟内存地址就可以找到物理内存了，这个刷新是什么意思呢？</div> <span class="time">2019-01-30</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的，但是虚拟内存到物理内存的映射是由TLB管理的。进程切换后，这个映射关系就需要刷新。</p> <p class="reply-time">2019-01-31</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/43/6f/1e3c4476.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">阿施</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">你好，文中提到线程上下文切换有两种方式，即同进程的两个不同线程之间切换，以及两个不同进程的线程之间切换。我想请教下，如果存在两个进程，且都含有多个线程，当发生第二种线程上下文切换时，和进程间上下文切换有哪些区别，谢谢？</div> <span class="time">2019-01-30</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">实际上细分一下，对一个CPU来说，就是两个线程之间的切换，所以跟文中也是对应的。只是如果看多次的话，可能一会是进程间，一会又是进程内，这就不确定了。</p> <p class="reply-time">2019-01-31</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/RNO4yZyBvic914hewmNNE8iblYDcfv5yGHZ9OnKuCuZXNmGR0F5qV3icKLT2xpMt66GyEpicZVvrmz8A6TIqt92MQg/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">啊啊啊哦哦</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">单进程多线程情况下。  线程的切换在用户态切换。还是在内核态切换</div> <span class="time">2019-01-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">切换都是在内核态的。如果使用了协程，那才是用户态切换</p> <p class="reply-time">2019-01-31</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/ec/2a/b11d5ad8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">曾经瘦过</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡  学习到了  我是做android 开发的 android 底层是linux 系统，不熟悉 linux 限制了我的发展，希望能够借此机会同时提高一下linux的能力，这些文件 命令感觉对android 进行性能优化的时候有很多帮助</div> <span class="time">2019-01-23</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/5b/d2/34a8c79c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Juinn</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">系统调用的上下文切换的类型是中断上下文切换么？</div> <span class="time">2019-01-23</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不是的</p> <p class="reply-time">2019-01-23</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/5b/d2/34a8c79c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Juinn</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">ring1和ring2是干嘛的？</div> <span class="time">2019-01-23</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">在Linux中没用到</p> <p class="reply-time">2019-01-23</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/9L7RSS4HNFbWiaCxQ9SMPJfKk5hkD31WandSzdEydvsWfSz2ibjkwQkBqCRV26Czm7ZzBC14bTumYyY02ByUrPiaQ/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">杨晓</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">对于我这种小白来说，看留言也是一种学习</div> <span class="time">2019-01-21</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">嗯嗯 留言中有大量的经验分享和交流</p> <p class="reply-time">2019-01-22</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/0c/30/a2e7728a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Allen</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">其二，进程在系统资源不足（比如内存不足）时，要等到资源满足后才可以运行，这个时候进程也会被挂起，并由系统调度其他进程运行。<br>老师，文中提到这句话不是很理解，既然内存资源不足，就算调度其他的进程也不能运行，为何还要进行进程调度？</div> <span class="time">2019-01-16</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">其他进程需要的资源可能还是充足的</p> <p class="reply-time">2019-01-23</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/e3/9e/b26da70d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">closer</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师 我请问下 有没有命令可以看到，上下文切换到底是进程切换 线程切换 还是CPU切换等等。谢谢</div> <span class="time">2019-01-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">好像没有直接的工具，不过从原理上，所有切换到会涉及CPU上下文；Linux调度的单位是线程，所以进程切换也肯定对应某个线程的切换；而进程则还要多了虚拟内存的切换，所以还可以参考内存管理观察</p> <p class="reply-time">2019-01-09</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTKibu8C3CeYGF6JCBribiaEPia5gibaQnj9icryPVwoF6ibosmdicXJIhBEUdn0aDwZQ32oTyJL86DgDswhAg/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">花开蝶自来</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">不太懂虚拟内存的保存是指什么？内存本来就在ram中，还需要怎么保存？保存指向这些内存空间的元数据保存吗？</div> <span class="time">2018-12-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">虚拟内存的映射关系，也就是页表和TLB</p> <p class="reply-time">2018-12-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTKibu8C3CeYGF6JCBribiaEPia5gibaQnj9icryPVwoF6ibosmdicXJIhBEUdn0aDwZQ32oTyJL86DgDswhAg/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">花开蝶自来</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">“这些保存下来的上下文，会存储在系统内核中” 意思是内核的内存区吗，系统进程使用的内存区？</div> <span class="time">2018-12-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">内核管理的内存中</p> <p class="reply-time">2018-12-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/47/bd/3c88b41b.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">管清麟</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">这里虚拟内存指的是什么？swap吗？还有栈是啥？</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">进程的虚拟内存，后面内存部分会讲的</p> <p class="reply-time">2018-12-24</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/47/bd/3c88b41b.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">管清麟</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡第四天</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-12-24</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/e9/0b/53bf91d3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">WL</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">想请教一下老师文章中的中断处理这个概念具体是什么意思，什么情况下回发生， 是谁主动发起的吗？</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">中断是处理硬件异步信号的一种机制，比如按下一个按键、收到一个网络数据包就分别会由键盘和网卡向系统发起一个中断信号，系统会调用中断处理程序来处理</p> <p class="reply-time">2018-12-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/e3/6e/a905ef6d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">GaoLiaoLiao</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">内核堆栈是指什么呢，是指kernel stack吗？还是指kernel heap + kernel stack?<br></div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/0e/f5/c4a26e84.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Im Robin</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师你好，对中断上下文切换，理解有点问题：文中提到，中断即使打断了一个正在处于用户态的进程，也不需要保存和回复这个进程的虚拟内存。。。等资源。<br>----------------------------------------------------------------------------------<br>我理解CPU要让出来处理中断，应该保存用户态进程的上下文并把他变成SLEEP之类的状态，然后处理完中断再重新加载回来执行，如果没有这个过程，那么内核处理完中断后是如何恢复执行之前的用户态进程的呢？难道在处理硬件中断过程当中不需要使用PC或者寄存器之类的资源吗，不是很理解，麻烦老师给予解答，谢谢</div> <span class="time">2018-12-22</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">注意内存和寄存器是不同的资源，无论什么样的上下文切换，很多CPU寄存器总是要更新的（比如PC）；而虚拟内存则不一定，因为进程的虚拟内存空间都有用户和内核两部分，切换到内核态时，地址空间不切换就可以直接访问内核态内存。接下来的文章还会讲内存问题的分析方法</p> <p class="reply-time">2018-12-23</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTLx1Jz78aibuoJEWdLTsDhucnVDTvkkeRX2w6ZJWXp0h7Zfe7GM6vKAx3jNhFhJJaElDCicyHpf1e9Q/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">13001236383</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请教下内核态和用户态分别在CPU和内存的具体提现，CPU的ring0和ring3抽象的是指令的区别？内存是操作系统专为内核划分的内核区间？</div> <span class="time">2018-12-21</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">内存后面会讲的</p> <p class="reply-time">2018-12-21</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/05/61/fc303f93.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">颜培攀</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">软件中断。是一条CPU指令，用以自陷一个中断。由于软中断指令通常要运行一个切换CPU至内核态（Kernel Mode&#47;Ring 0）的子例程，它常被用作实现系统调用（System call）。</div> <span class="time">2018-12-20</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">请参考第09篇软中断的含义</p> <p class="reply-time">2018-12-20</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/d8/ee/6e7c2264.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Only now</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">mark </div> <span class="time">2018-12-20</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-12-20</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/99/ff/046495bb.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">小成</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，想问一下，同一个进程内的不同线程能被不同的CPU核心运行吗？</div> <span class="time">2018-12-20</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">可以的</p> <p class="reply-time">2018-12-20</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/1b/bb/5e308838.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">A孙其成</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">Ｄ3</div> <span class="time">2018-12-15</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/d9/d0/8dcc2e81.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">sandy</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">作者想表达的应该是，用户空间不能申请内存，只能访问内核申请好的内存。用户态的内存是虚拟的，只有真正申请了内存才是可访问的</div> <span class="time">2018-12-14</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">嗯嗯</p> <p class="reply-time">2018-12-14</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/74/ea/10661bdc.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">kivensu</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">可以这样理解吗？cpu频繁上下文切换的话，导致cpu干正经事儿的时间少了。</div> <span class="time">2018-12-12</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的</p> <p class="reply-time">2018-12-13</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/77/d4/4f770702.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">刘军</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，请教个入门级问题，操作系统同一时间能运行多个进程吗，还是说只能执行一个进程但是一个进程可以有多个线程。</div> <span class="time">2018-12-10</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">可以的，比如多核系统可以并行运行不同的进程或者线程</p> <p class="reply-time">2018-12-11</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/45/2a/c4413de4.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">soooldier</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师您好，在上节执行stress -c 8 --timeout 600的例子中，模拟的是进程在竞争CPU的过程中造成上下文切换次数变多从而导致LOAD增高。但通过vmstat查看cs的次数只比正常情况高3到4倍左右，且通过mpstat查看%sys很低，全都是%usr（上下文切换发生在内核态，应该%sys高才对），请问这是什么原因呢？</div> <span class="time">2018-12-10</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">这是几核的系统？试试mpstat -P ALL 是不是每个CPU都是这样？</p> <p class="reply-time">2018-12-11</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/2f/f4/2dede51a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">小老鼠</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">发生CPU上下文切换，一定是程序代码的问题吗？</div> <span class="time">2018-12-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不是的，也有可能业务的负载加重、中断增多这些外部因素引起的。</p> <p class="reply-time">2018-12-09</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/e2/4f/0748c63e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Gaoyc</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师课程中涉及到cpu的结构这块，memory和GR这两块从课程上理解应该是寄存器和计数器，其中计数器包括几层？(图上显示r0到rn),寄存器是一块连续的cpu内存还是伴随计数器个数行成的内存？图中其它区域是应该怎么理解？</div> <span class="time">2018-12-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">这些没有展开，可以找一下CPU体系结构的书或者文章看看</p> <p class="reply-time">2018-12-14</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/35/c7/9e292197.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">一念无明</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，有几个问题，希望可以抽时间解答一番：文中说到，多进程的线程切换相比单进程的线程切换会消耗更多资源，但是这块的性能损耗究竟会有多大呢？有没有相应的性能测试结果供参考？另外很多数据库产品采用单进程多线程的设计（比如mysql），而不是多进程（比如oracle），是不是就在考量这个？<br><br></div> <span class="time">2018-12-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">1. 记不清确切的测试结果了，大致上单次上下文切换过程可能就需要花费数毫秒的时间<br><br>2. 数据库的模型更多的是历史原因以及可维护性的问题（比如多线程要比多进程难维护的多）</p> <p class="reply-time">2018-12-08</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/65/24/5bcb858d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">kylin</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师好，有一点不明白，程序计数器是不是指令寄存器？那程序寄存器是cpu寄存器的一种？<br>概念上是不是cpu寄存器包含程序计数器？</div> <span class="time">2018-12-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">CPU寄存器有很多，PC是其中一种，篇幅限制不可能展开。建议找CPU体系结构的书看一下</p> <p class="reply-time">2018-12-14</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">如果</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">DAY3<br>请问老师：cpu的上下文切换导致CPU使用率过高时，是体现在%usr，%sys中的那一项增高？</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">这是操作系统的工作，sys高</p> <p class="reply-time">2018-12-07</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">流血的手指</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">线程是调度的基本单位。是不是意味着，其实没有进程的切换，或者说进程的切换其实就是线程的跨进程切换？</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">都有，但切换的东西不同，线程是调度时的CPU，而进程则是资源，比如虚拟内存</p> <p class="reply-time">2018-12-14</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/2c/e7/92d3c765.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">DAN</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">签到</div> <span class="time">2018-12-06</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/cd/e0/242a3250.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">朱雯</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">这章的内容也太多了吧，做了一个小小的总结<br>1:问题引出：io密集，cpu密集或者进程太多会导致负载高，先讨论进程太多的问题<br>进程在竞争cpu的时候并没有真正的运行，原因在于cpu的上下文切换<br><br>linux多进程真像： 并非同时运行，而是在相当短的时间内，将cpu分配给他们，从而实现多个任务同时运行的错觉<br>任务运行前:cpu做的事情是什么？1:设置好cpu寄存器和程序计数器，cpu寄存器，速度极其快的内存 2：cpu计数器(pc)，记录什么时候加载，从哪里运。被称之为cpu上下文<br><br>上下文切换含义：把上一个cpu的上文保存，然后跳转到程序计数器的新位置，进行新任务。<br>任务的划分：1进程间的上下文切换，线程间的上下文切换，中断上下文切换<br><br><br><br>问题：为什么专门为任务切换的cpu会因为寄存器的数据更新而影响负载的变化<br><br><br>任务上下文切换的场景有哪些：进程cpu切换，线程cpu切换，中断上下文切换<br><br><br>进程上下文切换如何影响负载升高：<br>基础知识：<br>什么是系统调用：ring0(内核空间) ring3(用户空间)，进程在用户空间执行称之为用户态，在内核空间执行，称之为内核态。用户态到内核态度使用，称之为系统调用。也叫特权模式切换<br><br>进程上下文切换:切换进程，切换上下文，同时包括切换用户态的各种虚拟资源。<br><br>进程切换的方式：在内核态进行切换，切换的内容包括，虚拟内存，栈，全部变量等用户空间资源，还包括内核堆，寄存器等内核空间状态<br><br>出现问题的原因:上下文切换需要几十纳秒到几微秒的cpu时间，这个时间对cpu来说相当漫长。特别是进程切换时许你内存，栈等用户空间资源的保存需要大量的时间。第二tlb(虚拟内存到物理内存的映射)，也是需要刷新的，所以进程的切换是很容易导致cpu使用率上升的<br><br>ps:进程调度的的原理和方式：<br>1:进程运行完<br>2:时间片运行<br>3:资源不足，停止，比如内存不足。<br>4:高优先级抢占<br>5:硬件中断，<br><br>线程上下文切换如何影响负载升高：<br>1:线程不是资源分配的基本单位，所以线程的切换分两种<br>第一种:切换线程的同时切换进程，影响原因和进程间切换是一样的<br>第二种：不切换进程，那么只需要保存一部分上下文，而没有用户资源的切换<br><br>中断上下文切换：<br>1:基础知识：中断的优先级别高于进程<br>2:中断不会打断正常调度和执行，所以不需要保存用户资源<br>3:如果频繁出现中断，对cpu消耗也是很大</div> <span class="time">2018-12-06</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/2a/8f/666669f8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">明天早点睡</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡</div> <span class="time">2018-12-06</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/c0/11/3d59119f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">小强</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡</div> <span class="time">2018-12-05</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/54/98/52ca7053.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Vicky🐣🐣🐣</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">1.关于中断这里，希望老师能再细讲一下<br>2.如果说线程是调度的基本单位，那么文中所说的CPU把时间切片分配，就是分配给线程吗？<br><br>受益匪浅，谢谢老师</div> <span class="time">2018-12-04</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/dc/dd/cf9e4ade.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">蒋良权</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，cpu对进程和线程的调度有什么联系么？我有以下几个疑问:<br>1.线程是cpu调度的基本单元，那么我们所说的进程调度是不是等同于对线程调度，线程调度是不是也等同于对进程的调度（假设前后调度的两个线程不属于同个进程）？<br>2.进程调度中有进程的优先级，线程调度中也有线程的优先级，假设不同进程中的两个线程调度，这两个线程都拥有不同的优先级，且所属进程也有不同的优先级，那调度的时候以哪个优先级为准呢？<br><br></div> <span class="time">2018-12-04</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/dc/dd/cf9e4ade.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">蒋良权</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，进程上下文切换是不是主要就是不同进程中的两个线程的上下文切换？</div> <span class="time">2018-12-03</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/ae/95/d1b13c9e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">f</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡<br><br>老师，是否提供些参考资料，书籍</div> <span class="time">2018-12-03</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">会的</p> <p class="reply-time">2018-12-03</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">mark</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">科班出身可能比较容易理解，看来要消化消化了</div> <span class="time">2018-12-03</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/4e/c5/abb7bfe3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">lzh</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">D3 mark</div> <span class="time">2018-12-03</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/42/f6/6532d23d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">悬铃木（赵岩）</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">运行空间分为内核空间和用户空间，对空间这个概念不是很理解</div> <span class="time">2018-12-03</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/c7/7b/2c8db475.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">狼行天下</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">很好，值得多读多用。</div> <span class="time">2018-12-03</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/03/c9/9a9d82ab.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">涛哥</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，cpu寄存器和PC计数器，分别存放什么呢，pc计数器是放下一条指令的地址，cpu寄存器呢</div> <span class="time">2018-12-02</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">这涉及到CPU寄存器的细节了，文中没有展开。实际上，寄存器还可以细化更细的分类，比如通用寄存器、段寄存器等，具体可以参考计算机组成原理书籍</p> <p class="reply-time">2018-12-03</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://thirdwx.qlogo.cn/mmopen/vi_32/GkMk4gBlfZcljsY3Vqu7w8ZkxBfe8WTz1ySnPTJARKXF0FpCr3HqlicIHQlItib9m7iaxLESkmBNpoiaY81EUUzQrA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">小虎</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">为什么中断不用关心进程用户态，保存虚拟内存和全局变量后面中断完成后还可以回到原来进程执行的状态继续执行？求老师解答</div> <span class="time">2018-12-02</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">一个是上下文会保存上一个任务（这里是进程）的状态，所以可以恢复回去；第二个是中断运行在内核态，只需要访问内核空间内存</p> <p class="reply-time">2018-12-03</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/13/56/6a062937.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">gentleman♥️</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">说一下 我的看法 <br>1.进程实际上 就说有用户态和内核态的 用户态有自己的状态和内核态也有自己的状态 进程调用最终还说要去调用内核cpu的，所以在切换过程中要保留用户态和内核态的状态啊，要不我下次接着执行，怎么知道上次运行在哪里了，总不可能你一个进程运行到底吧，其他进程就不用运行了吗，那用户还玩个屁的多任务啊，还想看电影又听歌，想多了吧；两个状态的资源都要维护，成本当然就高罗<br>2.而线程就说内核cpu层的操作了，而内核的切换，就只要保留内核层的一些状态数据的记录了，成本就少些嘛，是吧<br>3.中断切换的话，说白了，我运行的好好的，你突然来个网络中断什么，我就要去先去处理网络中断啊，等下再下执行你，不是也要先保留我的一些状态吧，要不恢复网络的时候，我怎么知道，我上次看的电影到哪里了<br>对不对 欢迎老师指正</div> <span class="time">2018-12-01</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-12-03</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/dc/dd/cf9e4ade.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">蒋良权</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，同一个进程内的线程上下文切换是不是发生在操作系统分配给这个进程的同一个执行时间片内。</div> <span class="time">2018-12-01</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不是的，线程才是调度的基本单位</p> <p class="reply-time">2018-12-03</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/74/c9/d28c0b09.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">why</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，在进程切换的过程中会先保存进程的虚拟内存和栈空间，加载下一个进程需要刷新它的虚拟内存和栈空间。我了解到的是虚拟内存和栈空间是分配给进程的，由进程独立管理，为什么还需要像寄存器这些信息一样切换呢。</div> <span class="time">2018-12-01</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">进程看到的只是虚拟地址，这些空间最终都是由系统映射为物理地址。进程切换的时候虚拟地址变了也需要切换这些映射关系</p> <p class="reply-time">2018-12-03</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/e1/08/3dc76043.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">钢</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">为什么上下文会占用cpu， 函数调用也是上下文切换，哪一种上下文最花时间， 如何查看每项上下文花费时间呢</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/8c/45/e3e2dfbf.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">glennut</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师 ring1和ring2表示的是什么空间呢？</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/67/0e/2a51a2df.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Eric</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">时间片用完以后不是被挂起吧？难道不是PCB挂到就绪队列？</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/0f/99/95627ed6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">senlin.wang</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">调度说的好像不够准确，现在2.6以上都是cfs调度，不在用时间片了吧</div> <span class="time">2018-11-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/a9/06/490e3ef2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">CJ</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡</div> <span class="time">2018-11-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/1c/1a/b6fd60e1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">芳</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">但过多的上下文切换，会把 CPU 时间消耗在寄存器、内核栈以及虚拟内存等数据的保存和恢复上，从而缩短进程真正运行的时间，导致系统的整体性能大幅下降。<br>疑问：<br>1、这里的系统的整体性能指标是什么？是CPU使用率吗？<br>2、我怎么知道系统性能不高是由于过多的CPU上下文切换的呢？也就是cpu的上下文切换我如何观察呢？</div> <span class="time">2018-11-29</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">1. 整体包括CPU、内存、IO等等<br>2. 参考第4篇</p> <p class="reply-time">2018-11-30</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/6b/76/f100f88f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">冰块</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师您好 请教下<br>中断到来的时候 假定此时进程运行在用户态：<br>被打断进程的上下文是由谁来保存的？<br>保存到哪里了？<br>它是怎么知道要保存到这里的？<br>能稍微具体解释一下吗 谢谢</div> <span class="time">2018-11-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/16/22/efc16d64.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">__花祭.</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡day04</div> <span class="time">2018-11-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">划时代</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">以前学过进程线程切换，系统调用，中断等底层原理，但没有从CPU上下文切换的角度统一梳理和理解，受教了。我的问题：中断可分为硬件中断和软中断，这里是指硬件中断吧？从中断的角度看epoll的处理过程，是否硬件中断和软中断都会发生？</div> <span class="time">2018-11-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/02/be/bc2ca09d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">李建贵</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">学习了老师讲解的内容，理解了大学时候操作系统教材上晦涩难懂的概念！</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">大飞</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">d1打卡</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/b0/38/076fa6c1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">风清扬笑</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">0<br><br>你好老师，既然CPU上下文切换有比较大的开销，那么我们在部署的时候如果能尽量避免这种情况的话，也算性能上的优化了吧，具体点，比如线程数量不能超过cpu核心数，这一块能不能具体讲解下<br><br>2018-11-27<br><br> 作者回复<br><br>实际的线上系统还会执行IO，而IO的时候可以把CPU让出来给其他线程使用，所以线程一般比CPU核数多。<br><br>---------------------------------------------<br><br>对，这里我了解到的分IO密集型线程还是计算密集型，那么针对这两种情况，应该如何去分配线程数量，有什么方法，希望老师讲解下</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/cf/aa/3aae3e09.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">安泰宏</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">感觉如果学了汇编语言，这些好像比较容易理解</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">叨科</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">这节课程太抽象了，需慢慢理解消化</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/02/be/bc2ca09d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">李建贵</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/30/f1/bf7fd8d2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">樊海涛</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">感觉底层的东西还是很抽象，要是有一些通俗易懂的列子来解释下就更好啦，结合实例来学习理论是较有效的办法；</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/0c/56/02fba09b.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">一禅小和尚</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡，关于进城、线程、CPU上下文切换以及硬中断导致的上下文切换，讲的很到位，通过学习也很清楚了，那么软中断和硬中断有区别么？什么区别？信号量导致的中断是什么级别的，类似于进程？还是线程？或者硬中断。还是有点傻傻分不清楚，还请倪老师烦心了😊</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">中断的问题后续还会细讲</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/5d/11/275ce06e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">怀朔</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">不知道 我有没有理解错 .mysql因为是多线程的 所以他无法cpu并行</div> <span class="time">2018-11-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">思考一下多线程的好处是什么？</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/b0/38/076fa6c1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">风清扬笑</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">你好老师，既然CPU上下文切换有比较大的开销，那么我们在部署的时候如果能尽量避免这种情况的话，也算性能上的优化了吧，具体点，比如线程数量不能超过cpu核心数，这一块能不能具体讲解下</div> <span class="time">2018-11-27</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">实际的线上系统还会执行IO，而IO的时候可以把CPU让出来给其他线程使用，所以线程一般比CPU核数多。</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83eoEKOMLofrrYkOTRvMoa20WMnEUYvhFu1AreziagediaGy0vezAwrXBlJD7vEx8Faa3UV5wT9D4iaTFA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">周秋平</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">第四篇  打卡</div> <span class="time">2018-11-27</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/07/8c/51401220.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">小美</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">跟进程上下文切换不同，中断上下文切换并不涉及到进程的用户态。所以，即便中断过程打断了一个正在用户态的进程，也不需要保存和恢复这个进程的虚拟内存、全局变量等用户态资源。<br>——————————————————————————————————————<br>如果中断打断了一个正在陷入内核态的进程呢？<br></div> <span class="time">2018-11-27</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">中断的优先级更高</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/c2/1f/72eb0ab6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Michael</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师好，您说的中断就是像unix里面发送出信号吧<br>这个应该是属于软中断，那么怎么通过命令区分是硬件中断还是软件中断呢？<br>我man vmstat 有这么一段<br>   System<br>       in: The number of interrupts per second, including the clock.<br>       cs: The number of context switches per second.<br>这里的in应该是软中断+硬件中断的总和吧<br><br>我写了一个fork死循环<br>while(1) { fork(); }<br>然后中断这个指标狂涨了十几倍，从100多到5000多<br>所以我想问下，正常的中断数一秒多少是合理的呢？<br>另外如何区分硬件中断和软件中断呢？这两个中断一般是什么值比较合理呢？</div> <span class="time">2018-11-27</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">中断数没有绝对的参考值，软中断还会细讲</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/70/23/972dcd30.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">allan</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">进程的上下文切换就比系统调用时多了一步，这里的区别感觉理解的不是很透彻。<br></div> <span class="time">2018-11-27</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">有些内容没有展开，可以学完虚拟内存再回来理解这里的差别。</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/30/f1/bf7fd8d2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">樊海涛</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">day4打卡</div> <span class="time">2018-11-27</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/43/d1/3dd582a8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">米雄雄</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，在一个进程中，当有多个线程，之前一个线程拥有cpu,现在它进行io操作，乃么这个cpu会被这个进程中其他需要cpu的线程使用，还是会被闲置？</div> <span class="time">2018-11-27</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">会被其他线程占用</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/1e/0d/f8ad03fb.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Glen</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡</div> <span class="time">2018-11-27</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/ba/5e/a299e7d5.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">狂飙的蜗牛</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">实际应用中，怎么才能减少cpu上下文切换的开销？<br>减少进程数量？减少线程数量？怎么平衡？<br>怎么感知性能是耗在cpu上下文切换上？<br></div> <span class="time">2018-11-27</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJbxgpjzibnOhul9n2XPLIRkGX76Z0hj8hXl7v7cNBzSribAwwFicbaKtYjNxJz5MttZz14JaTJ81szw/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">benet</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡</div> <span class="time">2018-11-27</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/mg86W2NaRPXXRUk0Q7M3Pm1CNson0HAejpP3pbxsbmXlib2uRIZQ7nSicUvphU1iagAEAnPCxiax6MLLh4iaIOKHnWg/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">雷击周</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">D4打卡</div> <span class="time">2018-11-27</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/85/3a/bb885be4.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">高峰</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">“其一，为了保证所有进程可以得到公平调度，CPU 时间被划分为一段段的时间片，这些时间片再被轮流分配给各个进程。”。<br>CFS 调度器没有时间片的概念了，叫做虚拟运行时间。</div> <span class="time">2018-11-27</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍感谢指出</p> <p class="reply-time">2018-11-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83ernR4NKI5tejJAV3HMTF3gszBBUAjkjLO2QYic2gx5dMGelFv4LWibib7CUGexmMcMp5HiaaibmOH3dyHg/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">渡渡鸟_linux</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">1. CPU寄存器与CPU三级缓存是什么关系？<br>2. 对于内存、寄存器和程序计数器，不知道我的理解可正确：<br>   (1) 用户态和内核态数据存放在内存中；寄存器存放CPU指令执行的状态；PC是指向内存中指令队列的指针<br>   (2) 对于CPU上下文切换时，上一个指令寄存器中的数据会被保存到内存中，然后PC会指向下一个指令，下一个指令的寄存器信息被加载入寄存器中<br>3. 这里有两点我不确定:<br>   (1) 寄存器以及进程的内核态、用户态数据是不是都是暂存在内存中？<br>   (2) 内核对不同状态如R,D,S的进程是如何维护其队列的？为啥大多数服务器即使进程数好几千，处于R状态的只有一两个，而stress就能创建多个处于R状态的进程呢？</div> <span class="time">2018-11-27</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/17/d7/3807c938.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">喻冠霖</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师今天的课程有一个问题。其实linux相对于很多操作系统而言，对线程的支援并不好，它无论进城还是线程都是一个函数创建的，只是线程会带共享内存等参数。那么这样当。linux发生线程切换的时候，是否也需要保存共享的内存，栈等信息，然后再加载调度线程的这些资源呢？虽然两者是一样的。换句话说，linux本身的进程就足够轻量了，所以线程也是一种进程，执行线程切换进行的是进程切换，不知道这个理解对不对</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">元天夫</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">D4，学习了</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/73/21/302f108d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Avanpourm</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">进程的切换好比极速飞驰的跑车刹车下来换轮胎~重新加速总是要时间的^O^</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/24/34/50cba2a6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Magine</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">第一次关注到CPU的上下文切换主要还是因为在配置PHP Worker进程数的时候，由于worker数量配置太大导致日常cpu频繁上下文切换造成load间歇性飚高，但是cpu的使用率都一直低。</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/0f/4f/5040f415.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">祥伟</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">学习，赞</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">yang</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">不论是CPU还是进程间上下文切换都是要花费时间的，而这部分时间过多也可以造成系统负载高，如果监控发现CPU的时间消耗在切换上，那我们可以在一个系统上只跑一个用户进程(docker)可以避免CPU过多的时间花费在切换上</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/11/4b/fa64f061.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">xfan</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">辛苦了老师，你在百忙之中，抽出时间来写，我又怎能偷懒！</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/92/01/c723d180.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">饼子</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，CPU调度时间片是固定的吗？</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/64/05/6989dce6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">我来也</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">实实在在遇到过因为上下文切换过于频繁，导致系统负载超高的情况。当时是c程序里有while（1）｛usleep（1）｝导致系统软中断有100w+次每秒。在物理机上时进程cpu负载不到1%，而上了云服务器后空跑的cpu负载都有30%+。后来延长usleep的时间就明显的缓解了。usleep的单位是纳秒，之前以为是毫秒。</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/fc/b7/6cef8bf0.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">大胃高怕飞</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/f5/0a/077b9922.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">krugle</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">有几点不懂，cpu陷入内核，内核不是指系统层面软件的吗，进程切换，系统本身也是进程把，有谁来控制这些呢，这几个问题比较大，不知道具体的知识哪里来的，要是有通俗易懂的书就好了</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的，Linux内核管理着整个系统</p> <p class="reply-time">2018-11-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/4a/fb/70f14340.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">maoxiajun</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">lesson3打卡</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83eqQ4Qib7yhHB882X9AmcUSbh2AAgOL3u2YAqibYfARRb1nxe5hw8ZBiaKR35bJiaic8UvThAzLhv5yzcsg/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">卡塔库里</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/15/27/c5e4ec99.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">哇哦</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">文章内容上说 时间片被轮流分配给各个进程,我以前看到好像都是时间片分配给线程额。难道是先分配给进程然后再分配给线程？<br><br></div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">调度的单位是线程。这个地方还没有介绍到线程，所以用了进程。</p> <p class="reply-time">2018-11-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://wx.qlogo.cn/mmopen/vi_32/PiajxSqBRaEKQMM4m7NHuicr55aRiblTSEWIYe0QqbpyHweaoAbG7j2v7UUElqqeP3Ihrm3UfDPDRb1Hv8LvPwXqA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">ninuxer</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡day4，底层的东西，要真正理解还是比较抽象，期待下篇实践后结合起来，能结合起来，让理解具体化，形象化</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2018-11-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/98/45/318ba48a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">pebble</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">cpu<br>上下文切换，从描述，感觉就是一个函数调用的成本了，而函数调用在程序里太多了，单独再讨论它，是否有价值，不知道理解的对不对</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">性能更多的是关注进程和中断的上下文切换</p> <p class="reply-time">2018-11-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/5b/e0/d27145c8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">lucian</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">cpu切换包括进程cpu切换，线程cpu切换，中断程序cpu切换。进程cpu切换的调度条件：cpu时间片用完、上一个进程资源不足、上一个进程sleep、当前进程优先级更高、硬件抢断执行内核服务程序。<br>中断程序优先级比进程更高，也因此中断程序执行倾向于耗时少速度快以节约cpu。</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/g4wzd5sQZzAc6ard9NlXXhRTbFkhmAPiachHEpslZaL3eGNiczGS05XB39sv1QVAiaXbNFhng36IpnxNWibKZ6yRuw/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">huicpc0215</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师您好，我想问一下，既然都讲到了线程和进程，可以在讲点协程么？ 协程会进行上下文切换么？  协程上下文切换是如何进行的 ？</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/5b/e0/d27145c8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">lucian</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">系统调用过程中，发生两次cpu上下文切换，发生在系统内核态和用户态之间。进程进行中会发生多次系统调用。进程上下文切换会保存当前进程共享给其所有线程的虚拟内存、全局变量，随后加载切换进程的虚拟内存、全局变量。</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/5b/e0/d27145c8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">lucian</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">cpu上下文切换是用户态内核态的切换</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/b3/a9/c1e36654.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">阿蒙</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">遇到过一个案例，有一次开发写的代码有问题，导致每个用户登录的时候都会请求某个通过 os:cmd 执行的操作，监控图上很明显用户登录高峰时上下文切换特别高，strace 和 systemtap 轮番撸了几天才查到问题。</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">嗯，后续也会介绍这类问题的分析思路</p> <p class="reply-time">2018-11-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/fc/fa/a5c17356.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">AAA</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">有什么好的方法可以减少频繁的上下文切换呢？</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/4a/66/d3d19642.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">半斤八两</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师您好，请问下同一个进程的两个线程之间上下文切换涉及到CPU上下文切换吗，涉及到用户态和内核态的切换吗~</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">线程和中断的上下文切换都是在CPU上下文切换的基础上操作了更多的数据，而特权模式切换只要看是不是通过系统调用陷入到了内核态运行</p> <p class="reply-time">2018-11-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/1d/1f/6bc10297.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Allen</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">『day3』  以前的理解上下文只停留在保存前一个进程的p堆栈信息，利用pc指针和cpu的寄存器值的变化，来保存现场和恢复场景。<br><br> 请教下老师：保存进程的虚拟内存，指的是保存进程堆信息吗？</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/5c/c5/1231d633.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">梁中华</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">有一次我们做线上虚拟机进行java服务压测，发现软中断占据了大量的CPU 资源最高的时候能站到将近3成，这是什么原因？怎么这么耗资源？</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/da/6a/91bd13de.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">张挺</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">您好，软中断和硬中断的区别是什么呢？谢谢</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/7d/40/bdcf7fa0.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">海</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">D4打卡。看了今天的文章，对上下文切换，进程，线程的理解又深入一步。还需要再看几遍，并且多看看其他相关文章，加深理解</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/4a/80/4102a9c2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">云在飘</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡，就喜欢这么细节的东西</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/ed/1a/ce7f7d54.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">asdf100</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">用户空间（Ring 3）只能访问受限资源，不能直接访问内存等硬件设备，必须通过系统调用陷入到内核中，才能访问这些特权资源。<br>-----<br>陷入到内核什么意思？</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/15/c8/a14d8a01.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">wrztye</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请问下，协程的切换和线程的有什么区别？</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/02/5b/ce326cfc.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Orcsir</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">Flag</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/93/43/0e84492d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Maxwell</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">如果CPU利用率低又有哪些原因呢？</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/d8/08/87afa2aa.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">星辰</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师好，<br><br>cpu切换属于系统级别、底层切换，保障了系统的正常运行，比如鼠标键盘 打开关闭某个系统级别的程序。<br><br>进程切换是可以重点去优化的，尽量将多进程换成多线程 这样 同进程下多个线程切换的损耗会比多进程少很多。<br><br><br><br></div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/93/43/0e84492d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Maxwell</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">上下文切换会导致CPU利用率高吗？</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/9d/30/7c33565d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">我是钢铁侠</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，在不涉及源码的情况下（我知道这几乎不可能），有没有内核或linux原理方面的书籍推荐呢</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/2f/eb/5dceac8a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Zenppl</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/b6/74/c63449b1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">问题究竟系边度</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">能否说一下，多种中断同时按序发生时，上下文是怎么处理的</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/34/bb/0b971fca.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">walker</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">中断和上下文切换多少时才算不正常呢</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">zkwKevin</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师好，如果老师能举一个具体的例子讲下什么时候会有进程的上下文切换就好了。我容易把它和系统调用搞混，因为是一届运维，不写这个层面的代码，即便查了资料也很晕，进程之间应该是很私密的呀，为何会发生切换呢</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/69/4d/81c44f45.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">拉欧</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">这期的内容很硬核</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/ec/4f/84415aa2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">一文字</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">醍醐灌顶，再去翻一下Linux内核</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/11/fe/de00d8d8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">王涛</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">D3打卡</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/69/88/1faea7b9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Anker</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">Linux是多用户多任务操作系统，cpu是共享资源，多进程或线程根据操作系统不同的调度策略轮徇是使用CPU，下一次执行必须要能够知道上次执行到哪里了，因此需要CPU内部存储需要保存每个进程或线程的状态。</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/1c/2e/93812642.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Amark</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">打卡</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/00/83/9329a697.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">马殿军</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">好👌</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/51/cd/443cc3be.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">小球就是饭二妞🐷🐷</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">有些概念是不是只是Linux 有的啊，用户态神马的</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/dwehJHP4ycAfDb9MoudXb4QSt7YgmISqwwsa928XZ6aTWqwWh0kx0iatjocSibLa7iajXmbGlJ5svegY3P6LfKJ0w/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">solar</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">上下文切换一直拥有概念，但是没有理解的这么细，受教了~~</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li></ul></div></div></div></div><div id="translate-man-app" class="content-3WfBL_0" style="background-color: rgb(255, 255, 255); display: none;"><div data-v-ea0bd11e="" class="outputBox-qe9A4_0"><div data-v-ea0bd11e="" class="outputBox-3oESn_0"><span data-v-ea0bd11e="" class="outputBox-13Ovx_0"></span></div><div data-v-ea0bd11e="" class="outputBox-1GLb__0"><div data-v-ea0bd11e="" class="outputBox-onVZH_0"><img src="chrome-extension://fapgabkkfcaejckbfmfcdgnfefbmlion/static/sound.svg"            class="icon-tprjJ_0"></div></div><div data-v-ea0bd11e="" class="outputBox-2sJgr_0"></div><div data-v-ea0bd11e="" class="outputBox-17RAm_0" style="display: none;"><div data-v-ea0bd11e=""></div></div></div></div><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({        showProcessingMessages: false,        messageStyle: "none",        tex2jax: {          inlineMath: [['$','$'], ['\\(','\\)']],          displayMath: [ ["$$","$$"] ],          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'a']        }      });      MathJax.Hub.Register.MessageHook("End Process", function (message) {        var eve = new Event('mathjaxfini')        window.dispatchEvent(eve)      })</script></body></html>

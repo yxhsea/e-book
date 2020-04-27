@@ -1,0 +1,844 @@
+<html class="cye-disabled cye-lm"><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><meta name="Keywords" content="极客时间,极客邦,极客邦科技,极客邦控股,极客时间App,专栏订阅,极客新闻,二叉树,极客Live,QCon,左耳听风,AI技术内参,大航海时代,陈皓,徐飞,洪亮劼,霍泰稳,池建强,Selina,Gary,InfoQ,极客搜索"><meta name="description" content="极客时间是极客邦科技出品的一款 IT 内容知识服务 App，内容包含专栏订阅、极客新闻、热点专题、直播、视频和音频等多形式的知识内容，并设有陈皓专栏、徐飞专栏、洪亮劼专栏等专栏供订阅。"><link rel="apple-touch-icon" sizes="180x180" href="http://static001.geekbang.org/static/icon/time/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="http://static001.geekbang.org/static/icon/time/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="http://static001.geekbang.org/static/icon/time/favicon-16x16.png"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="format-detection" content="telephone=no"><title>08 | 	Logstash安装与导入数据</title><link href="https://static001.geekbang.org/static/time/css/app.b230db929e53af87acd535637f5011b8.css" rel="stylesheet"><style type="text/css">        @font-face {            font-family: player-font;            src: url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.eot");            src: url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.eot?#iefix") format("embedded-opentype"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.woff") format("woff"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.ttf") format("truetype"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.svg#player-font") format("svg")        }        .player-font {            font-family: player-font !important;            font-size: 16px;            font-style: normal;            -webkit-font-smoothing: antialiased;            -webkit-text-stroke-width: .2px;            -moz-osx-font-smoothing: grayscale        }        .vplayer {            position: relative;            overflow: hidden        }        .vplayer,        .vplayer video {            width: 100%        }        .vplayer .title {            position: absolute;            top: 1rem;            left: 1rem;            right: 1rem;            color: #fff;            font-weight: 400;            font-size: .875rem;            word-break: break-all;            display: -webkit-box;            overflow: hidden;            text-overflow: ellipsis;            -webkit-box-orient: vertical;            -webkit-line-clamp: 1        }        .vplayer .finish-control,        .vplayer .loading {            position: absolute;            top: 0;            left: 0;            background: rgba(0, 0, 0, .5);            color: #fff;            width: 100%;            height: 100%;            z-index: 2;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center        }        .vplayer .finish-control h3,        .vplayer .loading h3 {            position: absolute;            color: #fff;            top: 1rem;            left: 50%;            font-size: 1rem;            font-weight: 400;            -webkit-transform: translate(-50%);            transform: translate(-50%)        }        .vplayer .finish-control p,        .vplayer .loading p {            cursor: pointer;            max-height: 6rem;            text-align: center        }        .vplayer .finish-control .cancel-next,        .vplayer .loading .cancel-next {            margin-left: 4rem        }        .vplayer .finish-control .cancel-next .icon-cancel-next,        .vplayer .loading .cancel-next .icon-cancel-next {            height: 4rem;            line-height: 4rem;            cursor: pointer;            font-size: 3.5rem        }        .vplayer .finish-control .cancel-next .icon-cancel-next i,        .vplayer .loading .cancel-next .icon-cancel-next i {            position: absolute;            top: 0;            left: 0;            margin-left: 8px        }        .vplayer .finish-control .icon-replay,        .vplayer .loading .icon-replay {            height: 4rem;            cursor: pointer;            line-height: 4rem;            font-size: 3rem        }        .vplayer .finish-control {            background: #000        }        .vplayer .no-wifi {            width: 70%;            position: absolute;            left: 50%;            top: 50%;            padding: 1rem;            background: rgba(0, 0, 0, .8);            -webkit-transform: translate(-50%, -50%);            transform: translate(-50%, -50%);            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: vertical;            -webkit-box-direction: normal;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            z-index: 3        }        .vplayer .no-wifi p {            line-height: 1.5rem;            margin: 0 auto;            width: 60%;            color: #fff;            font-size: 1rem;            text-align: center        }        .vplayer .no-wifi p span {            font-size: .875rem        }        .vplayer .no-wifi div {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            margin-top: 1rem        }        .vplayer .no-wifi div a {            color: #fff;            background: #ff5a05;            padding: .3rem .5rem        }        .vplayer .no-wifi div a:last-child {            margin-left: 1rem        }        .vplayer .buy {            position: absolute;            z-index: 4;            top: 0;            left: 0;            width: 100%;            height: 100%;            color: #fff;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: vertical;            -webkit-box-direction: normal;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            background: #000        }        .vplayer .buy p {            text-align: center        }        .vplayer .buy p span {            color: #ff5a05        }        .vplayer .buy .btn {            margin-top: 1rem;            color: #fff;            background: #ff5a05;            padding: .3rem 1.5rem        }        .android .dplayer .dplayer-controller .dplayer-icons .dplayer-full,        .dplayer-setting-item.dplayer-setting-loop {            display: none        }</style><style type="text/css">        .MathJax_Display {            overflow: auto        }        .poster {            position: fixed;            left: -10000px;            top: -10000px;            overflow: hidden;            padding: 1rem;            background: #ececec        }        .richcontent-pre-copy {            font-size: 13px;            color: #888;            position: absolute;            right: 1em;            top: .2em;            cursor: pointer;            -webkit-user-select: none;            -moz-user-select: none;            -ms-user-select: none;            user-select: none        }        .richcontent-pre-copy .iconfont {            font-size: 12px;            margin-right: .2em        }</style><style type="text/css">        .bottom {            width: 100%;            background-color: #f5f5f5;            position: fixed;            bottom: 0;            left: 0;            z-index: 10        }        .bottom,        .bottom .bottom-wrapper {            height: 67px;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row        }        .bottom .bottom-wrapper {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            padding-left: 20px;            padding-right: 20px;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between        }        .bottom .bottom-wrapper a {            height: 48px;            line-height: 51px;            -webkit-box-sizing: border-box;            box-sizing: border-box        }</style><style type="text/css">        .breadcrumb {            padding: 30px 0;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -ms-flex-wrap: wrap;            flex-wrap: wrap;            background: #fff        }        .breadcrumb a.title {            color: #e57c39;            font-size: 15px;            font-weight: 400        }        .breadcrumb span.title {            color: #888;            font-size: 15px;            font-weight: 400        }        .breadcrumb .split {            color: #ccc;            font-size: 10px;            margin-right: 5px        }</style><style type="text/css">        .course-detail[data-v-4e11b9bf] {            max-width: 46.25rem;            margin: 0 auto;            background: #f5f5f5        }        .course-detail .course-main[data-v-4e11b9bf] {            background-color: #fff;            width: 100%;            z-index: 10;            top: 0;            left: 0        }        .course-detail .course-info[data-v-4e11b9bf] {            background: #fff;            cursor: pointer        }        .course-detail .course-info .course-info-top[data-v-4e11b9bf] {            padding: 1rem 0 .4rem .78125rem;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .course-detail .course-info .course-info-top h1[data-v-4e11b9bf] {            font-size: 1.03125rem;            font-weight: 400;            text-align: justify-content        }        .course-detail .course-info .course-info-top i[data-v-4e11b9bf] {            font-weight: 400;            width: 40px;            padding-right: .78125rem;            -ms-flex-negative: 0;            flex-shrink: 0;            text-align: right;            color: #dadada        }        .course-detail .course-info .course-info-bottom[data-v-4e11b9bf] {            padding: 0 54px .5rem .78125rem;            border-bottom: 1px solid #e8e8e8;            color: #888;            font-size: .78125rem        }        .course-detail .course-info .course-info-bottom .icon-course-play[data-v-4e11b9bf] {            color: #d9d9d9;            font-size: .75rem        }        .course-detail .video-list[data-v-4e11b9bf] {            background: #fff;            width: 100%;            overflow: hidden;            overflow: auto;            -webkit-overflow-scrolling: touch        }        .course-detail .video-list ul[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            padding: .875rem 0        }        .course-detail .video-list ul li[data-v-4e11b9bf] {            margin-left: .71875rem;            position: relative;            border: 1px solid #e8e8e8;            border-radius: 3px;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            height: 4.0625rem;            overflow: hidden;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            font-size: .78125rem;            -ms-flex-negative: 0;            flex-shrink: 0;            line-height: 1rem;            -webkit-transition: border .5s ease;            transition: border .5s ease        }        .course-detail .video-list ul li img[data-v-4e11b9bf] {            width: 1.78125rem;            height: .84375rem;            position: absolute;            top: 0;            left: 0        }        .course-detail .video-list ul li a[data-v-4e11b9bf] {            -webkit-transition: color .5s ease;            transition: color .5s ease;            padding: 0 .5rem        }        .course-detail .video-list ul li a[data-v-4e11b9bf]:link,        .course-detail .video-list ul li a[data-v-4e11b9bf]:visited {            color: #353535        }        .course-detail .video-list ul li.on[data-v-4e11b9bf] {            border-color: #ff5a05        }        .course-detail .video-list ul li.on a[data-v-4e11b9bf]:link,        .course-detail .video-list ul li.on a[data-v-4e11b9bf]:visited {            color: #ff5a05        }        .article-title[data-v-4e11b9bf] {            color: #353535;            font-weight: 400;            line-height: 1.65rem;            font-size: 1.34375rem        }        .article-info[data-v-4e11b9bf] {            color: #888;            font-size: .9375rem;            margin-top: 1.0625rem        }        .article-content[data-v-4e11b9bf] {            margin-top: 1.0625rem        }        .audio-player[data-v-4e11b9bf] {            width: 100%;            margin: 20px 0        }        .content-box[data-v-4e11b9bf] {            padding: 1px 1.3125rem;            background-color: #fff;            margin-top: .46875rem        }        .to-comment[data-v-4e11b9bf] {            overflow: hidden;            padding-top: 20px;            margin: 0 1.3125rem -10px        }        .to-comment a.button-primary[data-v-4e11b9bf] {            float: right;            height: 20px;            font-size: 12px;            line-height: 20px;            padding: 4px 8px;            cursor: pointer        }        .extra[data-v-4e11b9bf] {            margin-top: .46875rem;            margin-bottom: 67px;            background: #fff;            position: relative        }        .extra .video-comment-box[data-v-4e11b9bf] {            position: absolute;            width: 100%;            top: 0;            left: 0;            z-index: 3;            -webkit-box-sizing: border-box;            box-sizing: border-box;            background: #fff;            padding-left: 1rem;            padding-right: 1rem;            padding-top: .5rem        }        .extra .video-comment-box h3[data-v-4e11b9bf] {            color: #353535;            font-size: .875rem;            line-height: 2rem;            font-weight: 400        }        .extra .comments[data-v-4e11b9bf] {            margin: 0 1.3125rem;            padding-bottom: 50px        }        .extra .comments h2[data-v-4e11b9bf] {            text-align: center;            color: #888;            position: relative;            z-index: 1;            margin-bottom: 14px        }        .extra .comments h2[data-v-4e11b9bf]:before {            border-top: 1px dotted #e8e8e8;            content: "";            position: absolute;            top: 50%;            left: 0;            width: 100%;            z-index: -1        }        .extra .comments h2 span[data-v-4e11b9bf] {            font-size: 15.25px;            font-weight: 400;            padding: 16px 1rem;            background: #fff;            display: inline-block        }        .extra .comments .no-comment[data-v-4e11b9bf] {            text-align: center        }        .extra .comments .no-comment i.icon-cat[data-v-4e11b9bf] {            color: #f5f5f5;            font-size: 100px;            line-height: 1.2;            margin-right: 12px        }        .extra .comments .no-comment .no-comment-text[data-v-4e11b9bf] {            color: #e8e8e8;            font-size: 12.5px;            line-height: 1.6        }        .bottom[data-v-4e11b9bf] {            position: fixed;            bottom: 0;            left: 0;            width: 100%;            height: 67px;            background: #fff;            background-color: #f5f5f5;            z-index: 10        }        .bottom .buy-join[data-v-4e11b9bf],        .bottom[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center        }        .bottom .buy-join[data-v-4e11b9bf] {            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            height: 48px;            line-height: 48px        }        .bottom .buy-join span[data-v-4e11b9bf] {            line-height: 48px;            margin-left: 5px;            color: hsla(0, 0%, 100%, .5);            font-size: 11px;            text-decoration: line-through        }        .bottom .button-cancel[data-v-4e11b9bf] {            height: 51px;            line-height: 51px        }        .bottom-control[data-v-4e11b9bf],        .bottom-sub[data-v-4e11b9bf] {            width: 100%;            -webkit-box-orient: horizontal;            -ms-flex-direction: row;            flex-direction: row;            -ms-flex-pack: distribute;            justify-content: space-around;            -webkit-box-sizing: border-box;            box-sizing: border-box;            padding: 0 1.3125rem        }        .bottom-control .item[data-v-4e11b9bf],        .bottom-control[data-v-4e11b9bf],        .bottom-sub .item[data-v-4e11b9bf],        .bottom-sub[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-direction: normal        }        .bottom-control .item[data-v-4e11b9bf],        .bottom-sub .item[data-v-4e11b9bf] {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            -webkit-box-orient: vertical;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            cursor: pointer        }        .bottom-control .item i[data-v-4e11b9bf],        .bottom-sub .item i[data-v-4e11b9bf] {            color: #353535;            font-size: 1.125rem;            line-height: 1.5rem        }        .bottom-control .item span[data-v-4e11b9bf],        .bottom-sub .item span[data-v-4e11b9bf] {            color: #888;            font-size: 11px        }        .button-subscribe[data-v-4e11b9bf] {            -webkit-box-flex: 1;            -ms-flex: 1;            flex: 1;            height: 69px;            color: #fff;            font-size: 15.25px;            text-align: center;            background-color: #ff5a05;            line-height: 69px;            border-radius: 5px        }        .article-sub-bottom[data-v-4e11b9bf] {            z-index: 2        }        @media only screen and (device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3) {            .bottom[data-v-4e11b9bf],            .comments[data-v-4e11b9bf] {                padding-bottom: 34px            }        }        @media (max-width:769px) {            .course-detail .breadcrumb[data-v-4e11b9bf] {                padding: 10px            }        }        @media screen and (min-width:768px) {            .extra .comments[data-v-4e11b9bf],            .to-comment[data-v-4e11b9bf] {                margin: 0 0 -10px            }        }</style><style type="text/css">        .mobile-tips {            width: 100%;            height: 51px;            background: rgba(0, 0, 0, .8);            position: fixed;            top: 0;            left: 0;            z-index: 20;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-sizing: border-box;            box-sizing: border-box;            padding: 0 12px;            -webkit-transition: opacity .35s;            transition: opacity .35s;            opacity: 0;            pointer-events: none        }        .mobile-tips.istop {            opacity: 1;            pointer-events: auto        }        .mobile-tips .mobile-tips-info {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: start;            -ms-flex-pack: start;            justify-content: flex-start        }        .mobile-tips .mobile-tips-info i {            width: 36px;            height: 36px;            background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAABECAYAAAA4E5OyAAAL30lEQVR4Ae2bBXTbStOG/VGZmVJM6lCZmZnplJmZmZkZ/o+Z4TIzM2O5aW+bimWZY8H7jxTnNvax2xQcnnOerHhm351R1rJsO3/+fG2i7uXLlxsGAoE9ABQUETMM42NFUfqZ/Q/qUMtmrqSnpyfquv4Giqb5yRaTDvVMUWxXrlxpRGK8i6JtAa/XO94Uxaaq6mEUm2nczZs3k2wAXLCs2Cg5jttQbNlvsrfDBCk2W96MhA7d54Qm34R662uoNz6z0Jjz0J0sDL/LPKhwC6J7HMi48g7crx6B8qcJkA6kQNzTGNJuk4ZBGkHa0wTSwVQ4/zkH3nd/aQlmBHyFRxCVRt3z1GY49iVB3l0f8kE7lJPtoPyyF5Rf9QnSN5Nf9oXTanvDcaoD5EOJdE4DKEdaw/vWOcoepuAKogppcP1pOqTtcZD3xUM51x3K//WhtncmZ7PoFXk5iMM6pycc+5vSterC/dwu6F5HwRHE0FR4XjgCeUt9KHsT4DxDnTxt0jNID4vgcoRtwfXw4+g6Fvsoa7Y3RMbXz+Z/QTSXSCXRBdK6KlBOdIVyqhe13e9Cj/vfR9d0nuwGeWN1uP+1DIau5k9BAuwViGvqQt6RAMfJ3pCPdoPjoegedbt17RO9IO9KhONQNxgZ3vwlSEb6hUwxdtop4B6QD3cN0iWM0G2OO9vD6BKhDT2OzrV8SXtSIe9tTaJ48ocgqsxAWlELjm2UGUdoVA91zhkHTaJuJ3J4jcPkc1cKHPs7AYaet4LoaoAyIx7i5oaQKXXlA50gRaUjpP0drWPkg7S+pwXE9XEQV9WAsKoWhJXVIa2sCXFdHKTdzcxj6NjOEa9pbdufbdvBrpC22eH808K8FcTxx2UQVlTNDGhfR6JDWEtkrR/oTG178OvqUoc7wP3kHmR8/yY0Pg2ag4Em34aafh7+z56G8pfl4JfVhLCmNsS9bc1zw65tLYdCMYira8L/9Ut5I4jv4kfgZ5eAtJeC23N35P1dIK1vBOXIYAQuvgtDC9w7+9wOeN/+CwneANLaOLpG53v72dcJwtKqMHyu3BVENwxIWztQyjc0R5toH529HSEsqw7f6799wCm/AuXsVKujJP49/NG+zXZ4/rs1dwXxfPIcZUdpKwBxR9sotLNGTVhUDeq1z/Gw5n76JPhZpchnO/PaUf2aMfELK5GQjtwRxDAMiDt7QFhNqbytLdEmBDGr3UlizC0P9frXeFTmevwIhFmlrWuTj6iI6xLge/lc7gjiT78Mfk6FTOdbiK0mrX9sRbPdTiO4tBb8Hz2BR23yyekQF1YlH+2zfGYjGA8NlLw+BdC12Aviev4cxFllIJtibG4dmY2pUE5OQCxM8/vAzakFeZ09un+KTZxfBeqNr2MriK5p4Dd0hLiiEaQNrSKzqQ2ldSVo4i3Eypyv/gXC1NLU+TYRYmhpteLaRLifPBBbQQIiA35mNQjrm0NY1yIya5KgnJiEWJrq94NbYoewKiF6HOtbwHFoeGwF8V36BPyUshDWNo9AC6vl5lSF75NnEEszCPk3KyHMqBA1DrMVlzeFkeGLnSDuj54GN6kUZQE5XN0MPBFsg8vNwU4sCZW/gVib+70nwE8oBX5Nlu9wmlM2V4UmM7ETxPnS78BOLQNuVTNwq7NIvdMS/KLG1qjE2ryXvwQ7uRL5TDb9R4ShDNK467ETRHnqBAlSjgRJjczKJIjr2ltT81ibn7kBblpN8pkYNR5mWnmo6RdjKMiTx8FPLgd+JWXCiuykZLbLswRRkVPTiYDbef+CsDfBTq1JPu2RYyHYqeURSPsqhiXz7C/BTSgNblky+BBSgiSBn98I+n08wZJe+Qe4YVXu+1mGJ+08mIlVyKedSI4IO6kcZcil2AnievNfYMf9AsLS5BB4q02y4Eb9HKqQszmIVxbAjCoJaUZjGOr9lZnrk1fAjSlp+eRD4shaJqZUgSalx04Q75dvgh31U3BLqOOLg4Qts2N+Ad8Xr+NephoGuPX9wJHA0qZu91VmBiH+fT/YkT8L+o8MP7chDL8ndoJkpF8FO7okuEV2IjEyM2rAcXYx7mXyU78F08dG5ZcIaU2n+xIkYADshn5gp1SKHsfiRBK6R2wnZprfC3ZqbXIYTw5DnN9ZX5IIdvjPoDklRDM3z+D2WOrMnLp0nv2+BVG++5RKrTSd2zToP5Iodrj+tDH2H+6kc8vATawAbmFiZBZR2UyoAMeZJVFKBWCWdgZL9c8tSaFzmkK8D0ECBLO6D7ixpiDJUeNgp9ZA4Nt3Yi+I96u3wQy2gTWdLrBHxhwhOsZ34bPw2ofw37NgBtisGmfn28HMj4e4umOOBDEI6aV/gxtE5y+kc7P8zQ/zT7HxMxvAUDNiL4ie4Qc3oTq4eY3BUSARWUCCzIqjwH+KgCwgy1xpF8EM/Bntq2cdYx07Lx7SqpwJolz+HuzQMuCn16LzSdDI/ml7U7j/vCX3HiEqf9sLfvjPIVBQ/Dw7+PlBaFkgeJOFyeAnVabyqmPde1QA7JKO4EaVgLAwhY7JOj4B0sq7C2IQzqsk5mgaiPHlwS9K+dGnkN0/YcbEjSljTtlzTxDV5QAz9GeZWUId4uZHgWqcHV8O3JL24I4uADuhCnXGHnrMvCYkSIeoghiE8u3HYIbQdaz7TnJ0fyYL4qEcnZ77X0Mo/zkGhmqZNVN3bkIm84LMzQZlCju1FtjRpcxUpv32kP3M3CYQV0QXRNMNpE9PBWv6WpRM54T6CPE9PxHMqFLQJSb3BdFVFey4GuCm1qaAqJNzEh4IZnYTCMvv/vlH/Ou+TPHnJYKdHX6+BS1TDNPi4HnseN59c5dx6wqYHjYKMp6g0Z+VQC1BbdTl8G0zG99TkIDPC2Z0FbBT69J54deMJ0xBmkLaMDTvv+x2v/I3MP1JlLmJFFjTsA5HIUQQypBl7e75X0Z+7LQ1s2XnJZnnhkLb+GkNzGl6/ngdwvmPg2D72qwaZufEmx0NtlnL2QUJbs88jmgMMQeCqH4/zW6rm/ej4PXiM9v5SeAmx0Hjf8hfL8y4/ncCXG8bmLnxYOYkEE0yoXsEa7V3YIkf981uRCXTLmfzkFf/DaYn+Zhvz/Rh/oeb0hi6mJ4/X6nymOVDorBT48yaDtY3MdNsw5iZ1VKGLM2ZIFogQFlSmzKiJtjpDei8ztAVIX+/dJdx/TzEGSnghpUAT6LwVOMcddxiZpBZ2ZjRGFIOBTHN+enrYFNKwP3LtQCMgvFapqHrcD/9S3CDK4IbUwHc7AQiKEw4M0mQZff32FGT2IL54q7mkuH+7zGIUxuBHfoLcFPrkTDZxcgURJxtv/8PYgVJkAyfF3r2jFED8H/9NpznlkGcmwJ+WGlwQ0uAG18N3JSakGZRyehazq8f/Fq14AgiceCOrYSbvR2xyjWZQ8b5D+F9/Z/w0H8njb2eYyHEWzehPPUHU+SCVTJe+kCW3t4G/tgCKN9+Ap/bjfsdUyP4uNAtyxA+fRPpR+ZBWj7QFKNg3kMC7A2wCTZw5txhcjzYXZMgvPh3OM5/DiebDo/XB59mwK9q8Psz4KV1t0OGkv4DpG8+Bvf8X3F76zgwU+xgaZbq3LaoEPwawiFAGFsHwogS4EaWBdfPBnZoWTAT4sDObgZmcWcwK/uANVnSFczsFmAmNQAzrLw1++WGlwI7siQ8v9lUeH4vo/k8cGwdDn7YL8CZD3RmNQY3tS74idXBjasEbkx5C95cnlAd/NQ64Gc2Aj8vERw9jPa/+IfC+Ysq13+OgutlAz8tDtwce+R5iclsO9gZDSHOaw017dvC/ROzjFuXoWweDI4+IXOTa5kTthDYyZQdk+rC+6+DgK4Xjd/cWcJc+wauP22BNC8VwuiKEKc1gGPbMPhe+gN0l1xoJmb3b7oOzcFD97nz4Uy12LRiQUKSVX/bRn8+QbFZ5nQ6J9ocDscwAP4iXyua9vj58+fjbeYfr9e7ytxWhEvls7S0tOakRWOb+YeId7vdcw3DEItgZjxx7dq1ZqRBE6KRKUiD4Er89evXWwUCgTMkDFvYdTBvoHTPmEz9TsgSg6j///oXgzKZqkEyAAAAAElFTkSuQmCC);            background-position: 0 0;            background-repeat: no-repeat;            background-size: contain;            border-radius: 7px        }        .mobile-tips .mobile-tips-info h2 {            font-size: 15px;            color: #fff;            font-weight: 400;            margin-left: 6px        }        .mobile-tips .mobile-tips-info h2 span {            font-size: 11px        }        .mobile-tips a {            width: 72px;            height: 31px;            text-align: center;            border: 1px solid #ff5a05;            border-radius: 3px;            font-size: 13px;            color: #ff5a05;            line-height: 31px        }</style><style type="text/css">        .comment-item {            list-style-position: inside;            width: 100%;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            margin-bottom: 1rem        }        .comment-item a {            border-bottom: none        }        .comment-item .avatar {            width: 2.625rem;            height: 2.625rem;            -ms-flex-negative: 0;            flex-shrink: 0;            border-radius: 50%        }        .comment-item .info {            margin-left: .5rem;            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1        }        .comment-item .info .hd {            width: 100%;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .comment-item .info .hd .username {            color: #888;            font-size: 15.25px;            font-weight: 400;            line-height: 1.2        }        .comment-item .info .hd .control {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .comment-item .info .hd .control .btn-share {            color: #888;            font-size: .75rem;            margin-right: 1rem        }        .comment-item .info .hd .control .btn-praise {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            font-size: 15.25px;            text-decoration: none        }        .comment-item .info .hd .control .btn-praise i {            color: #888;            display: inline-block;            font-size: .75rem;            margin-right: .3rem;            margin-top: -.01rem        }        .comment-item .info .hd .control .btn-praise i.on,        .comment-item .info .hd .control .btn-praise span {            color: #ff5a05        }        .comment-item .info .bd {            color: #353535;            font-size: 15.25px;            font-weight: 400;            white-space: normal;            word-break: break-all;            line-height: 1.6        }        .comment-item .info .time {            color: #888;            font-size: 9px;            line-height: 1        }        .comment-item .info .reply .reply-hd {            font-size: 15.25px        }        .comment-item .info .reply .reply-hd span {            margin-left: -12px;            color: #888;            font-weight: 400        }        .comment-item .info .reply .reply-hd i {            color: #ff5a05;            font-size: 15.25px        }        .comment-item .info .reply .reply-content {            color: #353535;            font-size: 15.25px;            font-weight: 400;            white-space: normal;            word-break: break-all        }        .comment-item .info .reply .reply-time {            color: #888;            font-size: 9px        }</style></head><body style=""><div id="app"><div data-v-4e11b9bf="" class="course-detail"><div class="breadcrumb breadcrumb"><span><a href="#" class="title router-link-active">讲堂</a><span class="split iconfont"></span></span><span><span class="title">08 | 	Logstash安装与导入数据</span></span></div><div data-v-4e11b9bf="" class="course-main main" style="position: relative;"><div data-v-4e11b9bf="" class="vplayer" id ="DplayerCont" style="height: 416.25px;"><h2 class="title">                        08 | 	Logstash安装与导入数据</h2></div></div><div data-v-4e11b9bf="" class="course-info" style="margin-top: 0px;"><div data-v-4e11b9bf="" class="course-info-top"><h1 data-v-4e11b9bf="" class="course-title"></h1><i data-v-4e11b9bf="" class="iconfont"></i></div></div><div data-v-4e11b9bf=""><div data-v-4e11b9bf="" class="content-box"><div data-v-4e11b9bf="" id="article-content" class="typo common-content"><div class="text">                            <p><a href="https://github.com/geektime-geekbang/geektime-ELK/tree/master/part-1/2.4-Logstash%E5%AE%89%E8%A3%85%E4%B8%8E%E5%AF%BC%E5%85%A5%E6%95%B0%E6%8D%AE">课程Demo</a></p><h1>相关阅读</h1><ul>
+<li>下载最MovieLens最小测试数据集：<a href="https://grouplens.org/datasets/movielens/">https://grouplens.org/datasets/movielens/</a></li>
+<li>Logstash下载：<a href="https://www.elastic.co/cn/downloads/logstash">https://www.elastic.co/cn/downloads/logstash</a></li>
+<li>Logstash参考文档：<a href="https://www.elastic.co/guide/en/logstash/current/index.html">https://www.elastic.co/guide/en/logstash/current/index.html</a></li>
+</ul><h1>课件地址</h1><p><a href="https://github.com/geektime-geekbang/geektime-ELK/blob/master/part-1/%E5%88%9D%E8%AF%86Elasticsearch.pdf">初识Elasticsearch</a></p><!-- [[[read_end]]] --></div></div></div></div><div data-v-4e11b9bf="" class="extra" style="margin-bottom: 1rem;"><div data-v-4e11b9bf="" class="comments"><h2 data-v-4e11b9bf=""><span data-v-4e11b9bf="">精选留言</span></h2><ul>                        <li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/7b/57/a9b04544.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">QQ怪</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>9</span></a></div>
+	</div>
+	<div class="bd">老师用的mac版本的我老是报错，后来找到解决方法了，windows改成这样：<br>input {<br>  file {<br>    path => ["D:/logstash-7.1.1/movielens/ml-latest-small/movies.csv"]<br>    start_position => beginning<br>    sincedb_path => "D:/logstash-7.1.1/123"<br>  }<br>}</div> <span class="time">2019-06-25</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">谢谢你的分享！所以其他平台，我确实没有做过测试验证。</p> <p class="reply-time">2019-06-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/3c/8f/fcbbb667.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">.两个调味罐</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>6</span></a></div>
+	</div>
+	<div class="bd">我来个windows版的教程吧：<br>1.下载解压好logstash<br>2.下载解压ml（我从github下载下来后好像和老师的不大一样，然后就把老师的那些文件复制一份到自己的文件夹里）<br>3.新建logstash.conf文件（这个文件需要放在logstash的bin目录下），编辑里面的内容:(主要改的就是最上面这一块---path的路径指向的是你的movies.csv路径，要加中括号，sincedb_路径要是一个真实路径，但是可以加一个不存在的文件，这个路径的意思老师在其它留言中有讲解在此不再阐述。)<br>input {<br>  file {<br>    path => ["C:/Users/Administrator/Desktop/ES/logstash-7.0.0/movielens/ml-latest-small/movies.csv"]<br>    start_position => beginning<br>    sincedb_path => "C:/Users/Administrator/Desktop/ES/logstash-7.0.0/movielens/ml-latest-small/abc"<br>  }<br>}<br><br><br>4.打开cmd，进入logstash的bin目录下，执行logstash -f  logstash.conf</div> <span class="time">2019-06-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">谢谢你的分享。</p> <p class="reply-time">2019-06-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/46/11/1cf8c174.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">小沫</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>4</span></a></div>
+	</div>
+	<div class="bd">在执行 LogStash 时 ，需要使用 sudo ，否则命令执行完成后 没有权限操作相关文件。这个确实需要注意。</div> <span class="time">2019-06-27</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">嗯，谢谢你的分享</p> <p class="reply-time">2019-06-27</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/96/d6/594e5f32.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">张耀挺</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">Windows下面试了好多次，启动都没问题就是没数据，最后看了半天才发现一般我们从windows系统中复制的路径都是\斜杠的，但是配置文件中的路径需要的是/斜杠的路径。如果有这个问题就会导致数据源就没法读取，当然也不会有输出的数据。这种小问题确实很烦人，希望大家能多交流这些小坑。</div> <span class="time">2019-07-10</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">谢谢你的分享。课程准备工作量比较多，我又没有时间在每台机器上做测试，这些兼容问题确实给一些同学造成了困扰。<br><br>谢谢你的极客精神和分享的精神</p> <p class="reply-time">2019-07-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/d4/44/ec084136.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">LoveDlei</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">老师您好：<br>    我是es初学者，也是初级使用者。<br>请教您几个问题：<br>1.我打算用springboot+springcloud-data-elasticsearch 进行开发，能不能讲解下框架的搭建和使用或者有哪些注意事项？<br>2.在网上我也搜索一些资料，但是各种说法都是参差不齐，不知该如何选择？老师是否可以提供一写好的资料或网站（网址），作为入门资料，使我们这些初学者（初级使用者）边使用边学习逐渐深入啊？<br><br>辛苦老师，帮忙解惑。不知道我描述的问题老师是否理解了！！！我现在就是不知道如何下手？</div> <span class="time">2019-07-06</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">1. 你可以去看一下我在极客时间写的学习路径<br>2. 你可以看完视频，安装es和kibana 实际操作一下<br>3.和spring的集成，原来没有这方面的计划，现在会考虑增加一节</p> <p class="reply-time">2019-07-07</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/7f/2a/abb7bfe3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">木木</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">结合老师和楼上几位前辈的指点，整合了一个能在windows下运行的配置文件（yourdata.confi），供参考。<br><br>input {<br>  file {<br>    path => ["D:/Elasticsearch/ml-latest-small/movies.csv"]<br>    start_position => "beginning"<br>    sincedb_path => "nul"<br>  }<br>}<br><br>filter {<br>  csv {<br>    separator => ","<br>    columns => ["id","content","genre"]<br>  }<br><br>  mutate {<br>    split => { "genre" => "|" }<br>    remove_field => ["path", "host","@timestamp","message"]<br>  }<br><br>  mutate {<br><br>    split => ["content", "("]<br>    add_field => { "title" => "%{[content][0]}"}<br>    add_field => { "year" => "%{[content][1]}"}<br>  }<br><br><br>  mutate {<br>    convert => {<br>      "year" => "integer"<br>    }<br>    strip => ["title"]<br>    remove_field => ["path", "host","@timestamp","message","content"]<br>  }<br><br><br>}<br><br>output {<br>   elasticsearch {<br>     hosts => "http://localhost:9200"<br>     index => "movies"<br>     document_id => "%{id}"<br>   }<br>  stdout {}<br>}</div> <span class="time">2019-07-03</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2019-07-04</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/4c/8b/d68bb38e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">ChaoX</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">window版本如出现如下错误时<br>Failed to execute action {:id=>:main, :action_type=>LogStash::ConvergeResult::FailedAction, :message=>"Could not execute action: PipelineAction::Create<main>, action_result: false", :backtrace=>nil}<br>可复制下文input内容改成如下:<br>input {<br>  file {<br>    path => ["csv路径"]<br>    start_position => beginning<br>    sincedb_path => "nul"<br>  }<br>}<br>sincedb_path 路径改为nul即可</div> <span class="time">2019-06-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/57/4f/6fb51ff1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">一步</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">这里的 logstash.conf  和 movies.csv 文件  为什么要拷贝到 bin 目录下呢？ <br>直接使用 -f 指定配置 logstash.conf文件的路径 和 movies.csv 文件用绝对路径不可以吗？</div> <span class="time">2019-07-12</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">拷贝到哪里都可以，只要确保路径正确。放bin下面只是方便演示</p> <p class="reply-time">2019-07-12</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/64/b2/1c04bd66.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">潇湘</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">老师，请问下mysql到es的数据同步，具体方法会有讲解吗？</div> <span class="time">2019-07-11</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">我可以在logstash中加上这部分的讲解</p> <p class="reply-time">2019-07-11</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/40/99/661aeab5.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">蕊</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">数据通过logstash导入ES成功，然后通过Kibana DevTools 命令DELETE moves进行删除索引，删除后再次通过logstash进行数据导入，未报异常，但是数据导入不成功，老师可以给讲解一下问题出在哪里么</div> <span class="time">2019-07-05</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不知道你的sincedb_path设置是什么？如果指定了有意义的路径，可以尝试删除改文件。<br><br>通过我们课程中的logstash的配置文件可知，我们有一个参数sincedb_path，其值为“/dev/null”，这个参数的是用来配置记录logstash读取日志文件位置的文件的名称的，我们将文件的名称指定为“/dev/null”这个 Linux 系统上特殊的空文件，那么 logstash 每次重启进程的时候，尝试读取 sincedb 内容，都只会读到空白内容，也就会理解成之前没有过运行记录，自然就从初始位置开始读取了！</p> <p class="reply-time">2019-07-05</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJNkOHfXicn2cicfcbr8k7Zgn5UAK9hympNKY0SziaiazOAfcHTBqM1HhFfib3JDfjFD0rJEsvW6xicNBuA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">tangyongchun</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">老师，可以分享下课件吗</div> <span class="time">2019-07-05</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">https://github.com/onebirdrocks/geektime-ELK<br><br>进入part-1，下面有第一部分的课件的pdf</p> <p class="reply-time">2019-07-05</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/44/91/a4452c78.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Y</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">好像是启动成功了  但是数据没有导入到ES</div> <span class="time">2019-06-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">请查看logstash的console是否有输出错误信息，如课程视频所演示，如果数据写入成功，会打印出相关的文档信息</p> <p class="reply-time">2019-06-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/80/0d/dc3f4fe9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">kyushu</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">您好，请问下Logstash的集成可以添加到docker里面么，需要调整相关配置吗？</div> <span class="time">2019-06-25</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">logstash也可以集成进docker，讲课为了保持简洁，所以没有涵盖logstash的配置。如果你有兴趣 可以参考github这个项目<br><br>https://github.com/deviantony/docker-elk</p> <p class="reply-time">2019-06-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/5b/8f/4b0ab5db.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">hedeqiang</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">老师，后续可能的话讲解下配置文件，一味的复制，感觉不是很好</div> <span class="time">2019-06-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">你是说logstash的配置文件吗？后续课程中会做出讲解的，第一部分主要是让大家先通过实际操作体验，建立一个大概的概念。</p> <p class="reply-time">2019-06-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/4l5YDQPzo4JyP8olcds9FQHoL9lIl3o8z8JNVesiaA7RKicDpvYdfAZfkiakCG8dpicBpmkXiaXUdAmRlB4FH4KvfBA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">walker</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">导入数据怎么算完？但最后没退出，Ctrl-c 强制退出有问题吗？</div> <span class="time">2019-07-14</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不再继续打印输信息了，就算结束了。logstash会监听文件，如有变化，会继续更新。<br><br>强制退出不会有影响</p> <p class="reply-time">2019-07-15</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/ed/d2/e3ae7ddd.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">三木禾</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，我的logstash.conf这个文件在config文件下下没有，是不是被替代了？</div> <span class="time">2019-07-14</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/cd/2a/bdbed6ed.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">无菇朋友</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师 为什么数据插入的时候会卡住 重试也是这样 路径没有问题 </div> <span class="time">2019-07-13</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/16/83/3b/db0b7ab8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">爱吃猫的鱼</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">window10遇到的问题，卡在Successfully started Logstash API endpoint {:port=>9600}，windows路径都是\斜杠的，但是配置文件中的路径需要的是/斜杠的路径。网上这个帖子就有相应的解决方案https://discuss.elastic.co/t/stuck-at-successfully-started-logstash-api-endpoint-port-9600/155023</div> <span class="time">2019-07-13</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/ce/60/7d17522d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">君莫惜</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">为什么不在docker-compose中直接加入一个logstash呢？</div> <span class="time">2019-07-13</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">当然可以，只是这样做起来相对更加复杂。我在相关阅读中有提供别人写的elk的docker-compose文件。对于我们的应用，logstash只需要偶尔运行，全部打包，对笔记本的也会有额外的开销</p> <p class="reply-time">2019-07-13</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/64/17/3b94ae7d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">我有我的调调</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师在评论看到了您回答同学问题的时候说考虑增加一节spring整合es 强烈渴望嘿嘿，支持 支持</div> <span class="time">2019-07-13</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/3b/0d/8d0f8be3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">石头</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">windows上不行啊，不能导入数据。</div> <span class="time">2019-07-12</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">你检查一下路径写的对不对，csv是否已经导入了。windows的文件风格符记得使用\\</p> <p class="reply-time">2019-07-12</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/15/8e/a0/cd994662.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">晓</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，您好，请教一个日志收集的问题，我这边环境里有一台防火墙，可以配置syslog服务器地址发送日志，能不能把syslog服务器的地址写成file beat或者logstash所在服务器地址，file beat或者logstash配置一下input type为tcp\udp或者syslog?我尝试了但是没收到日志，是不是理解的不对？</div> <span class="time">2019-07-12</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">天空之熊</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，windows 卡在了导入过程中咋办呢，重新开始一样卡在了ID "162602</div> <span class="time">2019-07-12</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">请检查movies.csv的路径是否正确</p> <p class="reply-time">2019-07-12</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/48/40/e8d8d1f8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">执笔</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师为啥我启动会先出现：<br>此时不应有 \QuickTime\QTSystem\QTJava.zip。<br>然后再输入logstash - logstash.conf 会出现：<br>warning: ignoring JAVA_OPTS= -Xms256m -Xmx256m -XX:+UseConcMarkSweepGC -XX:CMSIn<br>itiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly -Djava.awt.headl<br>ess=true -Dfile.encoding=UTF-8 -Djruby.compile.invokedynamic=true -Djruby.jit.th<br>reshold=0 -XX:+HeapDumpOnOutOfMemoryError -Djava.security.egd=file:/dev/urandom<br>; pass JVM parameters via LS_JAVA_OPTS</div> <span class="time">2019-07-10</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">Logstash是需要本机安装并且设置好JAVA的，设置好java_home和bin</p> <p class="reply-time">2019-07-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Sam</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，我用logstash导入数据后，提示“ 1 unassigned shards"。<br>我的es环境为单个节点。可否告知下原因。</div> <span class="time">2019-07-10</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">应该是分片副本设置成1，单节点下，副本必须和主分片在不同的节点上，因此导致了unassign</p> <p class="reply-time">2019-07-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/3f/bc/c74bb4b5.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">曹征</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">我是Mac系统，本地装的是es6.8。<br>按照老师的教程用老师的docker-compose.yaml 启动es7.1、kibana、cerebro。<br>然后按照老师的教程，通过本地安装logstash7.2并启动，发现是链接到本地的es6.8去了，并报错。<br>```贴出来一部分的报错代码<br>[2019-07-10T09:59:19,237][WARN ][logstash.outputs.elasticsearch] Restored connection to ES instance {:url=>"http://localhost:9200/"}<br>[2019-07-10T09:59:19,311][INFO ][logstash.outputs.elasticsearch] ES Output version determined {:es_version=>6}<br>[2019-07-10T09:59:19,314][WARN ][logstash.outputs.elasticsearch] Detected a 6.x and above cluster: the `type` event field won't be used to determine the document _type {:es_version=>6}<br>```<br>我现在该怎么解决？<br>是想办法打通本地与docker的通信，链接到docker-compose.yaml里的es7.1吗？<br>还是本地再装个es7.1版本？</div> <span class="time">2019-07-10</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">elkb的版本应该保持一致。 docker只是为了让你学会一种部署方式。如果本地已经有es启动，那么可以通过修改端口的方式使其一起运行</p> <p class="reply-time">2019-07-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Geek_9be764</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师 我用的logstash-7.2.0版本 bin 目录下面没有 logstash.conf 配置文件啊    </div> <span class="time">2019-07-10</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">https://github.com/onebirdrocks/geektime-ELK<br><br>clone这个repo</p> <p class="reply-time">2019-07-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/15/5d/a3/245b74d9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">打听幸福的下落</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">logstash启动成功，但没有导入数据（docker启动elasticsearch和本地启动都无法导入数据）：<br>Sending Logstash logs to D:/JavaPrograms/ELK/logstash-7.1.0/logs which is now configured via log4j2.properties<br>[2019-07-10T01:05:16,458][WARN ][logstash.config.source.multilocal] Ignoring the 'pipelines.yml' file because modules or command line options are specified<br>[2019-07-10T01:05:28,522][WARN ][logstash.outputs.elasticsearch] Restored connection to ES instance {:url=>"http://localhost:9200/"}<br>[2019-07-10T01:05:28,612][WARN ][logstash.outputs.elasticsearch] Detected a 6.x and above cluster: the `type` event field won't be used to determine the document _type {:es_version=>7}<br>[2019-07-10T01:05:28,929][INFO ][logstash.outputs.elasticsearch] Attempting to install template {:manage_template=>{"index_patterns"=>"logstash-*", "version"=>60001, "settings"=>{"index.refresh_interval"=>"5s", "number_of_shards"=>1}, "mappings"=>{"dynamic_templates"=>[{"message_field"=>{"path_match"=>"message", "match_mapping_type"=>"string", "mapping"=>{"type"=>"text", "norms"=>false}}}, {"string_fields"=>{"match"=>"*", "match_mapping_type"=>"string", "mapping"=>{"type"=>"text", "norms"=>false, "fields"=>{"keyword"=>{"type"=>"keyword", "ignore_above"=>256}}}}}], "properties"=>{"@timestamp"=>{"type"=>"date"}, "@version"=>{"type"=>"keyword"}, "geoip"=>{"dynamic"=>true, "properties"=>{"ip"=>{"type"=>"ip"}, "location"=>{"type"=>"geo_point"}, "latitude"=>{"type"=>"half_float"}, "longitude"=>{"type"=>"half_float"}}}}}}}<br>[2019-07-10T01:05:29,978][INFO ][logstash.javapipeline    ] Pipeline started {"pipeline.id"=>"main"}<br>[2019-07-10T01:05:30,113][INFO ][logstash.agent           ] Pipelines running {:count=>1, :running_pipelines=>[:main], :non_running_pipelines=>[]}<br>[2019-07-10T01:05:30,126][INFO ][filewatch.observingtail  ] START, creating Discoverer, Watch with file and sincedb collections<br>[2019-07-10T01:05:30,910][INFO ][logstash.agent           ] Successfully started Logstash API endpoint {:port=>9600}<br>因字数限制，中间省略了部分info信息</div> <span class="time">2019-07-10</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">确认movies.csv和config文件都被拷贝到bin目录下。<br><br>同时留意，config文件中csv的路径。windows的文件分隔符</p> <p class="reply-time">2019-07-11</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/51/e3/abb7bfe3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Neo</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师您好，视频中提到的配置文件以及在github上写好了，请问地址在哪里呢</div> <span class="time">2019-07-09</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">https://github.com/onebirdrocks/geektime-ELK</p> <p class="reply-time">2019-07-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Geek_9be764</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师 我用的logstash-7.2.0版本 bin 目录下面没有 logstash.conf 配置文件啊</div> <span class="time">2019-07-09</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">需要把github上的config下载拷贝进相应的目录。<br>https://github.com/onebirdrocks/geektime-ELK</p> <p class="reply-time">2019-07-10</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/58/fc/062ec8a1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">追马</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">logstah导入docker数据,没有报错,es没有数据啊!不用docker启动的es没这个问题~~</div> <span class="time">2019-07-09</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">说明在docker中没能正常运行，请增加docker的资源<br></p> <p class="reply-time">2019-07-09</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/65/60/2b8c7d49.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">向尚平Rory</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，我是mac操作，logstash倒入数据的说话，中间就卡住不动了。是不是es配置的问题？</div> <span class="time">2019-07-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">因为我看不到你的出错信息，也不知道你es是如何启动的。提供一些排错的提示吧<br><br>1. 查看movies.csv路径是否整齐<br>2. 尽量不要在文件目录中带中文路径<br>3. 如果此时logstash还是无法写入数据，查看一下es的_cluster/health，确保集群是属于健康状态的（green or yellow）<br>4. 如果es启动在docker中，咱们可以先不使用docker，在本机中启动单个节点。然后再执行logstash看是否正常工作</p> <p class="reply-time">2019-07-09</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/16/e0/7abad3cc.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">星期八</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，我通过logstash导入的数据，在kibana上看状态是yellow，不是green，为什么？</div> <span class="time">2019-07-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">yellow代表有分片没有被分配。后面会有介绍。例如你设置了replica，但是整个集群就一个节点。那么这就会导致集群是黄色</p> <p class="reply-time">2019-07-08</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/f6/2d/5949c425.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">大匡</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">logstash为什么没有使用docker安装？</div> <span class="time">2019-07-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">主要怕我搞得过于复杂：）讲docker是希望给一些新入门的同学拓宽一些思路。好的太复杂，一些怕给一些新学员设置障碍。<br><br>我在问答区有提供社区里别人写的docker-compose，更加全面，但是更为复杂。</p> <p class="reply-time">2019-07-08</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/22/89/73397ccb.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">响雨</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">[2019-07-07T19:49:11,296][WARN ][org.logstash.instrument.metrics.gauge.LazyDelegatingGauge] A gauge metric of an unknown type (org.jruby.specialized.RubyArrayOneObject) has been create for key: cluster_uuids. This may result in invalid serialization.  It is recommended to log an issue to the responsible developer/development team.<br>[2019-07-07T19:49:11,299][INFO ][logstash.javapipeline    ] Starting pipeline {:pipeline_id=>"main", "pipeline.workers"=>8, "pipeline.batch.size"=>125, "pipeline.batch.delay"=>50, "pipeline.max_inflight"=>1000, :thread=>"#<Thread:0x7bd3d430 run>"}<br>[2019-07-07T19:49:11,299][INFO ][logstash.outputs.elasticsearch] Attempting to install template {:manage_template=>{"index_patterns"=>"logstash-*", "version"=>60001, "settings"=>{"index.refresh_interval"=>"5s", "number_of_shards"=>1}, "mappings"=>{"dynamic_templates"=>[{"message_field"=>{"path_match"=>"message", "match_mapping_type"=>"string", "mapping"=>{"type"=>"text", "norms"=>false}}}, {"string_fields"=>{"match"=>"*", "match_mapping_type"=>"string", "mapping"=>{"type"=>"text", "norms"=>false, "fields"=>{"keyword"=>{"type"=>"keyword", "ignore_above"=>256}}}}}], "properties"=>{"@timestamp"=>{"type"=>"date"}, "@version"=>{"type"=>"keyword"}, "geoip"=>{"dynamic"=>true, "properties"=>{"ip"=>{"type"=>"ip"}, "location"=>{"type"=>"geo_point"}, "latitude"=>{"type"=>"half_float"}, "longitude"=>{"type"=>"half_float"}}}}}}}<br>[2019-07-07T19:49:11,755][INFO ][logstash.javapipeline    ] Pipeline started {"pipeline.id"=>"main"}<br>[2019-07-07T19:49:11,803][INFO ][logstash.agent           ] Pipelines running {:count=>1, :running_pipelines=>[:main], :non_running_pipelines=>[]}<br>[2019-07-07T19:49:11,809][INFO ][filewatch.observingtail  ] START, creating Discoverer, Watch with file and sincedb collections<br>[2019-07-07T19:49:12,078][INFO ][logstash.agent           ] Successfully started Logstash API endpoint {:port=>9600}<br>win数据无法导入，怎么解决啊</div> <span class="time">2019-07-07</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTKQGQjABgBvSibZjG0yV9V00zyYvRTAxp7nmj7oHECmFOwdKrcbSAlEiaG9X7fJpKC4qyTtOuu6huxg/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">dis小风</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师你说的logstash git 地址在哪里，我没看到</div> <span class="time">2019-07-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">https://github.com/onebirdrocks/geektime-ELK</p> <p class="reply-time">2019-07-08</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/98/b1/ac801140.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Casper</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">logstash执行成功后, 控制台也输出了数据, 如何在elasticsearch中查看数据呢？烦请老师讲解一下，完全是个小白用户~</div> <span class="time">2019-07-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">安装好kibana以后，到kibana的dev tool中，运行query 语句，就可以查看数据</p> <p class="reply-time">2019-07-12</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/32/83/6d85a4f8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">紫丁香珠</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，logstash导入es报错了 ，这个提问已经找到问题了，mac环境需要sudo执行导入，感谢～</div> <span class="time">2019-07-06</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2019-07-07</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/32/83/6d85a4f8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">紫丁香珠</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，logstash导入es报错了，请老师帮忙看下，谢谢！<br>环境：使用的老师docker部署的es<br>报错日志：[2019-07-06T21:24:09,439][ERROR][logstash.javapipeline    ] A plugin had an unrecoverable error. Will restart this plugin.<br>  Pipeline_id:main<br>  Plugin: <LogStash::Inputs::File start_position=>"beginning", path=>["/Users/tianyi/es/logstash-7.2.0/tmp/ml-latest-small/movies.csv"], id=>"65c33580313b91830eb562af173db7b5b4a23d6b189e6deb96037dde80c29cbd", sincedb_path=>"/dev/null", enable_metric=>true, codec=><LogStash::Codecs::Plain id=>"plain_8f401f57-2c0e-4c5d-bbff-7d3d32b10a0e", enable_metric=>true, charset=>"UTF-8">, stat_interval=>1.0, discover_interval=>15, sincedb_write_interval=>15.0, delimiter=>"\n", close_older=>3600.0, mode=>"tail", file_completed_action=>"delete", sincedb_clean_after=>1209600.0, file_chunk_size=>32768, file_chunk_count=>140737488355327, file_sort_by=>"last_modified", file_sort_direction=>"asc"><br>  Error: Permission denied - Permission denied<br>  Exception: Errno::EACCES<br>  Stack: org/jruby/RubyFile.java:1269:in `utime'</div> <span class="time">2019-07-06</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">使用sudo运行</p> <p class="reply-time">2019-07-07</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">chenhua</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">导入时windows控制台上打印movie记录，打印到一半就不在打印卡住在那了，在kabana里查看索引状态，movies索引存在，Health是yellow，怎么解决呢</div> <span class="time">2019-07-06</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">你的es是在docker中运行？建议为docker<br>分配更多的资源</p> <p class="reply-time">2019-07-07</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/86/3a/76dbbd0e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">空空空空</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，我用Windows学习应该也可以嘛</div> <span class="time">2019-07-06</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">可以的，下载windows安装包即可</p> <p class="reply-time">2019-07-07</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/32/83/6d85a4f8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">紫丁香珠</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，logstash 7.1 mac版本 ，在哪下载？官网只看到最新的版本7.2的</div> <span class="time">2019-07-05</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">在产品的下载页面上，有一个 past release，你搜一下，可以进入。<br><br>https://www.elastic.co/cn/downloads/past-releases#logstash</p> <p class="reply-time">2019-07-05</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/d3/0e/c057ff45.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">远方</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师 控制台 输出了  Successfully started Logstash API endpoint {:port=>9600}  但是不动了  没有电影的控制台输出</div> <span class="time">2019-07-04</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">确保movies.csv也拷贝到了正确的位置</p> <p class="reply-time">2019-07-04</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/d3/0e/c057ff45.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">远方</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师你视频中的conf文件代码 好像比github上的多欸 github上就一小段</div> <span class="time">2019-07-04</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">话课</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">logstash是没有内置java程序吗？需要单独安装java? 因为我启动的时候提示没有JAVA_HOME我看您视频的时候说es已经内置了，启动logstash也没有说需要单独安装</div> <span class="time">2019-07-04</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不好意思，是我的疏忽。logstash还是需要安装java环境的，是用jruby开发的。</p> <p class="reply-time">2019-07-04</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/16/1a/39/b7b0bc89.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">__Leo__</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请问老师：导入数据跟视频中显示一样，显示很多结构化电影信息，但Kibana里面显示找不到对应index，是因为我倒入的路径不对吗？</div> <span class="time">2019-07-04</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">_cat/indices<br>应该可以看到movies的索引。导入如果没有显示错误，应该就是成功导入的</p> <p class="reply-time">2019-07-04</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/c9/20/523828a2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">zj</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">我的是mac，执行bin/logstash 提示找不到命令。我下载的是zip包，解压的。什么原因呢<br></div> <span class="time">2019-07-03</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">chmod +x logstash 然后试试？</p> <p class="reply-time">2019-07-03</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/49/3b/d214038f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">java_zhao</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">启动成功但是没写入数据的<br>基本上是因为文件中的路径地址下没有movie.csv文件</div> <span class="time">2019-07-03</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍</p> <p class="reply-time">2019-07-04</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">话课</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">github地址是什么？</div> <span class="time">2019-07-03</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">github.com/onebirdrocks/geektime-ELK</p> <p class="reply-time">2019-07-04</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/3d/9c/74355ff6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">despicable--</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师 快点儿更新哟。</div> <span class="time">2019-07-02</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👌</p> <p class="reply-time">2019-07-04</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/3f/bc/c74bb4b5.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">曹征</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">```<br>could not find java; set JAVA_HOME or ensure java is in PATH<br>```<br>es 和 kibana 都是启动了的，执行logstash -f logstash.conf 就报错。7.2.0 版<br></div> <span class="time">2019-07-01</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">你好，你需要安装JAVA，版本可以考虑是JAVA8或者JAVA11。然后设置好JAVA_HOME等环境变量。<br><br>ES新版本自带JAVA，logstash并没有。需要安装。但是我在课程中没有强调这点。不好意思。<br></p> <p class="reply-time">2019-07-05</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/44/91/a4452c78.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Y</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">这个是我最后三行的日志 有和我一样的吗 环境是Windows 7的<br><br>[ERROR][logstash.config.sourceloader] No configuration found in the configured sources.<br>[INFO ][logstash.agent           ] Successfully started Logstash API endpoint {:port=>9600}<br>[INFO ][logstash.runner          ] Logstash shut down.</div> <span class="time">2019-07-01</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/5f/d5/2fec2911.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">yu</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师 我想要你这shell命令提示风格 请问怎么设置成这样的呢</div> <span class="time">2019-06-30</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">iterm + zsh<br>你查一下相关的文章</p> <p class="reply-time">2019-07-01</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/b7/96/d274a5c4.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">北枫</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请老师有时间讲讲ES在Office文档全文检索的应用。<br>非常感谢？<br><br>作者: 你是指的抽取office文档，然后进行搜索么？<br><br>对，怎么抽取，索引，这个场景下ES与MYSQL的关系，中英文分词用什么插件比较好。<br><br>我们主要做知识管理，想听听您的指导。<br><br>感谢老师，能否安排时间讲讲。<br></div> <span class="time">2019-06-30</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">我自己并没有做过office文档的抽取，我可以研究一下，有可能的话可以看看是否可以在ingest node的章节里覆盖你的这个需求。</p> <p class="reply-time">2019-07-02</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/b7/96/d274a5c4.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">北枫</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请老师有时间讲讲ES在Office文档全文检索的应用。<br>非常感谢？</div> <span class="time">2019-06-30</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">你是指的抽取office文档，然后进行搜索么？</p> <p class="reply-time">2019-06-30</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/e9/0b/1171ac71.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">WL</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请问以下老师如果启动的时候movie数据没有导入成功, 后续有啥方法可以在logstash运行的过程中导入?</div> <span class="time">2019-06-30</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">没有成功是报了什么错么？</p> <p class="reply-time">2019-07-05</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/e9/0b/1171ac71.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">WL</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd"> 我这边启动成功了, 终端显示的是. Successfully started Logstash API endpoint {:port=>9600}, 但是数据没有导入, 请问这可能是啥原因? </div> <span class="time">2019-06-30</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">查一下movies.csv放在正确的位置了么？</p> <p class="reply-time">2019-07-05</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/2e/c6/35db65f0.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Lightning</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老实，请问是否可以介绍一下Logstash高可用的相关方案？</div> <span class="time">2019-06-29</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">后续课程会有所覆盖的</p> <p class="reply-time">2019-06-30</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/49/79/fd6cde58.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">大新总</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">导入数据 基本都是从数据库导入es这方面的配置没讲</div> <span class="time">2019-06-29</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">从数据库导入是一种常见的场景。在logstash后续部分会做讲解，用的是jdbc的输入。第一部分考虑到大家本机未必都会安装数据库，所以采用csv的input。简化步骤是主要考虑，同时又能有一个感性的认识</p> <p class="reply-time">2019-06-30</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/21/50/265671fd.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">LGY001</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师请问 ，我用logstash导入数据成功后然后关闭了logstash和es,下次再启动es时还需要再次导入数据吗？</div> <span class="time">2019-06-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/b0/1c/2e30eeb8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">旺旺</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，movies_settings.json里面的命令<br>PUT movies<br>{<br>  "settings" : {<br>    "number_of_shards" : "1",<br>    "number_of_replicas" : "0"<br>  },<br>  "mappings":{<br>    "_source": {<br>        "excludes":["_id"]<br>    }<br>  }<br>}<br>是否需要先执行，这个是对index进行设定的，不设定是否有关系？</div> <span class="time">2019-06-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">这个setting很简单，不设置问题不大的。当初准备课程时默认主分片还是5，所以通过这个设置文件，将分片设置成1</p> <p class="reply-time">2019-06-28</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/db/7d/1fbad49b.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">John</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">Windows 10 下 sincedb_path 报错，虽然不知道是做什么用的，但我改成一个真实路径下的不存在的文件，就可以了，如：<br>sincedb_path => "D:/Apps/logstash-7.2.0/ml-latest-small/sincedb"</div> <span class="time">2019-06-27</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">首先，我给的配置，基于 MAC，所以在windows上运行确实有问题的。谢谢你的指正！<br><br><br>sincedb_path 这个参数的是用来配置记录logstash读取日志文件位置的文件的名称的，我们将文件的名称指定为“/dev/null”这个 Linux 系统上特殊的空洞文件，那么 logstash 每次重启进程的时候，尝试读取 sincedb 内容，都只会读到空白内容，也就会理解成之前没有过运行记录，自然就从初始位置开始读取了。<br><br><br>你能够自己解决这个问题，这本身就是一个非常棒的学习过程。<br><br><br><br></p> <p class="reply-time">2019-06-27</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83epc3H0jvwelJoMUbPdcXDibTkdnjlytYW9KiaNoUG8XHxtoWkkia6kfTLLHrEmMGQkFVZuqY1QBvz8jg/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">百越平民</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，有elasticseaech同步oracle数据库表的内容吗？就是有些表的数据是只要同步新增数据，有些表需要同步修改和新增的数据</div> <span class="time">2019-06-27</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">通过使用 logstash 应该就可以实现你的需求。我会在后续的章节总，着重讲解如何使用logstash 同步数据库和 ES 之间的数据。这个问题已经有好几个同学也都提出了</p> <p class="reply-time">2019-06-27</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/c4/92/338b5609.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Roy Liang</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">执行logstash为什么需要sudo呢？</div> <span class="time">2019-06-27</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">否则可能会导致执行出错</p> <p class="reply-time">2019-06-27</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/e4/49/a7f75e0c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">孙建中</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师课程的demo貌似下载不了（git和压缩包的方式都下载不了）</div> <span class="time">2019-06-27</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">https://github.com/onebirdrocks/geektime-ELK<br><br>进入 Part-1 目录，找到相应的章节</p> <p class="reply-time">2019-06-27</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/71/1f/315394b8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">AAA拒绝长大</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">运行完了，结果报错<br>[2019-06-26T20:33:20,017][WARN ][logstash.config.source.multilocal] Ignoring the 'pipelines.yml' file because modules or command line options are specified<br><br>我的配置文件是<br>input {<br>  file {<br>    path => "D:/Elasticsearch/logstash-7.1.0/ml/movies.csv"<br>    start_position => beginning<br>    sincedb_path => "D:/Elasticsearch/logstash-7.1.0/Tdata"<br>  }<br>}<br>filter {<br>  csv {<br>    separator => ","<br>    columns => ["id","content","genre"]<br>  }<br><br>  mutate {<br>    split => { "genre" => "|" }<br>    remove_field => ["path", "host","@timestamp","message"]<br>  }<br><br>  mutate {<br><br>    split => ["content", "("]<br>    add_field => { "title" => "%{[content][0]}"}<br>    add_field => { "year" => "%{[content][1]}"}<br>  }<br><br><br><br>  mutate {<br>    convert => {<br>      "year" => "integer"<br>    }<br>    strip => ["title"]<br>    remove_field => ["path", "host","@timestamp","message","content"]<br>  }<br><br><br><br>}<br>output {<br>   elasticsearch {<br>     hosts => "http://localhost:9200"<br>     index => "movies"<br>     document_id => "%{id}"<br>   }<br>  stdout {}<br>}<br>不知道哪里出了问题</div> <span class="time">2019-06-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/f8/8b/dc3dc04d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">xuejian.sun</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">error: yaml: unmarshal errors: line 1: cannot unmarshal !!str `input {...` i 执行一直有这个错</div> <span class="time">2019-06-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/55/45/e4314bc6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">magicnum</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">如何在1g内存的云服务器配置elk？实验环境运行它的最小内存是多少呢？</div> <span class="time">2019-06-25</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">如果没有记错，默认设置了1g内存。你可以尝试设置512，在多台机器上部署多个elasticsearch instances</p> <p class="reply-time">2019-06-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/0a/c0/401c240e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">撒旦的堕落</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师 我在启动logstash的时候 报这个错误是什么情况<br>[2019-06-25T17:18:20,592][ERROR][logstash.agent           ] Failed to execute action {:id=>:main, :action_type=>LogStash::ConvergeResult::FailedAction, :message=>"Could not execute action: PipelineAction::Create<main>, action_result: false", :backtrace=>nil}<br>[2019-06-25T17:18:20,819][INFO ][logstash.agent           ] Successfully started Logstash API endpoint {:port=>9600}<br>[2019-06-25T17:18:25,890][INFO ][logstash.runner          ] Logstash shut down.</div> <span class="time">2019-06-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/21/2f/85a3c897.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">孙有能希</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，是说用这节课方法在本机运行的logstash的数据，是导不进docker运行的ES的吗？我试了一下，permission denied。</div> <span class="time">2019-06-25</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">你试着sudo logstash -f？</p> <p class="reply-time">2019-06-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/5b/8f/4b0ab5db.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">hedeqiang</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">运行如下命令<br>```php<br>sudo ./logstash -f logstash.conf<br>```<br><br>会出现如下信息：<br>```php<br>No Java runtime present, requesting install.<br>```<br><br>请问老师 本地机子是需要安装 JDK 吗？</div> <span class="time">2019-06-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">对，logstash是基于jruby开发的。需要jdk，因为在es的新版本中，已经内置了jdk，所以我在logstash的安装中就忽略没有提。我会把这个信息加到readme中去。<br><br>谢谢你的反馈</p> <p class="reply-time">2019-06-25</p>
+	</div>
+</div>
+</li></ul></div></div><div data-v-4e11b9bf=""></div></div></div><link href="https://cdn.bootcss.com/dplayer/1.25.0/DPlayer.min.css" rel="stylesheet"><script src="https://cdn.bootcss.com/hls.js/0.10.1/hls.min.js"></script><script src="https://cdn.bootcss.com/dplayer/1.25.0/DPlayer.min.js"></script><script>            const dp = new DPlayer({                container: document.getElementById('DplayerCont'),                video: {                    url: 'https://media001.geekbang.org/cef96b70529a40c7ad61df1d57ab1b88/c9fbeb9aaea646fbb5a415eef960ee90-ecbad90d26204c6cb4b70b7d94a0ae4c-hd.m3u8',                    type: 'hls'                }            });</script></body></html>

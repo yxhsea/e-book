@@ -1,0 +1,277 @@
+<html class="cye-disabled cye-lm"><head><meta charset="utf-8"><meta name="Keywords" content="极客时间,极客邦,极客邦科技,极客邦控股,极客时间App,专栏订阅,极客新闻,二叉树,极客Live,QCon,左耳听风,AI技术内参,大航海时代,陈皓,徐飞,洪亮劼,霍泰稳,池建强,Selina,Gary,InfoQ,极客搜索"><meta name="description" content="极客时间是极客邦科技出品的一款 IT 内容知识服务 App，内容包含专栏订阅、极客新闻、热点专题、直播、视频和音频等多形式的知识内容，并设有陈皓专栏、徐飞专栏、洪亮劼专栏等专栏供订阅。"><link rel="apple-touch-icon" sizes="180x180" href="http://static001.geekbang.org/static/icon/time/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="http://static001.geekbang.org/static/icon/time/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="http://static001.geekbang.org/static/icon/time/favicon-16x16.png"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="format-detection" content="telephone=no"><title>41 | 使用动态模块来提升运维效率</title><link href="https://static001.geekbang.org/static/time/css/app.b230db929e53af87acd535637f5011b8.css" rel="stylesheet"><style type="text/css">        @font-face {            font-family: player-font;            src: url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.eot");            src: url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.eot?#iefix") format("embedded-opentype"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.woff") format("woff"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.ttf") format("truetype"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.svg#player-font") format("svg")        }        .player-font {            font-family: player-font !important;            font-size: 16px;            font-style: normal;            -webkit-font-smoothing: antialiased;            -webkit-text-stroke-width: .2px;            -moz-osx-font-smoothing: grayscale        }        .vplayer {            position: relative;            overflow: hidden        }        .vplayer,        .vplayer video {            width: 100%        }        .vplayer .title {            position: absolute;            top: 1rem;            left: 1rem;            right: 1rem;            color: #fff;            font-weight: 400;            font-size: .875rem;            word-break: break-all;            display: -webkit-box;            overflow: hidden;            text-overflow: ellipsis;            -webkit-box-orient: vertical;            -webkit-line-clamp: 1        }        .vplayer .finish-control,        .vplayer .loading {            position: absolute;            top: 0;            left: 0;            background: rgba(0, 0, 0, .5);            color: #fff;            width: 100%;            height: 100%;            z-index: 2;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center        }        .vplayer .finish-control h3,        .vplayer .loading h3 {            position: absolute;            color: #fff;            top: 1rem;            left: 50%;            font-size: 1rem;            font-weight: 400;            -webkit-transform: translate(-50%);            transform: translate(-50%)        }        .vplayer .finish-control p,        .vplayer .loading p {            cursor: pointer;            max-height: 6rem;            text-align: center        }        .vplayer .finish-control .cancel-next,        .vplayer .loading .cancel-next {            margin-left: 4rem        }        .vplayer .finish-control .cancel-next .icon-cancel-next,        .vplayer .loading .cancel-next .icon-cancel-next {            height: 4rem;            line-height: 4rem;            cursor: pointer;            font-size: 3.5rem        }        .vplayer .finish-control .cancel-next .icon-cancel-next i,        .vplayer .loading .cancel-next .icon-cancel-next i {            position: absolute;            top: 0;            left: 0;            margin-left: 8px        }        .vplayer .finish-control .icon-replay,        .vplayer .loading .icon-replay {            height: 4rem;            cursor: pointer;            line-height: 4rem;            font-size: 3rem        }        .vplayer .finish-control {            background: #000        }        .vplayer .no-wifi {            width: 70%;            position: absolute;            left: 50%;            top: 50%;            padding: 1rem;            background: rgba(0, 0, 0, .8);            -webkit-transform: translate(-50%, -50%);            transform: translate(-50%, -50%);            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: vertical;            -webkit-box-direction: normal;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            z-index: 3        }        .vplayer .no-wifi p {            line-height: 1.5rem;            margin: 0 auto;            width: 60%;            color: #fff;            font-size: 1rem;            text-align: center        }        .vplayer .no-wifi p span {            font-size: .875rem        }        .vplayer .no-wifi div {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            margin-top: 1rem        }        .vplayer .no-wifi div a {            color: #fff;            background: #ff5a05;            padding: .3rem .5rem        }        .vplayer .no-wifi div a:last-child {            margin-left: 1rem        }        .vplayer .buy {            position: absolute;            z-index: 4;            top: 0;            left: 0;            width: 100%;            height: 100%;            color: #fff;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: vertical;            -webkit-box-direction: normal;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            background: #000        }        .vplayer .buy p {            text-align: center        }        .vplayer .buy p span {            color: #ff5a05        }        .vplayer .buy .btn {            margin-top: 1rem;            color: #fff;            background: #ff5a05;            padding: .3rem 1.5rem        }        .android .dplayer .dplayer-controller .dplayer-icons .dplayer-full,        .dplayer-setting-item.dplayer-setting-loop {            display: none        }</style><style type="text/css">        .MathJax_Display {            overflow: auto        }        .poster {            position: fixed;            left: -10000px;            top: -10000px;            overflow: hidden;            padding: 1rem;            background: #ececec        }        .richcontent-pre-copy {            font-size: 13px;            color: #888;            position: absolute;            right: 1em;            top: .2em;            cursor: pointer;            -webkit-user-select: none;            -moz-user-select: none;            -ms-user-select: none;            user-select: none        }        .richcontent-pre-copy .iconfont {            font-size: 12px;            margin-right: .2em        }</style><style type="text/css">        .bottom {            width: 100%;            background-color: #f5f5f5;            position: fixed;            bottom: 0;            left: 0;            z-index: 10        }        .bottom,        .bottom .bottom-wrapper {            height: 67px;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row        }        .bottom .bottom-wrapper {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            padding-left: 20px;            padding-right: 20px;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between        }        .bottom .bottom-wrapper a {            height: 48px;            line-height: 51px;            -webkit-box-sizing: border-box;            box-sizing: border-box        }</style><style type="text/css">        .breadcrumb {            padding: 30px 0;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -ms-flex-wrap: wrap;            flex-wrap: wrap;            background: #fff        }        .breadcrumb a.title {            color: #e57c39;            font-size: 15px;            font-weight: 400        }        .breadcrumb span.title {            color: #888;            font-size: 15px;            font-weight: 400        }        .breadcrumb .split {            color: #ccc;            font-size: 10px;            margin-right: 5px        }</style><style type="text/css">        .course-detail[data-v-4e11b9bf] {            max-width: 46.25rem;            margin: 0 auto;            background: #f5f5f5        }        .course-detail .course-main[data-v-4e11b9bf] {            background-color: #fff;            width: 100%;            z-index: 10;            top: 0;            left: 0        }        .course-detail .course-info[data-v-4e11b9bf] {            background: #fff;            cursor: pointer        }        .course-detail .course-info .course-info-top[data-v-4e11b9bf] {            padding: 1rem 0 .4rem .78125rem;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .course-detail .course-info .course-info-top h1[data-v-4e11b9bf] {            font-size: 1.03125rem;            font-weight: 400;            text-align: justify-content        }        .course-detail .course-info .course-info-top i[data-v-4e11b9bf] {            font-weight: 400;            width: 40px;            padding-right: .78125rem;            -ms-flex-negative: 0;            flex-shrink: 0;            text-align: right;            color: #dadada        }        .course-detail .course-info .course-info-bottom[data-v-4e11b9bf] {            padding: 0 54px .5rem .78125rem;            border-bottom: 1px solid #e8e8e8;            color: #888;            font-size: .78125rem        }        .course-detail .course-info .course-info-bottom .icon-course-play[data-v-4e11b9bf] {            color: #d9d9d9;            font-size: .75rem        }        .course-detail .video-list[data-v-4e11b9bf] {            background: #fff;            width: 100%;            overflow: hidden;            overflow: auto;            -webkit-overflow-scrolling: touch        }        .course-detail .video-list ul[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            padding: .875rem 0        }        .course-detail .video-list ul li[data-v-4e11b9bf] {            margin-left: .71875rem;            position: relative;            border: 1px solid #e8e8e8;            border-radius: 3px;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            height: 4.0625rem;            overflow: hidden;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            font-size: .78125rem;            -ms-flex-negative: 0;            flex-shrink: 0;            line-height: 1rem;            -webkit-transition: border .5s ease;            transition: border .5s ease        }        .course-detail .video-list ul li img[data-v-4e11b9bf] {            width: 1.78125rem;            height: .84375rem;            position: absolute;            top: 0;            left: 0        }        .course-detail .video-list ul li a[data-v-4e11b9bf] {            -webkit-transition: color .5s ease;            transition: color .5s ease;            padding: 0 .5rem        }        .course-detail .video-list ul li a[data-v-4e11b9bf]:link,        .course-detail .video-list ul li a[data-v-4e11b9bf]:visited {            color: #353535        }        .course-detail .video-list ul li.on[data-v-4e11b9bf] {            border-color: #ff5a05        }        .course-detail .video-list ul li.on a[data-v-4e11b9bf]:link,        .course-detail .video-list ul li.on a[data-v-4e11b9bf]:visited {            color: #ff5a05        }        .article-title[data-v-4e11b9bf] {            color: #353535;            font-weight: 400;            line-height: 1.65rem;            font-size: 1.34375rem        }        .article-info[data-v-4e11b9bf] {            color: #888;            font-size: .9375rem;            margin-top: 1.0625rem        }        .article-content[data-v-4e11b9bf] {            margin-top: 1.0625rem        }        .audio-player[data-v-4e11b9bf] {            width: 100%;            margin: 20px 0        }        .content-box[data-v-4e11b9bf] {            padding: 1px 1.3125rem;            background-color: #fff;            margin-top: .46875rem        }        .to-comment[data-v-4e11b9bf] {            overflow: hidden;            padding-top: 20px;            margin: 0 1.3125rem -10px        }        .to-comment a.button-primary[data-v-4e11b9bf] {            float: right;            height: 20px;            font-size: 12px;            line-height: 20px;            padding: 4px 8px;            cursor: pointer        }        .extra[data-v-4e11b9bf] {            margin-top: .46875rem;            margin-bottom: 67px;            background: #fff;            position: relative        }        .extra .video-comment-box[data-v-4e11b9bf] {            position: absolute;            width: 100%;            top: 0;            left: 0;            z-index: 3;            -webkit-box-sizing: border-box;            box-sizing: border-box;            background: #fff;            padding-left: 1rem;            padding-right: 1rem;            padding-top: .5rem        }        .extra .video-comment-box h3[data-v-4e11b9bf] {            color: #353535;            font-size: .875rem;            line-height: 2rem;            font-weight: 400        }        .extra .comments[data-v-4e11b9bf] {            margin: 0 1.3125rem;            padding-bottom: 50px        }        .extra .comments h2[data-v-4e11b9bf] {            text-align: center;            color: #888;            position: relative;            z-index: 1;            margin-bottom: 14px        }        .extra .comments h2[data-v-4e11b9bf]:before {            border-top: 1px dotted #e8e8e8;            content: "";            position: absolute;            top: 50%;            left: 0;            width: 100%;            z-index: -1        }        .extra .comments h2 span[data-v-4e11b9bf] {            font-size: 15.25px;            font-weight: 400;            padding: 16px 1rem;            background: #fff;            display: inline-block        }        .extra .comments .no-comment[data-v-4e11b9bf] {            text-align: center        }        .extra .comments .no-comment i.icon-cat[data-v-4e11b9bf] {            color: #f5f5f5;            font-size: 100px;            line-height: 1.2;            margin-right: 12px        }        .extra .comments .no-comment .no-comment-text[data-v-4e11b9bf] {            color: #e8e8e8;            font-size: 12.5px;            line-height: 1.6        }        .bottom[data-v-4e11b9bf] {            position: fixed;            bottom: 0;            left: 0;            width: 100%;            height: 67px;            background: #fff;            background-color: #f5f5f5;            z-index: 10        }        .bottom .buy-join[data-v-4e11b9bf],        .bottom[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center        }        .bottom .buy-join[data-v-4e11b9bf] {            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            height: 48px;            line-height: 48px        }        .bottom .buy-join span[data-v-4e11b9bf] {            line-height: 48px;            margin-left: 5px;            color: hsla(0, 0%, 100%, .5);            font-size: 11px;            text-decoration: line-through        }        .bottom .button-cancel[data-v-4e11b9bf] {            height: 51px;            line-height: 51px        }        .bottom-control[data-v-4e11b9bf],        .bottom-sub[data-v-4e11b9bf] {            width: 100%;            -webkit-box-orient: horizontal;            -ms-flex-direction: row;            flex-direction: row;            -ms-flex-pack: distribute;            justify-content: space-around;            -webkit-box-sizing: border-box;            box-sizing: border-box;            padding: 0 1.3125rem        }        .bottom-control .item[data-v-4e11b9bf],        .bottom-control[data-v-4e11b9bf],        .bottom-sub .item[data-v-4e11b9bf],        .bottom-sub[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-direction: normal        }        .bottom-control .item[data-v-4e11b9bf],        .bottom-sub .item[data-v-4e11b9bf] {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            -webkit-box-orient: vertical;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            cursor: pointer        }        .bottom-control .item i[data-v-4e11b9bf],        .bottom-sub .item i[data-v-4e11b9bf] {            color: #353535;            font-size: 1.125rem;            line-height: 1.5rem        }        .bottom-control .item span[data-v-4e11b9bf],        .bottom-sub .item span[data-v-4e11b9bf] {            color: #888;            font-size: 11px        }        .button-subscribe[data-v-4e11b9bf] {            -webkit-box-flex: 1;            -ms-flex: 1;            flex: 1;            height: 69px;            color: #fff;            font-size: 15.25px;            text-align: center;            background-color: #ff5a05;            line-height: 69px;            border-radius: 5px        }        .article-sub-bottom[data-v-4e11b9bf] {            z-index: 2        }        @media only screen and (device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3) {            .bottom[data-v-4e11b9bf],            .comments[data-v-4e11b9bf] {                padding-bottom: 34px            }        }        @media (max-width:769px) {            .course-detail .breadcrumb[data-v-4e11b9bf] {                padding: 10px            }        }        @media screen and (min-width:768px) {            .extra .comments[data-v-4e11b9bf],            .to-comment[data-v-4e11b9bf] {                margin: 0 0 -10px            }        }</style><style type="text/css">        .mobile-tips {            width: 100%;            height: 51px;            background: rgba(0, 0, 0, .8);            position: fixed;            top: 0;            left: 0;            z-index: 20;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-sizing: border-box;            box-sizing: border-box;            padding: 0 12px;            -webkit-transition: opacity .35s;            transition: opacity .35s;            opacity: 0;            pointer-events: none        }        .mobile-tips.istop {            opacity: 1;            pointer-events: auto        }        .mobile-tips .mobile-tips-info {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: start;            -ms-flex-pack: start;            justify-content: flex-start        }        .mobile-tips .mobile-tips-info i {            width: 36px;            height: 36px;            background-image: url(data:image/png;base64,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);            background-position: 0 0;            background-repeat: no-repeat;            background-size: contain;            border-radius: 7px        }        .mobile-tips .mobile-tips-info h2 {            font-size: 15px;            color: #fff;            font-weight: 400;            margin-left: 6px        }        .mobile-tips .mobile-tips-info h2 span {            font-size: 11px        }        .mobile-tips a {            width: 72px;            height: 31px;            text-align: center;            border: 1px solid #ff5a05;            border-radius: 3px;            font-size: 13px;            color: #ff5a05;            line-height: 31px        }</style><style type="text/css">        .comment-item {            list-style-position: inside;            width: 100%;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            margin-bottom: 1rem        }        .comment-item a {            border-bottom: none        }        .comment-item .avatar {            width: 2.625rem;            height: 2.625rem;            -ms-flex-negative: 0;            flex-shrink: 0;            border-radius: 50%        }        .comment-item .info {            margin-left: .5rem;            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1        }        .comment-item .info .hd {            width: 100%;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .comment-item .info .hd .username {            color: #888;            font-size: 15.25px;            font-weight: 400;            line-height: 1.2        }        .comment-item .info .hd .control {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .comment-item .info .hd .control .btn-share {            color: #888;            font-size: .75rem;            margin-right: 1rem        }        .comment-item .info .hd .control .btn-praise {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            font-size: 15.25px;            text-decoration: none        }        .comment-item .info .hd .control .btn-praise i {            color: #888;            display: inline-block;            font-size: .75rem;            margin-right: .3rem;            margin-top: -.01rem        }        .comment-item .info .hd .control .btn-praise i.on,        .comment-item .info .hd .control .btn-praise span {            color: #ff5a05        }        .comment-item .info .bd {            color: #353535;            font-size: 15.25px;            font-weight: 400;            white-space: normal;            word-break: break-all;            line-height: 1.6        }        .comment-item .info .time {            color: #888;            font-size: 9px;            line-height: 1        }        .comment-item .info .reply .reply-hd {            font-size: 15.25px        }        .comment-item .info .reply .reply-hd span {            margin-left: -12px;            color: #888;            font-weight: 400        }        .comment-item .info .reply .reply-hd i {            color: #ff5a05;            font-size: 15.25px        }        .comment-item .info .reply .reply-content {            color: #353535;            font-size: 15.25px;            font-weight: 400;            white-space: normal;            word-break: break-all        }        .comment-item .info .reply .reply-time {            color: #888;            font-size: 9px        }</style></head><body style=""><div id="app"><div data-v-4e11b9bf="" class="course-detail"><div class="breadcrumb breadcrumb"><span><a href="#" class="title router-link-active">讲堂</a><span class="split iconfont"></span></span><span><span class="title">41 | 使用动态模块来提升运维效率</span></span></div><div data-v-4e11b9bf="" class="course-main main" style="position: relative;"><div data-v-4e11b9bf="" class="vplayer" id ="DplayerCont" style="height: 416.25px;"><h2 class="title">                        41 | 使用动态模块来提升运维效率</h2></div></div><div data-v-4e11b9bf="" class="course-info" style="margin-top: 0px;"><div data-v-4e11b9bf="" class="course-info-top"><h1 data-v-4e11b9bf="" class="course-title"></h1><i data-v-4e11b9bf="" class="iconfont"></i></div></div><div data-v-4e11b9bf=""><div data-v-4e11b9bf="" class="content-box"><div data-v-4e11b9bf="" id="article-content" class="typo common-content"><div class="text">                            <h1>课件下载地址</h1><p><a href="https://github.com/geektime-geekbang/geektime-nginx/blob/master/Nginx%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86100%E8%AE%B2-%E7%AC%AC%E4%BA%8C%E9%83%A8%E5%88%86%E8%AF%BE%E4%BB%B6.pdf">https://github.com/geektime-geekbang/geektime-nginx/blob/master/Nginx核心知识100讲-第二部分课件.pdf</a></p><!-- [[[read_end]]] --></div></div></div></div><div data-v-4e11b9bf="" class="extra" style="margin-bottom: 1rem;"><div data-v-4e11b9bf="" class="comments"><h2 data-v-4e11b9bf=""><span data-v-4e11b9bf="">精选留言</span></h2><ul>                        <li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/ce/8f/6daf02db.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">心灵捕手</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">老师，nginx编译安装动态模块时生成的mudules&#47;目录，必须是在make install才有的么？如果之前安装的nginx能否通过替换编译的nginx二进制文件来安装动态模块？</div> <span class="time">2019-01-02</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">可以，但热升级前，我们需要手动建立modules目录放置动态库，并在nginx.conf在配置好目录。</p> <p class="reply-time">2019-01-03</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/9f/6d/0a21fa84.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Q</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">老师咨询个问题，nginx模块中 有没有防御 网站盗链 网站爬虫的     配置在nginx中  效果如何？</div> <span class="time">2018-12-20</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">有的,第三部分75课的referer和76课中的secure_link，配合50课的realip模块。<br>更复杂的防盗链，可以使用openresty中的waf模块。</p> <p class="reply-time">2018-12-20</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/02/ce/9620fb36.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">mapolenAx</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">老师咨询个nginx监控的问题，在使用stub_status模块的时候，配置文件中每个server内都要添加单独的location &#47;ngx_status{stub_status on;}这样的字段吗？还是说只在一个server段内添加就可以对整个nginx进行监控，例如Active connections这个指标代表的是整个nginx的活动连接数，还是配置的那个server的活动连接数？</div> <span class="time">2018-11-29</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">整个nginx的</p> <p class="reply-time">2018-11-29</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/9f/6d/0a21fa84.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Q</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师 请问openresty 用在生产环境稳定吗？ 如果用waf 功能  那这台服务器既做web又做waf防火墙 是不是很影响web性能？   <br>再请问原生开源nginx有没有waf功能？</div> <span class="time">2019-02-03</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">稳定的，特别是基于cosocket的lua模块，它们久经考验而且持续维护中。<br>waf防火墙中，对性能的消耗是有的，主要是对许多规则做正则表达式匹配后才能放行请求。开源nginx没有waf功能。</p> <p class="reply-time">2019-02-09</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/c7/c6/35cc7c7c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Robert小七</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">[root@robert nginx]# nginx<br>nginx: [emerg] dlopen() &quot;&#47;usr&#47;local&#47;nginx&#47;&#47;moduels&#47;ngx_http_image_filter_module.so&quot; failed (&#47;usr&#47;local&#47;nginx&#47;&#47;moduels&#47;ngx_http_image_filter_module.so: cannot open shared object file: No such file or directory) in &#47;usr&#47;local&#47;nginx&#47;&#47;conf&#47;nginx.conf:1<br>老师我的nginx重新编译后，不知道为什么在找路径时会自动多出&quot;&#47;&#47;&quot;</div> <span class="time">2019-01-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">查看下以下2处：<br>1、load_module 指令后的配置是什么？nginx -V中看下--prefix指定的目录是什么？<br>2、尝试nginx启动时，用-p强制指定prefix目录，验证下。<br>另外，两个&#47;&#47;不影响访问，是不是那个so文件不存在？</p> <p class="reply-time">2019-01-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/b8/3c/09d86b6f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Panda</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师  动态模块有性能损失吗？  跟直接编译进去对比</div> <span class="time">2018-12-16</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">没有性能损失。</p> <p class="reply-time">2018-12-17</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/14/99/5b1ed92b.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">戴斌</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">nginx unit能在后文做些介绍吗</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">nginx unit是个非常大的话题，这门课程内容有限，不会涉及它哦</p> <p class="reply-time">2018-12-12</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/52/83/714e487e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">小雄</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，针对浏览器的options 请求，nginx 能做什么嘛？</div> <span class="time">2018-12-04</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不太明白这个问题</p> <p class="reply-time">2018-12-05</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/93/cd/40136463.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">极夜</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师,一个upstream中有多台机器标识了backup会怎么样？主要的机器挂了,是从中随机选择一台吗？若那台backup也不好呢？</div> <span class="time">2018-12-04</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">如果upstream策略定义的主策略失效后，都会退化为带权重的RoundRobin算法。第4部分课程会讲到。</p> <p class="reply-time">2018-12-04</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/dc/fa/3975f8da.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">王先统</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，可以多介绍些配置方面的内容吗？比如一些常用的指令及配置，可以结合原理一起讲</div> <span class="time">2018-12-04</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">第3、4部分内容都是在讲指令，而且是结合着原理来讲的。第2部分是基础，所以指令讲得少。</p> <p class="reply-time">2018-12-04</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/64/05/6989dce6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">我来也</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">今天只看了视频。有个关于动态库的疑问请教下：<br>使用so动态库，没问题，如果真想热更新动态库怎么可以做到？<br>以前在这方面踩过坑，正在被其他进程引用到的so文件，即使touch一下，别说重新拷贝&#47;生成一个，都可能会导致应用的进程挂掉。<br>但是把这个so重名了&#47;删除后再生存一个，之前正在引用的进程不会挂掉，但是即使在进程内部想办法重新加载该so，实际上还是加载到旧的，而不是新的。只有换个名字&#47;重启进程才能引用新的。<br>刚才看视频中，注意到了个细节，就是旧的so被重命名为了so.old，应该就是避免进程挂掉。<br>另外nginx的reload是通过重新启动worker工作线程的方式，来使新编译的so文件生效的。<br>像我现在的项目中，主进程又不像nginx可以动态开worker线程，想动态更新so只有重启&#47;重命名so，进程中加载新的so名。<br>题外话：<br>之前看到老师用screen，感觉很方便。前段时间我就把tmux的功能系统的看了下，以前只会最最基本的单窗口单标签，现在稍微强点了，感觉真是方便啊。配合mosh，几十个终端再也不怕断网和电脑重启了。<br>还是受老师的启发，哈哈！</div> <span class="time">2018-12-02</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">谢谢分享！nginx使用动态库时可以指定动态库的位置，避免被其他进程复用共享。</p> <p class="reply-time">2018-12-03</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/4c/d9/d05eb0df.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">worldHello</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">http2模块会讲解吗？</div> <span class="time">2018-11-26</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">第4部分会讲到</p> <p class="reply-time">2018-11-27</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/0a/27/f6215028.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">红军</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请问一下旧的APP使用http post方法访问nginx服务，现在我们想后台只用https提供服务，但是重定向不支持post方法，请问有办法解决吗？谢谢<br></div> <span class="time">2018-11-25</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">如果你原来是用302，那么可以考虑307重定向，它不允许改变方法。第3部分关于return指令的课程，会介绍301、302、303、307、308重定向间的区别</p> <p class="reply-time">2018-11-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/57/b8/cd055bed.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">iuwai</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">催更催更啊，老师的课程很好，让我对nginx有了更深入的了解，我是电商行业，高并发、缓存、高可用需要深度研究，这课程正好适合我😊</div> <span class="time">2018-11-25</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">很高兴对你有帮助！</p> <p class="reply-time">2018-11-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/c7/e1/9ebe1d7a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">lets fly</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">http_geoip_module  这个动态库能获取到每个城市的IP吗  如果想知道访问的IP是来这哪里有没有好的解决方案，谢谢老师</div> <span class="time">2018-11-25</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">有的，第3部分倒数第3课就在介绍geoip模块以及maxmind数据库的用法。</p> <p class="reply-time">2018-11-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/6e/71/4f120dde.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">早睡早起的🐷</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，我们生产环境用的 1.12.2版本 nginx，正向、反向都在用，并且一个nginx同时使用了正向和反向代理，但是陆陆续续总是出问题，一般都是先外网连接超时，然后便是解析外网超时。也没找到相关资料，所以想让老师解答下，nginx正向https代理稳定吗？可以用于生产环境吗？如果不能用于生产环境，还有其他替代方案吗？</div> <span class="time">2018-11-25</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">nginx可以用于正向代理生产环境。解析超时，需要你确认是哪一部超时了，第4部分课程会分解请求处理的完整流程，你可以基于这个流程分析哪一步超时了。</p> <p class="reply-time">2018-11-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/6e/71/4f120dde.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">早睡早起的🐷</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，请问您个问题，现在我们生产环境用了nginx正向https代理，同时也用了反向代理，但是正向代理陆陆续续总有问题，用户量多一点(并发少于100)的时候就会发生连接超时，后边就出现解析地址超时的现象，网上没有找到相关的资料，想问下老师nginx正向代理可以用于生产环境吗？有没有替代方案？</div> <span class="time">2018-11-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">nginx用于正向代理一样很稳定。具体看下超时原因吧。</p> <p class="reply-time">2018-11-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/b4/f1/61cd0653.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">moshufenmo</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">终于跟上进度啦。老师能否讲解一下nginx或openresty常见参数调优？目前生产环境大多使用默认参数配置，感觉没有发挥出最大性能</div> <span class="time">2018-11-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">第5部分会系统的讲。</p> <p class="reply-time">2018-11-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/12/59/89859f03.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">张营</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">你好老师，在实际应用中分析Nginx的性能有没有好的方法和相关的辅助工具。</div> <span class="time">2018-11-21</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">性能是个大问题，不能单就nginx来看。首先你应了解linux上定位性能问题的工具，其次再看nginx中可能影响性能的点，例如slab_stat，或者stub_stat等。这门课第5部分会系统的讲性能优化。</p> <p class="reply-time">2018-11-22</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">mxmkeep</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，您会介绍http模块或stream模块里的一堆回调函数的功能及用法么？</div> <span class="time">2018-11-21</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">只会介绍较少的回调函数，更多的是在谈用法和场景，以及原理和设计思想，因为这门课的大部分同学都不打算看源代码的：-）</p> <p class="reply-time">2018-11-21</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/07/79/6f3f939e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">素还真</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师你好，请问你推不推荐看Nginx的源码？如果推荐，有什么技巧或者路线吗？</div> <span class="time">2018-11-21</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">推荐看！路线建议按照请求的处理流程来看，这个课程的第6部分会简单介绍。</p> <p class="reply-time">2018-11-23</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/f9/c6/0b33ea0f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">panxl6</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">催更~</div> <span class="time">2018-11-20</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">：-）</p> <p class="reply-time">2018-11-21</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">frag007</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请问nginx支持广播机制吗？可以根据某个url发给对应的所有节点。 有第三方插件支持吗？</div> <span class="time">2018-11-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">有，mirror镜象模块可以，原理是通过生成子请求，由子请求把原请求再次发送到其他server。第3部分中会有一节课讲这个模块。</p> <p class="reply-time">2018-11-19</p>
+	</div>
+</div>
+</li></ul></div></div><div data-v-4e11b9bf=""></div></div></div><link href="https://cdn.bootcss.com/dplayer/1.25.0/DPlayer.min.css" rel="stylesheet"><script src="https://cdn.bootcss.com/hls.js/0.10.1/hls.min.js"></script><script src="https://cdn.bootcss.com/dplayer/1.25.0/DPlayer.min.js"></script><script>            const dp = new DPlayer({                container: document.getElementById('DplayerCont'),                video: {                    url: 'https://res001.geekbang.org/media/video/e8/9c/e80ec1d6e6b5e8bcb2180530955bcf9c/hd/hd.m3u8',                    type: 'hls'                }            });</script></body></html>

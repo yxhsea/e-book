@@ -1,0 +1,377 @@
+<html class="cye-disabled cye-lm"><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><meta name="Keywords" content="极客时间,极客邦,极客邦科技,极客邦控股,极客时间App,专栏订阅,极客新闻,二叉树,极客Live,QCon,左耳听风,AI技术内参,大航海时代,陈皓,徐飞,洪亮劼,霍泰稳,池建强,Selina,Gary,InfoQ,极客搜索"><meta name="description" content="极客时间是极客邦科技出品的一款 IT 内容知识服务 App，内容包含专栏订阅、极客新闻、热点专题、直播、视频和音频等多形式的知识内容，并设有陈皓专栏、徐飞专栏、洪亮劼专栏等专栏供订阅。"><link rel="apple-touch-icon" sizes="180x180" href="http://static001.geekbang.org/static/icon/time/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="http://static001.geekbang.org/static/icon/time/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="http://static001.geekbang.org/static/icon/time/favicon-16x16.png"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="format-detection" content="telephone=no"><title>25 | 静态资源内联</title><link href="https://static001.geekbang.org/static/time/css/app.b230db929e53af87acd535637f5011b8.css" rel="stylesheet"><style type="text/css">        @font-face {            font-family: player-font;            src: url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.eot");            src: url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.eot?#iefix") format("embedded-opentype"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.woff") format("woff"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.ttf") format("truetype"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.svg#player-font") format("svg")        }        .player-font {            font-family: player-font !important;            font-size: 16px;            font-style: normal;            -webkit-font-smoothing: antialiased;            -webkit-text-stroke-width: .2px;            -moz-osx-font-smoothing: grayscale        }        .vplayer {            position: relative;            overflow: hidden        }        .vplayer,        .vplayer video {            width: 100%        }        .vplayer .title {            position: absolute;            top: 1rem;            left: 1rem;            right: 1rem;            color: #fff;            font-weight: 400;            font-size: .875rem;            word-break: break-all;            display: -webkit-box;            overflow: hidden;            text-overflow: ellipsis;            -webkit-box-orient: vertical;            -webkit-line-clamp: 1        }        .vplayer .finish-control,        .vplayer .loading {            position: absolute;            top: 0;            left: 0;            background: rgba(0, 0, 0, .5);            color: #fff;            width: 100%;            height: 100%;            z-index: 2;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center        }        .vplayer .finish-control h3,        .vplayer .loading h3 {            position: absolute;            color: #fff;            top: 1rem;            left: 50%;            font-size: 1rem;            font-weight: 400;            -webkit-transform: translate(-50%);            transform: translate(-50%)        }        .vplayer .finish-control p,        .vplayer .loading p {            cursor: pointer;            max-height: 6rem;            text-align: center        }        .vplayer .finish-control .cancel-next,        .vplayer .loading .cancel-next {            margin-left: 4rem        }        .vplayer .finish-control .cancel-next .icon-cancel-next,        .vplayer .loading .cancel-next .icon-cancel-next {            height: 4rem;            line-height: 4rem;            cursor: pointer;            font-size: 3.5rem        }        .vplayer .finish-control .cancel-next .icon-cancel-next i,        .vplayer .loading .cancel-next .icon-cancel-next i {            position: absolute;            top: 0;            left: 0;            margin-left: 8px        }        .vplayer .finish-control .icon-replay,        .vplayer .loading .icon-replay {            height: 4rem;            cursor: pointer;            line-height: 4rem;            font-size: 3rem        }        .vplayer .finish-control {            background: #000        }        .vplayer .no-wifi {            width: 70%;            position: absolute;            left: 50%;            top: 50%;            padding: 1rem;            background: rgba(0, 0, 0, .8);            -webkit-transform: translate(-50%, -50%);            transform: translate(-50%, -50%);            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: vertical;            -webkit-box-direction: normal;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            z-index: 3        }        .vplayer .no-wifi p {            line-height: 1.5rem;            margin: 0 auto;            width: 60%;            color: #fff;            font-size: 1rem;            text-align: center        }        .vplayer .no-wifi p span {            font-size: .875rem        }        .vplayer .no-wifi div {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            margin-top: 1rem        }        .vplayer .no-wifi div a {            color: #fff;            background: #ff5a05;            padding: .3rem .5rem        }        .vplayer .no-wifi div a:last-child {            margin-left: 1rem        }        .vplayer .buy {            position: absolute;            z-index: 4;            top: 0;            left: 0;            width: 100%;            height: 100%;            color: #fff;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: vertical;            -webkit-box-direction: normal;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            background: #000        }        .vplayer .buy p {            text-align: center        }        .vplayer .buy p span {            color: #ff5a05        }        .vplayer .buy .btn {            margin-top: 1rem;            color: #fff;            background: #ff5a05;            padding: .3rem 1.5rem        }        .android .dplayer .dplayer-controller .dplayer-icons .dplayer-full,        .dplayer-setting-item.dplayer-setting-loop {            display: none        }</style><style type="text/css">        .MathJax_Display {            overflow: auto        }        .poster {            position: fixed;            left: -10000px;            top: -10000px;            overflow: hidden;            padding: 1rem;            background: #ececec        }        .richcontent-pre-copy {            font-size: 13px;            color: #888;            position: absolute;            right: 1em;            top: .2em;            cursor: pointer;            -webkit-user-select: none;            -moz-user-select: none;            -ms-user-select: none;            user-select: none        }        .richcontent-pre-copy .iconfont {            font-size: 12px;            margin-right: .2em        }</style><style type="text/css">        .bottom {            width: 100%;            background-color: #f5f5f5;            position: fixed;            bottom: 0;            left: 0;            z-index: 10        }        .bottom,        .bottom .bottom-wrapper {            height: 67px;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row        }        .bottom .bottom-wrapper {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            padding-left: 20px;            padding-right: 20px;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between        }        .bottom .bottom-wrapper a {            height: 48px;            line-height: 51px;            -webkit-box-sizing: border-box;            box-sizing: border-box        }</style><style type="text/css">        .breadcrumb {            padding: 30px 0;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -ms-flex-wrap: wrap;            flex-wrap: wrap;            background: #fff        }        .breadcrumb a.title {            color: #e57c39;            font-size: 15px;            font-weight: 400        }        .breadcrumb span.title {            color: #888;            font-size: 15px;            font-weight: 400        }        .breadcrumb .split {            color: #ccc;            font-size: 10px;            margin-right: 5px        }</style><style type="text/css">        .course-detail[data-v-4e11b9bf] {            max-width: 46.25rem;            margin: 0 auto;            background: #f5f5f5        }        .course-detail .course-main[data-v-4e11b9bf] {            background-color: #fff;            width: 100%;            z-index: 10;            top: 0;            left: 0        }        .course-detail .course-info[data-v-4e11b9bf] {            background: #fff;            cursor: pointer        }        .course-detail .course-info .course-info-top[data-v-4e11b9bf] {            padding: 1rem 0 .4rem .78125rem;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .course-detail .course-info .course-info-top h1[data-v-4e11b9bf] {            font-size: 1.03125rem;            font-weight: 400;            text-align: justify-content        }        .course-detail .course-info .course-info-top i[data-v-4e11b9bf] {            font-weight: 400;            width: 40px;            padding-right: .78125rem;            -ms-flex-negative: 0;            flex-shrink: 0;            text-align: right;            color: #dadada        }        .course-detail .course-info .course-info-bottom[data-v-4e11b9bf] {            padding: 0 54px .5rem .78125rem;            border-bottom: 1px solid #e8e8e8;            color: #888;            font-size: .78125rem        }        .course-detail .course-info .course-info-bottom .icon-course-play[data-v-4e11b9bf] {            color: #d9d9d9;            font-size: .75rem        }        .course-detail .video-list[data-v-4e11b9bf] {            background: #fff;            width: 100%;            overflow: hidden;            overflow: auto;            -webkit-overflow-scrolling: touch        }        .course-detail .video-list ul[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            padding: .875rem 0        }        .course-detail .video-list ul li[data-v-4e11b9bf] {            margin-left: .71875rem;            position: relative;            border: 1px solid #e8e8e8;            border-radius: 3px;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            height: 4.0625rem;            overflow: hidden;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            font-size: .78125rem;            -ms-flex-negative: 0;            flex-shrink: 0;            line-height: 1rem;            -webkit-transition: border .5s ease;            transition: border .5s ease        }        .course-detail .video-list ul li img[data-v-4e11b9bf] {            width: 1.78125rem;            height: .84375rem;            position: absolute;            top: 0;            left: 0        }        .course-detail .video-list ul li a[data-v-4e11b9bf] {            -webkit-transition: color .5s ease;            transition: color .5s ease;            padding: 0 .5rem        }        .course-detail .video-list ul li a[data-v-4e11b9bf]:link,        .course-detail .video-list ul li a[data-v-4e11b9bf]:visited {            color: #353535        }        .course-detail .video-list ul li.on[data-v-4e11b9bf] {            border-color: #ff5a05        }        .course-detail .video-list ul li.on a[data-v-4e11b9bf]:link,        .course-detail .video-list ul li.on a[data-v-4e11b9bf]:visited {            color: #ff5a05        }        .article-title[data-v-4e11b9bf] {            color: #353535;            font-weight: 400;            line-height: 1.65rem;            font-size: 1.34375rem        }        .article-info[data-v-4e11b9bf] {            color: #888;            font-size: .9375rem;            margin-top: 1.0625rem        }        .article-content[data-v-4e11b9bf] {            margin-top: 1.0625rem        }        .audio-player[data-v-4e11b9bf] {            width: 100%;            margin: 20px 0        }        .content-box[data-v-4e11b9bf] {            padding: 1px 1.3125rem;            background-color: #fff;            margin-top: .46875rem        }        .to-comment[data-v-4e11b9bf] {            overflow: hidden;            padding-top: 20px;            margin: 0 1.3125rem -10px        }        .to-comment a.button-primary[data-v-4e11b9bf] {            float: right;            height: 20px;            font-size: 12px;            line-height: 20px;            padding: 4px 8px;            cursor: pointer        }        .extra[data-v-4e11b9bf] {            margin-top: .46875rem;            margin-bottom: 67px;            background: #fff;            position: relative        }        .extra .video-comment-box[data-v-4e11b9bf] {            position: absolute;            width: 100%;            top: 0;            left: 0;            z-index: 3;            -webkit-box-sizing: border-box;            box-sizing: border-box;            background: #fff;            padding-left: 1rem;            padding-right: 1rem;            padding-top: .5rem        }        .extra .video-comment-box h3[data-v-4e11b9bf] {            color: #353535;            font-size: .875rem;            line-height: 2rem;            font-weight: 400        }        .extra .comments[data-v-4e11b9bf] {            margin: 0 1.3125rem;            padding-bottom: 50px        }        .extra .comments h2[data-v-4e11b9bf] {            text-align: center;            color: #888;            position: relative;            z-index: 1;            margin-bottom: 14px        }        .extra .comments h2[data-v-4e11b9bf]:before {            border-top: 1px dotted #e8e8e8;            content: "";            position: absolute;            top: 50%;            left: 0;            width: 100%;            z-index: -1        }        .extra .comments h2 span[data-v-4e11b9bf] {            font-size: 15.25px;            font-weight: 400;            padding: 16px 1rem;            background: #fff;            display: inline-block        }        .extra .comments .no-comment[data-v-4e11b9bf] {            text-align: center        }        .extra .comments .no-comment i.icon-cat[data-v-4e11b9bf] {            color: #f5f5f5;            font-size: 100px;            line-height: 1.2;            margin-right: 12px        }        .extra .comments .no-comment .no-comment-text[data-v-4e11b9bf] {            color: #e8e8e8;            font-size: 12.5px;            line-height: 1.6        }        .bottom[data-v-4e11b9bf] {            position: fixed;            bottom: 0;            left: 0;            width: 100%;            height: 67px;            background: #fff;            background-color: #f5f5f5;            z-index: 10        }        .bottom .buy-join[data-v-4e11b9bf],        .bottom[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center        }        .bottom .buy-join[data-v-4e11b9bf] {            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            height: 48px;            line-height: 48px        }        .bottom .buy-join span[data-v-4e11b9bf] {            line-height: 48px;            margin-left: 5px;            color: hsla(0, 0%, 100%, .5);            font-size: 11px;            text-decoration: line-through        }        .bottom .button-cancel[data-v-4e11b9bf] {            height: 51px;            line-height: 51px        }        .bottom-control[data-v-4e11b9bf],        .bottom-sub[data-v-4e11b9bf] {            width: 100%;            -webkit-box-orient: horizontal;            -ms-flex-direction: row;            flex-direction: row;            -ms-flex-pack: distribute;            justify-content: space-around;            -webkit-box-sizing: border-box;            box-sizing: border-box;            padding: 0 1.3125rem        }        .bottom-control .item[data-v-4e11b9bf],        .bottom-control[data-v-4e11b9bf],        .bottom-sub .item[data-v-4e11b9bf],        .bottom-sub[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-direction: normal        }        .bottom-control .item[data-v-4e11b9bf],        .bottom-sub .item[data-v-4e11b9bf] {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            -webkit-box-orient: vertical;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            cursor: pointer        }        .bottom-control .item i[data-v-4e11b9bf],        .bottom-sub .item i[data-v-4e11b9bf] {            color: #353535;            font-size: 1.125rem;            line-height: 1.5rem        }        .bottom-control .item span[data-v-4e11b9bf],        .bottom-sub .item span[data-v-4e11b9bf] {            color: #888;            font-size: 11px        }        .button-subscribe[data-v-4e11b9bf] {            -webkit-box-flex: 1;            -ms-flex: 1;            flex: 1;            height: 69px;            color: #fff;            font-size: 15.25px;            text-align: center;            background-color: #ff5a05;            line-height: 69px;            border-radius: 5px        }        .article-sub-bottom[data-v-4e11b9bf] {            z-index: 2        }        @media only screen and (device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3) {            .bottom[data-v-4e11b9bf],            .comments[data-v-4e11b9bf] {                padding-bottom: 34px            }        }        @media (max-width:769px) {            .course-detail .breadcrumb[data-v-4e11b9bf] {                padding: 10px            }        }        @media screen and (min-width:768px) {            .extra .comments[data-v-4e11b9bf],            .to-comment[data-v-4e11b9bf] {                margin: 0 0 -10px            }        }</style><style type="text/css">        .mobile-tips {            width: 100%;            height: 51px;            background: rgba(0, 0, 0, .8);            position: fixed;            top: 0;            left: 0;            z-index: 20;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-sizing: border-box;            box-sizing: border-box;            padding: 0 12px;            -webkit-transition: opacity .35s;            transition: opacity .35s;            opacity: 0;            pointer-events: none        }        .mobile-tips.istop {            opacity: 1;            pointer-events: auto        }        .mobile-tips .mobile-tips-info {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: start;            -ms-flex-pack: start;            justify-content: flex-start        }        .mobile-tips .mobile-tips-info i {            width: 36px;            height: 36px;            background-image: url(data:image/png;base64,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);            background-position: 0 0;            background-repeat: no-repeat;            background-size: contain;            border-radius: 7px        }        .mobile-tips .mobile-tips-info h2 {            font-size: 15px;            color: #fff;            font-weight: 400;            margin-left: 6px        }        .mobile-tips .mobile-tips-info h2 span {            font-size: 11px        }        .mobile-tips a {            width: 72px;            height: 31px;            text-align: center;            border: 1px solid #ff5a05;            border-radius: 3px;            font-size: 13px;            color: #ff5a05;            line-height: 31px        }</style><style type="text/css">        .comment-item {            list-style-position: inside;            width: 100%;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            margin-bottom: 1rem        }        .comment-item a {            border-bottom: none        }        .comment-item .avatar {            width: 2.625rem;            height: 2.625rem;            -ms-flex-negative: 0;            flex-shrink: 0;            border-radius: 50%        }        .comment-item .info {            margin-left: .5rem;            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1        }        .comment-item .info .hd {            width: 100%;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .comment-item .info .hd .username {            color: #888;            font-size: 15.25px;            font-weight: 400;            line-height: 1.2        }        .comment-item .info .hd .control {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .comment-item .info .hd .control .btn-share {            color: #888;            font-size: .75rem;            margin-right: 1rem        }        .comment-item .info .hd .control .btn-praise {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            font-size: 15.25px;            text-decoration: none        }        .comment-item .info .hd .control .btn-praise i {            color: #888;            display: inline-block;            font-size: .75rem;            margin-right: .3rem;            margin-top: -.01rem        }        .comment-item .info .hd .control .btn-praise i.on,        .comment-item .info .hd .control .btn-praise span {            color: #ff5a05        }        .comment-item .info .bd {            color: #353535;            font-size: 15.25px;            font-weight: 400;            white-space: normal;            word-break: break-all;            line-height: 1.6        }        .comment-item .info .time {            color: #888;            font-size: 9px;            line-height: 1        }        .comment-item .info .reply .reply-hd {            font-size: 15.25px        }        .comment-item .info .reply .reply-hd span {            margin-left: -12px;            color: #888;            font-weight: 400        }        .comment-item .info .reply .reply-hd i {            color: #ff5a05;            font-size: 15.25px        }        .comment-item .info .reply .reply-content {            color: #353535;            font-size: 15.25px;            font-weight: 400;            white-space: normal;            word-break: break-all        }        .comment-item .info .reply .reply-time {            color: #888;            font-size: 9px        }</style></head><body style=""><div id="app"><div data-v-4e11b9bf="" class="course-detail"><div class="breadcrumb breadcrumb"><span><a href="#" class="title router-link-active">讲堂</a><span class="split iconfont"></span></span><span><span class="title">25 | 静态资源内联</span></span></div><div data-v-4e11b9bf="" class="course-main main" style="position: relative;"><div data-v-4e11b9bf="" class="vplayer" id ="DplayerCont" style="height: 416.25px;"><h2 class="title">                        25 | 静态资源内联</h2></div></div><div data-v-4e11b9bf="" class="course-info" style="margin-top: 0px;"><div data-v-4e11b9bf="" class="course-info-top"><h1 data-v-4e11b9bf="" class="course-title"></h1><i data-v-4e11b9bf="" class="iconfont"></i></div></div><div data-v-4e11b9bf=""><div data-v-4e11b9bf="" class="content-box"><div data-v-4e11b9bf="" id="article-content" class="typo common-content"><div class="text">                            <h1>课件和源代码下载地址</h1><p><a href="https://github.com/geektime-geekbang/geektime-webpack-course">https://github.com/geektime-geekbang/geektime-webpack-course</a></p><!-- [[[read_end]]] --></div></div></div></div><div data-v-4e11b9bf="" class="extra" style="margin-bottom: 1rem;"><div data-v-4e11b9bf="" class="comments"><h2 data-v-4e11b9bf=""><span data-v-4e11b9bf="">精选留言</span></h2><ul>                        <li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/d7/5a/9d6a4abf.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">logic</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">老师好，我想问下这个raw-loader 导入的js ,css 如何进行压缩处理？</div> <span class="time">2019-08-05</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">raw-loader 内联进去的样式或者脚本的压缩都是基于 html-webpack-plugin 进行处理的。比如：<br><br>                htmlWebpackPlugins.push(new HtmlWebpackPlugin({<br>                    template: path.join(projectRoot, `src/pages/${pageName}/index.html`),<br>                    filename: `${filename}${pageName}.html`,<br>                    chunks: [pageName],<br>                    // assetsPrefix: `${assetsPrefix}/`,<br>                    inject: inject && isEntryFileExists,<br>                    minify: minifyHtml<br>                        ? {<br>                            html5: true,<br>                            collapseWhitespace: true,<br>                            preserveLineBreaks: false,<br>                            minifyCSS: true,<br>                            minifyJS: true,<br>                            removeComments: false<br>                        }<br>                        : false<br>                }));<br><br>这个插件有一个minify参数，用于压缩 html 里面内联的 css/js/html内容</p> <p class="reply-time">2019-08-15</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/0f/0f/1c3c5f19.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">lengband丶</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">老师css的内联是不是没有演示啊？</div> <span class="time">2019-06-13</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/88/16/54dd5fa2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Adam</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">我用 "raw-loader": "^3.0.0", 可以在 search.html 导入 meta.html 和 flexible.js，具体语句是：<br>```<br><head><br>    ${require('raw-loader!./meta.html').default}<br>    <title>Document</title><br>    <script type="text/javascript"><br>      ${require('raw-loader!babel-loader!../../node_modules/lib-flexible/flexible.js').default}<br>    </script><br>  </head><br>```<br>但是我去 raw-loader 的 home page https://github.com/webpack-contrib/raw-loader 并没有找到具体require 的使用方法，我试了里面 readme 的 import 方式导入，但是 npm run build 会说 invalid token。<br></div> <span class="time">2019-06-17</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">需要使用 raw-loader 的 0.5.1 版本哈，最新的版本的 raw-loader 使用了导出模块的时候使用了 export default 语法， html 里面用的话有问题<br><br></p> <p class="reply-time">2019-06-18</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/b7/d0/f59612e8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">sialvsic</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">raw loader 0.5.1的版本有点老了，在releases上都找不到了。最新版的应该没有问题吧(还没试)<br>https://github.com/webpack-contrib/raw-loader/releases</div> <span class="time">2019-06-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不能使用最新的 raw-loader 版本哈，它最新的 3.x 版本导出模块直接使用了 export default 的写法，html 里面的模块这么写的话webpack解析不了，需要是 cjs 的写法才行。</p> <p class="reply-time">2019-06-18</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/2c/70/02b627a6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">夏雨雪</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">关于本节课老师没有展示的html-inline-css-webpack-plugin插件用法：<br><br>1. 安装这个插件：<br><br>npm i html-inline-css-webpack-plugin -D<br><br>2. 在webpack的配置文件中，增加这个插件<br><br>const HTMLInlineCSSWebpackPlugin = require("html-inline-css-webpack-plugin").default;<br><br>plugins: [<br>    new HtmlWebpackPlugin(), // 可能依赖这个插件<br>    new HTMLInlineCSSWebpackPlugin(),<br>],<br><br>3. 编译运行可以在dist的html文件中看到效果</div> <span class="time">2019-09-12</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Geek_e3a80d</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">老师，css内联不演示吗？我试了下，新版本的 style-loader 设置 singleton 参数会报错</div> <span class="time">2019-08-14</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">CSS 内联的演示已经以文章的形式更新到博客里面（https://github.com/cpselvis/blog/issues/5）<br>CSS 内联的例子（https://github.com/cpselvis/geektime-webpack-course/tree/master/code/chapter03/inline-resource）</p> <p class="reply-time">2019-10-05</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/17/b0/83/3c3bebf7.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Baron</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">资源内联的用法感觉就像是公共模板一样，如果是vue这样的组件开发 应该是用不到。<br>感觉就跟ejs一样一样的，只不过ejs需要配合node服务端才能使用，这个内联webpack直接把模板引入打包好</div> <span class="time">2019-07-04</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">这个资源内联还是很常见的，以前端监控脚本为例，如果不内联到html里面去而是以请求的方式价值，那假设这个前端监控的脚本请求加载失败的场景是无法监控的到的。</p> <p class="reply-time">2019-07-04</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/c9/d7/bfca41f9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">袋鼠儿</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">搞错了 是这个 跪求解答<br>ERROR in   Error: Child compilation failed:<br>  Module not found: Error: Can't resolve '../../node_modules/lib-flexible/flexib  le.js' in 'E:\my-project\src':<br>  Error: Can't resolve '../../node_modules/lib-flexible/flexible.js' in 'E:\my-p  roject\src'<br>  Module not found: Error: Can't resolve '../mate.html' in 'E:\my-project\src':<br>  Error: Can't resolve '../mate.html' in 'E:\my-project\src'<br><br><br>目录结构<br>node_modules<br>src<br>-mate.html<br>-search.html<br></div> <span class="time">2019-06-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/c9/d7/bfca41f9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">袋鼠儿</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">跪求解答<br>ERROR in   Error: Child compilation failed:<br>  Module not found: Error: Can't resolve '../meta.html' in 'E:\my-project\src':<br>  Error: Can't resolve '../meta.html' in 'E:\my-project\src'<br><br>  - compiler.js:79 childCompiler.runAsChild<br>    [my-project]/[_html-webpack-plugin@3.2.0@html-webpack-plugin]/lib/compiler.j    s:79:16<br><br><br>我的目录结构<br>node_modules<br>src<br>-search.html<br>-mate.html<br><br><br></div> <span class="time">2019-06-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/6a/22/f081ac31.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">好_快</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">老师我有3个问题请教一下：<br>1、${} 这种语法使用vscode的时候会有语法报错，Mac系统vscode版本号为 1.35.1，请问该如何解决<br>2、视频中您说因为plugin使用ejs模板，所以支持该语法，但是我去ejs的网站上并没有找到该语法说明，地址为：https://ejs.bootcss.com/<br>3、求推荐一下ejs系统的学习资料</div> <span class="time">2019-06-16</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/16/5f/da/a61150ae.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">ai_男男</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">谢谢老师，感觉这个课程很值</div> <span class="time">2019-06-11</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">哈哈，感谢夸奖，可以推荐下其他的小伙伴一起学习哈～</p> <p class="reply-time">2019-06-12</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/15/f0/af/bef1017f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">花狗是我</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">我感觉25章节和26章节 是不是顺序弄反了？</div> <span class="time">2019-10-15</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>编辑回复</span></div> 
+	<p class="reply-content">这个没有反哈</p> <p class="reply-time">2019-10-16</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/48/a1/9d53b4e4.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Sherry</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">style-loader使用报错问题有解了：https://www.npmjs.com/package/style-loader<br>官方属性有调整，webpack官网看起来没有同步，还是旧的属性。<br><br>出现了另一个疑问😂<br>使用style-loader，执行打包之后，打包生成的html里面，并找不到style标签。浏览器打开html，查看网页源代码，也没有style标签。但是，elements里面打开，是有style标签的。样式确实是可以正常渲染的。但是，这是什么逻辑。。为什么会这样呢？</div> <span class="time">2019-09-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">css-loader 将css转换成commonjs对象，然后css代码就在js里面了。style-loader的作用是在js执行时，动态的创建style标签，然后将 css-loader 转换的样式插入到这个style标签里去的。</p> <p class="reply-time">2019-10-05</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/48/a1/9d53b4e4.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Sherry</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">求老师回复啊啊~<br>有一个疑问、一个问题：<br>（1）疑问：<br>style-loader的作用，官方解释：Adds CSS to the DOM by injecting a <style> tag.<br>所以，style-loader的功能，默认不就是把css插入到html的<style>里吗？为什么还要添加options才行呢？<br>（2）问题：<br>css资源内联没有演示。自己试了下方案⼀：借助 style-loader。设置了options有报错，提示不支持singelon属性。<br>ValidationError: Invalid options object. Style Loader has been initialised using an options object that does not match the API schema.<br> - options has an unknown property 'singleton'. These properties are valid:<br>   object { injectType?, attributes?, insert?, base? }<br></div> <span class="time">2019-09-28</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">style-loader 插入样式是一个动态的过程，你可以直接查看打包后的 html 源码并不会看到 html 有 style 样式的。<br><br>css-loader 的作用是将 css 转换成 commonjs 对象，也就是样式代码会被放到 js 里面去了。style-loader 是代码运行时动态的创建 style 标签，然后将 css style 插入到 style 标签里面去，对应的源码：https://github.com/webpack-contrib/style-loader/blob/master/src/runtime/injectStylesIntoStyleTag.js#L260<br><br>CSS 内联的思路是：先将 css 提取打包成一个独立的 css 文件（使用MiniCssExtractPlugin.loader），然后读取提取出的 css 内容注入到页面的 style 里面去。这个过程在构建阶段完成。<br><br>CSS 内联的演示已经以文章的形式更新到博客里面（https://github.com/cpselvis/blog/issues/5）<br>CSS 内联的例子（https://github.com/cpselvis/geektime-webpack-course/tree/master/code/chapter03/inline-resource）</p> <p class="reply-time">2019-10-05</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/2c/70/02b627a6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">夏雨雪</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">更多html-inline-css-webpack-plugin的使用方法可以查看下面的链接<br><br>https://github.com/Runjuu/html-inline-css-webpack-plugin</div> <span class="time">2019-09-12</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">CSS 内联的演示已经以文章的形式更新到博客里面（https://github.com/cpselvis/blog/issues/5）<br>CSS 内联的例子（https://github.com/cpselvis/geektime-webpack-course/tree/master/code/chapter03/inline-resource）</p> <p class="reply-time">2019-10-05</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/18/98/12/60a9a434.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Kyeon</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，请教个问题。在做CSS内联实战的时候发现，第一种方式style-loader内联的话，在webpack打包后生成的html中源码是看不到内联进去的css样式的，只有在浏览器中才能看到，但是第二种方式采用html-inline-css-webpack-plugin插件内联的话，在webpack打包后生成的html中源码是能看到内联进去的css样式的，当然浏览器中也能看到。请问这是为什么啊？谢谢～</div> <span class="time">2019-08-30</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">style-loader 插入样式是一个动态的过程，你可以直接查看打包后的 html 源码并不会看到 html 有 style 样式的。<br><br>css-loader 的作用是将 css 转换成 commonjs 对象，也就是样式代码会被放到 js 里面去了。style-loader 是代码运行时动态的创建 style 标签，然后将 css style 插入到 style 标签里面去，对应的源码：https://github.com/webpack-contrib/style-loader/blob/master/src/runtime/injectStylesIntoStyleTag.js#L260</p> <p class="reply-time">2019-10-05</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/17/c0/21/4ffd4372.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">恶魔辣条儿</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">这一节的遗憾是css的内联没有实现, 还有就是rowloader的版本太低了. 3.x 还用0.5x这个差的有点多. </div> <span class="time">2019-08-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">CSS 内联的演示已经以文章的形式更新到博客里面（https://github.com/cpselvis/blog/issues/5）<br>CSS 内联的例子（https://github.com/cpselvis/geektime-webpack-course/tree/master/code/chapter03/inline-resource）</p> <p class="reply-time">2019-10-05</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/6a/22/f081ac31.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">好_快</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">${require(' raw-loader!babel-loader!. /meta.html')} 求助一下，这是什么语法？是html-webpack-plugin插件支持的？还是特有的啊？</div> <span class="time">2019-07-25</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是 html-webpack-plugin 支持的</p> <p class="reply-time">2019-10-05</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/61/aa/4d1e4085.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">metthew😀</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">资源内联<br>rowload<br>HTML  js</div> <span class="time">2019-07-17</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">成功 Get 技能</p> <p class="reply-time">2019-07-18</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/17/b0/90/ff697649.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">喝旺仔的小哥</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，把你的代码下载下来，install后，npm build都会出错。<br> webpack --config webpack.prod.js。如下，如果删掉，${ require('raw-loader!babel-loader!../node_modules/lib-flexible/flexible.js')}那就没问题。<br><br><br>  Replace Autoprefixer browsers option to Browserslist config.<br>  Use browserslist key in package.json or .browserslistrc file.<br><br>  Using browsers option cause some error. Browserslist config<br>  can be used for Babel, Autoprefixer, postcss-normalize and other tools.<br><br>  If you really need to use option, rename it to overrideBrowserslist.<br><br>  Learn more at:<br>  https://github.com/browserslist/browserslist#readme<br>  https://twitter.com/browserslist<br><br><br>Hash: 612ae4a46042af593502<br>Version: webpack 4.35.3<br>Time: 3487ms<br>Built at: 2019-07-14 17:20:47<br> 5 assets<br>Entrypoint index = index_c15023d3.js<br>Entrypoint search = search.css search_7ca4ff89.js<br> [3] ./src/images/logo.jpg 63 bytes {1} [built]<br> [4] ./src/search.js 2.9 KiB {1} [built]<br> [9] (webpack)/buildin/global.js 475 bytes {1} [built]<br>[10] ./src/search.less 39 bytes {1} [built]<br>[11] ./src/index.js + 1 modules 130 bytes {0} [built]<br>     | ./src/index.js 72 bytes [built]<br>     | ./src/helloworld.js 58 bytes [built]<br>    + 8 hidden modules<br>ERROR in   Error: Child compilation failed:<br>  Module not found: Error: Can't resolve '../node_modules/lib-flexible.js' in 'C  :\Users\HP\Desktop\my-project\src':<br>  Error: Can't resolve '../node_modules/lib-flexible.js' in 'C:\Users\HP\Desktop  \my-project\src'<br>  Module not found: Error: Can't resolve './meta.html' in 'C:\Users\HP\Desktop\m  y-project\src':<br>  Error: Can't resolve './meta.html' in 'C:\Users\HP\Desktop\my-project\src'<br><br><br><br><br><br></div> <span class="time">2019-07-14</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/16/88/66/9f946665.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">developer_hsl</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">按照<br>${require('raw-loader!babel-loader!../../node_modules/lib-flexible/flexible.js')}<br>发现ES6的语法并没有转成ES5<br>(手动lib-flexible增加ES6语法,例如改了变量定义使用 const)</div> <span class="time">2019-07-09</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/17/b0/83/3c3bebf7.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Baron</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">这个能不能想ejs一样，传递参数？替代模板中的某些内容</div> <span class="time">2019-07-04</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">可以的，通过html-webpack-plugin可以把变量传递进去。比如当前的构建环境变量</p> <p class="reply-time">2019-07-04</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/8c/36/6fcd3414.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">der果</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，看到这有个想法，有没有可能用webpack做自定义html标签？现在有这么做的么？</div> <span class="time">2019-06-18</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">完全可以的，你可以用loader实现html里面的各种标签或者语法糖，然后用loader匹配.html结尾就好了。<br><br>React 里面由于Html相关也是放在JSX里面，通常是利用了 Babel 去做同构，比如将H5同构成RN</p> <p class="reply-time">2019-06-18</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTKuBBITVkpA7zrqea0EOfYrmicftwHMibnTCuN9QlLhSN2Mq93JZXJh3HdkjG4gUAqLRiaz09pftPxqg/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">dudustyle</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，raw-loader跟以前含义不同了，经测试，最新版的确是不能这么用了，是不是最新版的已经不适用于再用来处理内联了？</div> <span class="time">2019-06-16</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">最新的版本里面可以处理在 js 里面内联其它的资源<br><br>需要使用 raw-loader 的 0.5.1 版本哈，最新的版本的 raw-loader 使用了导出模块的时候使用了 export default 语法， html 里面用的话有问题。<br><br>你可以看看 raw-loader 的源码特别简单的，你完全可以实现一个内联的 loader</p> <p class="reply-time">2019-06-18</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/QZNyckc0jBS9lN7w6m36ibt0744hB667q26cG4cmyjicwoaebKZ5wsgyW21SjBf1qO9x4NAok8siafyTw3EPnuQicA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">罗哈哈</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">这样是不是直接jQuery也内联进去了呀</div> <span class="time">2019-06-13</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">想内联什么文件或者 npm 包都可以的</p> <p class="reply-time">2019-06-16</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/17/d8/77/123b6608.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">得闲读书</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，讲的太棒了，感觉学到了很多东西，之前有许多代码层面的东西，用webpack可以轻松解决，期待接下来的更新。</div> <span class="time">2019-06-09</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">嗯嗯感谢，你的支持是我更新高质量视频的动力</p> <p class="reply-time">2019-06-11</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/15/1d/e9/8e55fe7e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Baby 熊🐻🎅🏻🎄</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，讲得节奏很好，学到了好些平时忽略的知识细节</div> <span class="time">2019-06-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">感谢夸奖，这个课程会比较全面的介绍 webpack 用法哈，也会配合实战演示让大家能够即时看到知识点的效果。</p> <p class="reply-time">2019-06-09</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/b5/f1/88f64443.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">无脚鸟</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">更新能不能快点啊</div> <span class="time">2019-06-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">6.10号会更新接下来的两节</p> <p class="reply-time">2019-06-09</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/17/a9/c2/524ce94d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">生命中的平凡</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">讲的超级棒，JS胖推荐学习的课程果然不错，第一次在极客时间学习技能，体验超级棒。希望作者更新快一点。</div> <span class="time">2019-06-08</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">嗯嗯，感谢夸奖，努力更新中</p> <p class="reply-time">2019-06-09</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/fd/68/f7324904.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">sandy</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">不知道为啥，内联 html 可以生效，但是内联 js 生效不了，打包后的代码还是 <br><script type="text/javascript"><br>$ {require('raw-loader!babel-loader!../src/meta.js')}<br></script> 这个。</div> <span class="time">2019-06-08</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/15/04/71/0b949a4c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">何用</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">编辑器里设置下溢出行折叠展示，效果会更好</div> <span class="time">2019-06-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">嗯嗯，好的，感谢指出。后面设置下</p> <p class="reply-time">2019-06-12</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/eb/2c/ab72fda4.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Paper</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">不错 前后内容很紧凑</div> <span class="time">2019-06-07</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">😁 感谢夸奖</p> <p class="reply-time">2019-06-09</p>
+	</div>
+</div>
+</li></ul></div></div><div data-v-4e11b9bf=""></div></div></div><link href="https://cdn.bootcss.com/dplayer/1.25.0/DPlayer.min.css" rel="stylesheet"><script src="https://cdn.bootcss.com/hls.js/0.10.1/hls.min.js"></script><script src="https://cdn.bootcss.com/dplayer/1.25.0/DPlayer.min.js"></script><script>            const dp = new DPlayer({                container: document.getElementById('DplayerCont'),                video: {                    url: 'https://media001.geekbang.org/91a1910fb3334ba59cef3c1fc1b53c22/6aa924d2f8584a33af5c279198e32ad7-829bf0e21d514f0da4bf7e6416ae048e-hd.m3u8',                    type: 'hls'                }            });</script></body></html>

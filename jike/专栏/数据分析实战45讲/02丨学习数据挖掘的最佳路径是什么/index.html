@@ -1,0 +1,1534 @@
+<html class="cye-disabled cye-lm"><head><meta charset="utf-8"><link rel="apple-touch-icon" sizes="180x180" href="http://static001.geekbang.org/static/icon/time/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="http://static001.geekbang.org/static/icon/time/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="http://static001.geekbang.org/static/icon/time/favicon-16x16.png"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="format-detection" content="telephone=no"><title>02丨学习数据挖掘的最佳路径是什么？</title><link href="https://static001.geekbang.org/static/time/css/app.b230db929e53af87acd535637f5011b8.css" rel="stylesheet"><style id="nightModeStyle">    html.cye-enabled.cye-nm:not(*:-webkit-full-screen) body,html.cye-enabled.cye-nm:not(*:-webkit-full-screen) #cye-workaround-body {-webkit-filter:contrast(91%) brightness(84%) invert(1);}</style><style id="cyebody">html.cye-enabled.cye-lm body{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyediv">html.cye-enabled.cye-lm div{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyetable">html.cye-enabled.cye-lm th{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}html.cye-enabled.cye-lm td{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyetextInput">html.cye-enabled.cye-lm input[type=text]{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}html.cye-enabled.cye-lm textarea{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeselect">html.cye-enabled.cye-lm select{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeul">html.cye-enabled.cye-lm ul{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeChangeByClick">html.cye-enabled.cye-lm .cye-lm-tag,html.cye-enabled.cye-lm.cye-lm-tag{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style type="text/css">    .hljs-ln {      border-collapse: collapse    }    .hljs-ln td {      padding: 0    }    .hljs-ln-n:before {      content: attr(data-line-number)    }</style><style type="text/css">    #iv-container {      position: fixed;      background: #0d0d0d;      width: 100%;      height: 100%;      top: 0;      left: 0;      display: none;      z-index: 1000    }    .iv-container {      overflow: hidden    }    .iv-close {      width: 26px;      height: 26px;      position: absolute;      right: 20px;      top: 20px;      cursor: pointer;      text-align: center;      overflow: hidden;      text-shadow: 0 0 3px #6d6d6d;      -webkit-transition: all .2s ease;      -moz-transition: all ease .2s;      -o-transition: all ease .2s;      transition: all .2s ease    }    .iv-close:after,    .iv-close:before {      content: "";      height: 2px;      width: 26px;      background: #fff;      position: absolute;      left: 0;      top: 50%;      margin-top: -2px;      border-radius: 2px    }    .iv-close:before {      -webkit-transform: rotate(45deg);      -moz-transform: rotate(45deg);      -ms-transform: rotate(45deg);      -o-transform: rotate(45deg);      transform: rotate(45deg)    }    .iv-close:after {      -webkit-transform: rotate(-45deg);      -moz-transform: rotate(-45deg);      -ms-transform: rotate(-45deg);      -o-transform: rotate(-45deg);      transform: rotate(-45deg)    }    .iv-close:hover {      -webkit-transform: rotate(90deg);      -moz-transform: rotate(90deg);      -ms-transform: rotate(90deg);      -o-transform: rotate(90deg);      transform: rotate(90deg)    }    .iv-image-view {      position: absolute;      height: 100%;      width: 100%    }    .iv-image-wrap {      display: inline-block    }    .iv-image-wrap:active {      cursor: move    }    .iv-large-image {      cursor: move;      max-width: 100%;      max-height: 100%;      background-color: #ececec;      -moz-transform: translateZ(0);      -o-transform: translateZ(0)    }    .iv-large-image,    .iv-loader {      position: absolute;      -webkit-transform: translateZ(0);      -ms-transform: translateZ(0);      transform: translateZ(0)    }    .iv-loader {      top: 50%;      left: 50%;      border-radius: 50%;      width: 32px;      height: 32px;      z-index: 100;      margin-top: -16px;      margin-left: -16px;      font-size: 5px;      text-indent: -9999em;      border-top: 1em solid hsla(0, 0%, 100%, .2);      border-right: 1em solid hsla(0, 0%, 100%, .2);      border-bottom: 1em solid hsla(0, 0%, 100%, .2);      border-left: 1em solid #fff;      -webkit-animation: load8 1.1s infinite linear;      animation: load8 1.1s infinite linear    }    .iv-loader:after {      width: 10em;      height: 10em;      border-radius: 50%    }    @-webkit-keyframes load8 {      0% {        -webkit-transform: rotate(0deg);        transform: rotate(0deg)      }      to {        -webkit-transform: rotate(1turn);        transform: rotate(1turn)      }    }    @keyframes load8 {      0% {        -webkit-transform: rotate(0deg);        transform: rotate(0deg)      }      to {        -webkit-transform: rotate(1turn);        transform: rotate(1turn)      }    }</style><style type="text/css">    .vue-pull-to-wrapper[data-v-12abd9fb] {      display: -webkit-box;      display: -webkit-flex;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -webkit-flex-direction: column;      flex-direction: column;      height: 100%    }    .scroll-container[data-v-12abd9fb] {      -webkit-box-flex: 1;      -webkit-flex: 1;      flex: 1;      overflow-y: auto;      -webkit-overflow-scrolling: touch    }    .vue-pull-to-wrapper .action-block[data-v-12abd9fb] {      position: relative;      width: 100%    }    .default-text[data-v-12abd9fb] {      height: 100%;      line-height: 50px;      text-align: center    }</style><style type="text/css">    .button-cancel[data-v-87ffcada] {      color: #888;      border: 1px solid #888;      border-radius: 3px;      margin-right: 12px    }    .button-cancel[data-v-87ffcada],    .button-primary[data-v-87ffcada] {      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      height: 35px;      display: inline-block;      font-size: 15px;      text-align: center;      line-height: 36px    }    .button-primary[data-v-87ffcada] {      color: #fff;      background-color: #ff5a05;      border-radius: 3px    }    .article[data-v-87ffcada] {      max-width: 46.25rem;      margin: 0 auto    }    .article .article-unavailable[data-v-87ffcada] {      color: #fff;      text-align: center;      font-size: .875rem;      font-weight: 400;      width: 100%;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 0 15%;      height: 4.9rem;      background-image: url(data:image/jpeg;base64,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);      background-position: 0 0;      background-repeat: no-repeat;      background-size: cover;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center    }    .article .main[data-v-87ffcada] {      padding: 1.25rem 1.375rem;      margin-top: 52px;      margin-bottom: 52px    }    .article-title[data-v-87ffcada] {      color: #353535;      font-weight: 400;      line-height: 1.65rem;      font-size: 1.34375rem    }    .article-info[data-v-87ffcada] {      color: #888;      font-size: .9375rem;      margin-top: 1.0625rem    }    .article-content[data-v-87ffcada] {      margin-top: 1.0625rem    }    .article-content.android video[data-v-87ffcada]::-webkit-media-controls-fullscreen-button {      display: none    }    .audio-player[data-v-87ffcada] {      width: 100%;      margin: 20px 0    }    .to-comment[data-v-87ffcada] {      overflow: hidden;      margin-bottom: -30px    }    .to-comment a.button-primary[data-v-87ffcada] {      float: right;      height: 20px;      font-size: 12px;      line-height: 20px;      padding: 4px 8px;      cursor: pointer    }    .article-comments[data-v-87ffcada] {      margin-top: 2rem    }    .article-comments h2[data-v-87ffcada] {      text-align: center;      color: #888;      position: relative;      z-index: 1;      margin-bottom: 1rem    }    .article-comments h2[data-v-87ffcada]:before {      border-top: 1px dotted #888;      content: "";      position: absolute;      top: 56%;      left: 0;      width: 100%;      z-index: -1    }    .article-comments h2 span[data-v-87ffcada] {      font-size: 15.25px;      font-weight: 400;      padding: 0 1rem;      background: #fff;      display: inline-block    }    .article-sub-bottom[data-v-87ffcada] {      z-index: 10;      cursor: pointer    }    @media (max-width:769px) {      .article .breadcrumb[data-v-87ffcada] {        padding: 10px 0      }    }</style><style type="text/css">    .share-poster-wrapper {      position: fixed;      background-color: #fff;      left: 0;      bottom: 0;      z-index: 100;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      overflow: hidden;      width: 100%;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -moz-user-select: -moz-none;      -webkit-user-select: none;      -ms-user-select: none;      user-select: none    }    .share-poster-wrapper .poster-bottom,    .share-poster-wrapper .poster-middle,    .share-poster-wrapper .poster-top {      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .poster-middle {      padding: 16px 32px;      -webkit-box-sizing: border-box;      box-sizing: border-box    }    .share-poster-wrapper .poster-middle .poster-userinfo {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      padding-bottom: 18px    }    .share-poster-wrapper .poster-middle .poster-userinfo .poster-avatar {      min-width: 45px;      min-height: 45px;      width: 7vw;      height: 7vw;      border-radius: 50%;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .poster-middle .nickname {      font-size: 5vw;      font-weight: 400;      margin-left: 18px    }    .share-poster-wrapper .poster-middle .time {      font-size: 3.2vw    }    .share-poster-wrapper .poster-middle .poster-middle-content {      font-size: 4vw;      font-weight: 400;      white-space: normal;      word-wrap: break-word;      word-break: break-word;      letter-spacing: 1px    }    .share-poster-wrapper .poster-middle .poster-middle-content p {      margin-bottom: 22px    }    .share-poster-wrapper .poster-middle .quote-content {      font-size: 3.7vw;      padding: 32px 0    }    .share-poster-wrapper .poster-middle .quote-content p {      margin-bottom: 22px    }    .share-poster-wrapper .poster-middle .quote-info {      border-left: 1px solid #000;      padding-left: 10px;      margin-top: 38px    }    .share-poster-wrapper .poster-middle .quote-info p {      font-size: 3.2vw;      line-height: 1.5    }    .share-poster-wrapper.theme0 .poster-top {      width: 100%;      height: 25px;      margin-top: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/top.png") no-repeat 15px 1px    }    .share-poster-wrapper.theme0 .poster-middle {      width: 100%;      padding-left: 56px;      padding-right: 56px;      background-image: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/middle.png");      background-repeat: repeat-y;      background-position: 15px 0    }    .share-poster-wrapper.theme0 .poster-middle .time {      margin-bottom: 45px    }    .share-poster-wrapper.theme0 .poster-middle .quote-content {      border-top: 1px solid #e3e1dc;      margin-top: 30px    }    .share-poster-wrapper.theme0 .poster-bottom {      width: 100%;      height: 25px;      margin-bottom: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/bottom.png") no-repeat 15px -10px    }    .share-poster-wrapper.theme1 .poster-top {      width: 100%;      height: 25px;      margin-top: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/top.png") no-repeat 38px 1px    }    .share-poster-wrapper.theme1 .poster-middle {      width: 100%;      padding: 0 42px 10px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/middle.png") repeat-y 38px 0    }    .share-poster-wrapper.theme1 .poster-middle .poster-userinfo {      border-bottom: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .poster-userinfo .poster-avatar {      margin-left: 38px    }    .share-poster-wrapper.theme1 .poster-middle .poster-middle-wrapper {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      min-height: 260px;      border-bottom: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .time {      max-width: 65px;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      text-align: center;      vertical-align: middle;      border-right: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .time span {      white-space: nowrap;      -webkit-transform: rotate(90deg);      transform: rotate(90deg)    }    .share-poster-wrapper.theme1 .poster-middle .poster-middle-content {      padding: 30px    }    .share-poster-wrapper.theme1 .poster-middle .quote-content {      font-size: 3.7vw;      margin-left: 36px;      margin-right: 36px    }    .share-poster-wrapper.theme1 .poster-middle .quote-info {      margin-left: 36px;      margin-right: 36px    }    .share-poster-wrapper.theme1 .poster-middle .footer {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      margin-right: 30px    }    .share-poster-wrapper.theme1 .poster-bottom {      width: 100%;      height: 25px;      margin-bottom: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/bottom.png") no-repeat 38px -10px    }    .share-poster-wrapper .share-poster {      background: #fefdf8;      -webkit-box-sizing: border-box;      box-sizing: border-box;      color: #9b8d73;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      overflow: auto;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-overflow-scrolling: touch;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .share-poster-wrapper .share-poster.color0 {      background-color: #fefdf8    }    .share-poster-wrapper .share-poster.color1 {      background-color: #4d4d4d    }    .share-poster-wrapper .share-poster .footer {      margin-top: 2rem;      position: relative;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: end;      -ms-flex-pack: end;      justify-content: flex-end;      -webkit-box-align: end;      -ms-flex-align: end;      align-items: flex-end    }    .share-poster-wrapper .share-poster .footer p {      margin: 0;      line-height: 1.4;      margin-left: 20px;      text-align: right;      padding-right: 20px    }    .share-poster-wrapper .controls {      background: #fff;      border-top: 1px solid #f5f5f5;      width: 100%;      padding-top: 5px;      -webkit-box-shadow: 0 -4px 10px 0 rgba(0, 0, 0, .1);      box-shadow: 0 -4px 10px 0 rgba(0, 0, 0, .1);      z-index: 1;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .controls>div {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      padding: 10px 0    }    .share-poster-wrapper .controls>div span {      font-size: .85rem    }    .share-poster-wrapper .controls>div button {      width: 100px;      height: 24px;      background: #eee;      margin: 0 10px;      border-radius: 5px;      border: 2px solid #b2b2b2;      outline: none    }    .share-poster-wrapper .controls>div button.on {      border: 2px solid #ff5a05    }    .share-poster-wrapper .controls .controls-themes button {      color: #b2b2b2;      font-size: 12px;      background: #fff;      text-align: center    }    .share-poster-wrapper .controls .controls-themes button.on {      color: #ff5a05    }    .share-poster-wrapper .buttons {      background: #fff;      border-top: 1px solid #f5f5f5;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .buttons a {      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      text-align: center;      color: #000;      font-weight: 400;      height: 3rem;      line-height: 3rem    }    .share-poster-wrapper .buttons a:last-child {      border-left: 1px solid #f5f5f5    }    .share-poster-wrapper img {      max-width: 100%    }    .share-poster-wrapper.android .poster-middle .nickname {      font-size: 10vw    }    .share-poster-wrapper.android .poster-middle .time {      font-size: 6.4vw    }    .share-poster-wrapper.android .poster-middle .poster-middle-content {      font-size: 8vw    }    .share-poster-wrapper.android .poster-middle .quote-content {      font-size: 7.4vw    }    .share-poster-wrapper.android .poster-middle .quote-info p {      font-size: 6.4vw    }</style><style type="text/css">    .mobile-tips {      width: 100%;      height: 51px;      background: rgba(0, 0, 0, .8);      position: fixed;      top: 0;      left: 0;      z-index: 20;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 0 12px;      -webkit-transition: opacity .35s;      transition: opacity .35s;      opacity: 0;      pointer-events: none    }    .mobile-tips.istop {      opacity: 1;      pointer-events: auto    }    .mobile-tips .mobile-tips-info {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: start;      -ms-flex-pack: start;      justify-content: flex-start    }    .mobile-tips .mobile-tips-info i {      width: 36px;      height: 36px;      background-image: url(data:image/png;base64,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);      background-position: 0 0;      background-repeat: no-repeat;      background-size: contain;      border-radius: 7px    }    .mobile-tips .mobile-tips-info h2 {      font-size: 15px;      color: #fff;      font-weight: 400;      margin-left: 6px    }    .mobile-tips .mobile-tips-info h2 span {      font-size: 11px    }    .mobile-tips a {      width: 72px;      height: 31px;      text-align: center;      border: 1px solid #ff5a05;      border-radius: 3px;      font-size: 13px;      color: #ff5a05;      line-height: 31px    }</style><style type="text/css">    .mini-audio-player {      width: 100%;      height: 5.25rem;      border: 1px solid #d9d9d9;      background: #fafafa;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 1rem;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      margin: 1rem 0    }    .mini-audio-player>a {      border: none;      -ms-flex-negative: 0;      flex-shrink: 0    }    .mini-audio-player .btn-play {      background-image: url(data:image/png;base64,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)    }    .mini-audio-player .btn-pause,    .mini-audio-player .btn-play {      width: 2.6875rem;      height: 2.6875rem;      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain;      text-decoration: none    }    .mini-audio-player .btn-pause {      background-image: url(data:image/png;base64,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)    }    .mini-audio-player .audio-info {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      margin-left: .6875rem;      min-width: 0    }    .mini-audio-player .audio-info h3 {      color: #353535;      font-size: 15.25px;      margin: 0;      white-space: nowrap;      overflow: hidden;      text-overflow: ellipsis    }    .mini-audio-player .audio-info p {      margin: 0;      margin-top: .125rem;      font-size: 11px;      line-height: 1rem    }    .mini-audio-player .audio-info p span {      color: #888    }    .mini-audio-player .btn-download {      width: 1.25rem;      height: 1.25rem;      position: relative;      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAA+CAYAAACbQR1vAAABS2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxMzggNzkuMTU5ODI0LCAyMDE2LzA5LzE0LTAxOjA5OjAxICAgICAgICAiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIi8+CiA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgo8P3hwYWNrZXQgZW5kPSJyIj8+IEmuOgAAA4hJREFUaIHtm8lOFFEUhr9qCWGHGxcaY1joK2h0YRzAtYmsWbAGGidEXOACbAYRxfgAPoEPoInGxJgg86gsJTHMw86EhS7O7TDk3uqq6qo6HahvQ7pOce7//1U0feve9vr6+lAiD3QC/4AC8FZDRJXGoMB14PWB1yPANPA1bSG5tAc0XLEcu5y6CvQCOGU5pnI3agVQMWQBaAvQJgtAW4A2WQDaArTJAtAWoE0WgLYAbbIAtAVokwWgLUCbLABtAdpkAfjU6oC7wKV0pCTCRcRDnesEVwDNwC/gg/nZHbeyFOgGltj30Gw7yRZALfAOqDavPeA50BO7xOToQTR75nU14qn26Im2AM4DNZbjz4DeePQlSi+i9Sg1iLdD2AJYApYdzbuo7BBeIBptLCPeDmELYA9oBHYdjbqQpaxKowA8ddR2gXuIt0O43gRHgTu4Q+ikskIoIJps7AINwA9b0e/fYJAQ1FZWD9CP2/wOUI/DPJT+IDRqGrhCeGIEaNEPdDhqO8iVH/NrEOST4BgSwo6j3gEMBOgTNwP4m6+nhHkI/lG4VAiPgcGAveJg0IxpYxvROh6kUZi5wLhpvO2oPyKdEF6asWyEMg/hJ0PjyN+VXwhDIXuGYQh46KhtIeYnwjSMMhss3glbjvoDkglhyPS2Eck8RJ8OTyB3gl8IryL2tjGM2/wmYn4ySuNyngdMmIE3HfX7iHDPUQ+CZ3q0O+qbyIWIZB7KfyAyaQS4QmhH7oQoIZQyv0EZV75IHE+EJvG/E9oJfyd4yC6yvKO+gQQ/FaKnlbgeiU0hIWw46nnEUJAQiubbHPV1M1bZ5iHeZ4KlQmgD3uAfgofsGfQz34DsKYyFuLemTSMhfATOWOqtiMk/llrRfIuj9zpwG5gtX+Y+SezNK4bwCXsILdgDaAXOOnomYh6Seyw+gwhed9TPWY75mb9FAuYh2XWBWUS4K4QgrAE3gblYFFlIemFkDjEQJYQ1JMD5WBUdIY2VoXkkhLUQv7NqfidR85De0liYEFaRK7+QqCJDmmuDC0gIqz7nrJhzUjEP6S+O+oWwglz5xTQFaawOLwI3gO8Hjo2ZY6maB72vzPwErgEXkO8MuVaiEkcrgCK/lcfPNkhkAWgL0KYKmZiMIG9Ktn0Bx5G/wDcgXwW8R6avJ41G4HQOufInlas5ZO5+UpnJAU3AFyy7J44xe8BnoOk/JruwYo92bigAAAAASUVORK5CYII=);      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain;      text-decoration: none;      padding-right: .25rem    }    .mini-audio-player .btn-download .icon-download-done {      width: .45rem;      height: .45rem;      position: absolute;      bottom: 0;      right: 0;      display: inline-block;      background-image: url(data:image/png;base64,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);      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain    }</style><style type="text/css">    .MathJax_Display {      overflow: auto    }    .poster {      position: fixed;      left: -10000px;      top: -10000px;      overflow: hidden;      padding: 1rem;      background: #ececec    }    .richcontent-pre-copy {      font-size: 13px;      color: #888;      position: absolute;      right: 1em;      top: .2em;      cursor: pointer;      -webkit-user-select: none;      -moz-user-select: none;      -ms-user-select: none;      user-select: none    }    .richcontent-pre-copy .iconfont {      font-size: 12px;      margin-right: .2em    }</style><style type="text/css">    .comment-item {      list-style-position: inside;      width: 100%;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      margin-bottom: 1rem    }    .comment-item a {      border-bottom: none    }    .comment-item .avatar {      width: 2.625rem;      height: 2.625rem;      -ms-flex-negative: 0;      flex-shrink: 0;      border-radius: 50%    }    .comment-item .info {      margin-left: .5rem;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1    }    .comment-item .info .hd {      width: 100%;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .comment-item .info .hd .username {      color: #888;      font-size: 15.25px;      font-weight: 400;      line-height: 1.2    }    .comment-item .info .hd .control {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .comment-item .info .hd .control .btn-share {      color: #888;      font-size: .75rem;      margin-right: 1rem    }    .comment-item .info .hd .control .btn-praise {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      font-size: 15.25px;      text-decoration: none    }    .comment-item .info .hd .control .btn-praise i {      color: #888;      display: inline-block;      font-size: .75rem;      margin-right: .3rem;      margin-top: -.01rem    }    .comment-item .info .hd .control .btn-praise i.on,    .comment-item .info .hd .control .btn-praise span {      color: #ff5a05    }    .comment-item .info .bd {      color: #353535;      font-size: 15.25px;      font-weight: 400;      white-space: normal;      word-break: break-all;      line-height: 1.6    }    .comment-item .info .time {      color: #888;      font-size: 9px;      line-height: 1    }    .comment-item .info .reply .reply-hd {      font-size: 15.25px    }    .comment-item .info .reply .reply-hd span {      margin-left: -12px;      color: #888;      font-weight: 400    }    .comment-item .info .reply .reply-hd i {      color: #ff5a05;      font-size: 15.25px    }    .comment-item .info .reply .reply-content {      color: #353535;      font-size: 15.25px;      font-weight: 400;      white-space: normal;      word-break: break-all    }    .comment-item .info .reply .reply-time {      color: #888;      font-size: 9px    }</style><style type="text/css">    .breadcrumb {      padding: 30px 0;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -ms-flex-wrap: wrap;      flex-wrap: wrap;      background: #fff    }    .breadcrumb a.title {      color: #e57c39;      font-size: 15px;      font-weight: 400    }    .breadcrumb span.title {      color: #888;      font-size: 15px;      font-weight: 400    }    .breadcrumb .split {      color: #ccc;      font-size: 10px;      margin-right: 5px    }</style></head><body style=""><div id="app"><div data-v-87ffcada="" class="article"><div data-v-87ffcada="" class="main main-app" style="margin-top: 0px;"><h1 data-v-87ffcada="" class="article-title">          02丨学习数据挖掘的最佳路径是什么？</h1><div data-v-87ffcada="" class="article-info"><span data-v-87ffcada="">2018-12-19</span><span data-v-87ffcada="">陈旸</span></div><div data-v-87ffcada="" class="article-content typo common-content"><img data-v-87ffcada="" src="https://static001.geekbang.org/resource/image/d0/ec/d05de7616d91d99c3afe11ebd66497ec.jpg"><div data-v-87ffcada="" class="mini-audio-player"><a href="javascript:;" class="btn-play"></a><div class="audio-info"><h3>02丨学习数据挖掘的最佳路径是什么？</h3><p><span>朗读人：秭明&nbsp;&nbsp;&nbsp;</span><span>00:09:33 | 8964</span></p></div><audio title="02丨学习数据挖掘的最佳路径是什么？" src="https://static001.geekbang.org/resource/audio/10/b5/10da36850ed14fd1845b5ad10a935ab5.mp3" controls="controls"></audio></div><div data-v-87ffcada="" id="article-content" class=""><div class="text">              <p>上一节中，我给你分享了数据分析的全景图，其中最关键的部分就是数据挖掘，那什么是数据挖掘呢？</p><p>想象一下，茫茫的大海上，孤零零地屹立着钻井，想要从大海中开采出宝贵的石油。</p><p>对于普通人来说，大海是很难感知的，就更不用说找到宝藏了。但对于熟练的石油开采人员来说，大海是有坐标的。他们对地质做勘探，分析地质构造，从而发现哪些地方更可能有石油。然后用开采工具，进行深度挖掘，直到打到石油为止。</p><p>大海、地质信息、石油对开采人员来说就是数据源、地理位置、以及分析得到的结果。</p><p>而我们要做的数据挖掘工作，就好像这个钻井一样，通过分析这些数据，从庞大的数据中发现规律，找到宝藏。</p><h2>数据挖掘，从知识清单开始</h2><p>我们第一天学开车的时候一定不会直接上路，而是要你先学习基本的知识，然后再进行上车模拟。</p><p>只有对知识有全面的认知，才能确保在以后的工作中即使遇到了问题，也可以快速定位问题所在，然后找方法去对应和解决。</p><p>所以我列了一个数据挖掘的知识清单，分别是数据挖掘的基本流程、十大算法和数学原理，以此来开启我们的学习之旅。</p><h2>数据挖掘的基本流程</h2><p>在正式讲数据挖掘知识清单之前，我先和你聊聊数据挖掘的基本流程。</p><p>数据挖掘的过程可以分成以下6个步骤。</p><ol>
+<li>
+<p><strong>商业理解</strong>：数据挖掘不是我们的目的，我们的目的是更好地帮助业务，所以第一步我们要从商业的角度理解项目需求，在这个基础上，再对数据挖掘的目标进行定义。</p>
+</li>
+<li>
+<p><strong>数据理解</strong>：尝试收集部分数据，然后对数据进行探索，包括数据描述、数据质量验证等。这有助于你对收集的数据有个初步的认知。</p>
+</li>
+<li>
+<p><strong>数据准备</strong>：开始收集数据，并对数据进行清洗、数据集成等操作，完成数据挖掘前的准备工作。</p>
+</li>
+<li>
+<p><strong>模型建立</strong>：选择和应用各种数据挖掘模型，并进行优化，以便得到更好的分类结果。</p>
+</li>
+<li>
+<p><strong>模型评估</strong>：对模型进行评价，并检查构建模型的每个步骤，确认模型是否实现了预定的商业目标。</p>
+</li>
+<li>
+<p><strong>上线发布</strong>：模型的作用是从数据中找到金矿，也就是我们所说的“知识”，获得的知识需要转化成用户可以使用的方式，呈现的形式可以是一份报告，也可以是实现一个比较复杂的、可重复的数据挖掘过程。数据挖掘结果如果是日常运营的一部分，那么后续的监控和维护就会变得重要。</p>
+</li>
+</ol><!-- [[[read_end]]] --><h2>数据挖掘的十大算法</h2><p>为了进行数据挖掘任务，数据科学家们提出了各种模型，在众多的数据挖掘模型中，国际权威的学术组织ICDM （the IEEE International Conference on Data Mining）评选出了十大经典的算法。</p><p>按照不同的目的，我可以将这些算法分成四类，以便你更好的理解。</p><p>l <strong>分类算法</strong>：C4.5，朴素贝叶斯（Naive Bayes），SVM，KNN，Adaboost，CART</p><p>l <strong>聚类算法</strong>：K-Means，EM</p><p>l <strong>关联分析</strong>：Apriori</p><p>l <strong>连接分析</strong>：PageRank</p><p><strong>1. C4.5</strong></p><p>C4.5算法是得票最高的算法，可以说是十大算法之首。C4.5是决策树的算法，它创造性地在决策树构造过程中就进行了剪枝，并且可以处理连续的属性，也能对不完整的数据进行处理。它可以说是决策树分类中，具有里程碑式意义的算法。</p><p><strong>2. 朴素贝叶斯（Naive Bayes）</strong></p><p>朴素贝叶斯模型是基于概率论的原理，它的思想是这样的：对于给出的未知物体想要进行分类，就需要求解在这个未知物体出现的条件下各个类别出现的概率，哪个最大，就认为这个未知物体属于哪个分类。</p><p><strong>3. SVM</strong></p><p>SVM的中文叫支持向量机，英文是Support Vector Machine，简称SVM。SVM在训练中建立了一个超平面的分类模型。如果你对超平面不理解，没有关系，我在后面的算法篇会给你进行介绍。</p><p><strong>4. KNN</strong></p><p>KNN也叫K最近邻算法，英文是 K-Nearest Neighbor。所谓K近邻，就是每个样本都可以用它最接近的K个邻居来代表。如果一个样本，它的K个最接近的邻居都属于分类A，那么这个样本也属于分类A。</p><p><strong>5. AdaBoost</strong></p><p>Adaboost在训练中建立了一个联合的分类模型。boost在英文中代表提升的意思，所以Adaboost是个构建分类器的提升算法。它可以让我们多个弱的分类器组成一个强的分类器，所以Adaboost也是一个常用的分类算法。</p><p><strong>6. CART</strong></p><p>CART代表分类和回归树，英文是 Classification and Regression Trees。像英文一样，它构建了两棵树：一颗是分类树，另一个是回归树。和C4.5一样，它是一个决策树学习方法。</p><p><strong>7. Apriori</strong></p><p>Apriori是一种挖掘关联规则（association rules）的算法，它通过挖掘频繁项集（frequent item sets）来揭示物品之间的关联关系，被广泛应用到商业挖掘和网络安全等领域中。频繁项集是指经常出现在一起的物品的集合，关联规则暗示着两种物品之间可能存在很强的关系。</p><p><strong>8. K-Means</strong></p><p>K-Means 算法是一个聚类算法。你可以这么理解，最终我想把物体划分成K类。假设每个类别里面，都有个“中心点”，即意见领袖，它是这个类别的核心。现在我有一个新点要归类，这时候就只要计算这个新点与K个中心点的距离，距离哪个中心点近，就变成了哪个类别。</p><p><strong>9. EM</strong></p><p>EM算法也叫最大期望算法，是求参数的最大似然估计的一种方法。原理是这样的：假设我们想要评估参数A和参数B，在开始状态下二者都是未知的，并且知道了A的信息就可以得到B的信息，反过来知道了B也就得到了A。可以考虑首先赋予A某个初值，以此得到B的估值，然后从B的估值出发，重新估计A的取值，这个过程一直持续到收敛为止。</p><p>EM算法经常用于聚类和机器学习领域中。</p><p><strong>10. PageRank</strong></p><p>PageRank起源于论文影响力的计算方式，如果一篇文论被引入的次数越多，就代表这篇论文的影响力越强。同样PageRank被Google创造性地应用到了网页权重的计算中：当一个页面链出的页面越多，说明这个页面的“参考文献”越多，当这个页面被链入的频率越高，说明这个页面被引用的次数越高。基于这个原理，我们可以得到网站的权重划分。</p><p>算法可以说是数据挖掘的灵魂，也是最精华的部分。这10个经典算法在整个数据挖掘领域中的得票最高的，后面的一些其他算法也基本上都是在这个基础上进行改进和创新。今天你先对十大算法有一个初步的了解，你只需要做到心中有数就可以了，具体内容不理解没有关系，后面我会详细给你进行讲解。</p><h2>数据挖掘的数学原理</h2><p>我说了这么多数据挖掘中的经典算法，但是如果你不了解概率论和数理统计，还是很难掌握算法的本质；如果你不懂线性代数，就很难理解矩阵和向量运作在数据挖掘中的价值；如果你没有最优化方法的概念，就对迭代收敛理解不深。所以说，想要更深刻地理解数据挖掘的方法，就非常有必要了解它后背的数学原理。</p><p><strong>1. 概率论与数理统计</strong></p><p>概率论在我们上大学的时候，基本上都学过，不过大学里老师教的内容，偏概率的多一些，统计部分讲得比较少。在数据挖掘里使用到概率论的地方就比较多了。比如条件概率、独立性的概念，以及随机变量、多维随机变量的概念。</p><p>很多算法的本质都与概率论相关，所以说概率论与数理统计是数据挖掘的重要数学基础。</p><p><strong>2. 线性代数</strong></p><p>向量和矩阵是线性代数中的重要知识点，它被广泛应用到数据挖掘中，比如我们经常会把对象抽象为矩阵的表示，一幅图像就可以抽象出来是一个矩阵，我们也经常计算特征值和特征向量，用特征向量来近似代表物体的特征。这个是大数据降维的基本思路。</p><p>基于矩阵的各种运算，以及基于矩阵的理论成熟，可以帮我们解决很多实际问题，比如PCA方法、SVD方法，以及MF、NMF方法等在数据挖掘中都有广泛的应用。</p><p><strong>3. 图论</strong></p><p>社交网络的兴起，让图论的应用也越来越广。人与人的关系，可以用图论上的两个节点来进行连接，节点的度可以理解为一个人的朋友数。我们都听说过人脉的六度理论，在Facebook上被证明平均一个人与另一个人的连接，只需要3.57个人。当然图论对于网络结构的分析非常有效，同时图论也在关系挖掘和图像分割中有重要的作用。</p><p><strong>4. 最优化方法</strong></p><p>最优化方法相当于机器学习中自我学习的过程，当机器知道了目标，训练后与结果存在偏差就需要迭代调整，那么最优化就是这个调整的过程。一般来说，这个学习和迭代的过程是漫长、随机的。最优化方法的提出就是用更短的时间得到收敛，取得更好的效果。</p><h2>总结</h2><p>今天我列了下学习数据挖掘你要掌握的知识清单，只有你对数据挖掘的流程、算法、原理有更深的理解，你才能在实际工作中更好地运用，我将在后面的章节中对它们进行一一介绍。</p><p><img src="https://static001.geekbang.org/resource/image/11/d7/1130af6d29d029c470144dfc8610b6d7.jpg" alt=""></p><p>最后给你留道思考题吧。</p><p>今天我给你讲了如何学习数据挖掘，你从中有什么样的体会呢？如果某电商网站想挖掘商品之间的关联关系，从而提升销售额，你觉得可以采用上面的哪个算法？为什么？</p><p>欢迎在留言区和我讨论，也欢迎点击“请朋友读”，把这篇文章分享给你的朋友或者同事，一起来交流，一起来进步。</p><p><img src="https://static001.geekbang.org/resource/image/48/96/48cb89aa8c4858bbc18df3b3ac414496.jpg" alt=""></p></div></div></div><div data-v-87ffcada="" class="article-comments"><h2 data-v-87ffcada=""><span data-v-87ffcada="">精选留言</span></h2><ul data-v-87ffcada="">            <li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/1c/c0/0cf65d22.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Alex王伟健</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>16</span></a></div>
+	</div>
+	<div class="bd">https:&#47;&#47;mubu.com&#47;doc&#47;y6YuGg_UA0<br>有些挺耳熟，不过都还给老师了。工作中或者生活中多用应该就忘得少了</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>编辑回复</span></div> 
+	<p class="reply-content">赞</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a6/ee/08f0d325.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">三年二班邱小东</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>29</span></a></div>
+	</div>
+	<div class="bd">老师你好，数学原理里面的内容需要到什么程度，才可以呢？数学这一模块是我很担心的，因为数学实在不怎么样。不知道有什么书籍可以提升这个方面的知识呢。以后常用的也就是这十大算法吗？</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">如果很多人都有这个情况的话，我想抽个时间，给你整理一篇“白话数学基础：数学基础不好的人，如何理解数据挖掘算法”</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://thirdwx.qlogo.cn/mmopen/vi_32/wJphZ3HcvhjVUyTWCIsCugzfQY5NAy6VJ0XoPLibDlcHWMswFmFe678zd0lUjFETia80NQhyQcVnGDlKgKPcRGyw/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">JingZ</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>10</span></a></div>
+	</div>
+	<div class="bd">(1)数据挖掘学习方法体会：有了知识清单，相当于有了一个系统思维在那，对快速识别问题的确很有帮助~很好的方法方便实践，就像巴菲特和芒格的投资是使用的公司尽调清单一样，MECE的解决问题<br>(2)基于电商商品的关联进行推荐从而提高销售的话，个人认为是Apriori算法，其为了提取频繁项集和一定置信度的关联规则，即用户购买了X产品有多大概率去买Y，根据置信度高的原则推荐</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">总结的很好，大家可以看下。尤其是用到了MECE原则👍</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/63/67/94d80726.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">vincent</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>10</span></a></div>
+	</div>
+	<div class="bd">数学太差，毕业很久了怎么学习呢？</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不用担心，很多人都有这个问题。我觉得你可以尝试：<br>1、培养兴趣：兴趣是最好的老师，我们大自然的很多科学都是和数学相关，比如为什么雪花是六边形？<br>2、刻意训练：你不需要通过做项目来做完整的数学训练，比如你和朋友去吃饭的时候，你可以脑算下一共花了多少钱？很多时候，心算是数学的一个能力<br>3、价值暗示：数学可以帮你很多，尤其是在算法效率、代码质量上。很明显，数学好的人，写出来的算法效率也更高。<br>所以一个代码完成后，你可以问自己个问题：还有没有更好的方法？</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/1d/de/8ba72c08.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Cathy</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>9</span></a></div>
+	</div>
+	<div class="bd">体会：<br>    ①学渣与学霸最大的区别不是智商，而是学习方法和学习态度。作为一名计算机出身的工科女，曾经差点溺死在各类算法的海洋里，目前初入社会做产品，又差点迷失在数据的大山。个人还需要调整自己的学习方法和学习态度。<br>    ②当前个人接触的仅仅是数据收集、数据处理、数据分析、数据展现，看到老师的数据挖掘6步骤，感觉深奥许多，期待老师后续的详细讲解。<br>课后思考：<br>    对于思考题，我想到了沃尔玛 “啤酒和尿布” 经典案例。沃尔玛正是将Apriori算法引入到POS机数据分析中，从而获得了营销上奇迹。简单说来就是在一个数据集中，找到经常出现的商品组合。当然Apriori算法的计算量很大，当商品数据量大时效率低，FP-Tree算法优化了该算法。</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">总结的不错👍</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/f7/91/ffc93dec.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Key.</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>7</span></a></div>
+	</div>
+	<div class="bd">理解了数据比选择算法建立模型更重要。我觉得电商网站可以采用Apriori算法，因为通过挖掘频繁项集，可以探索到物品之间的联系，从而为商家提供销售思路！</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的，Aprior是个挖掘商品关联关系的常用算法</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/08/eb/fed61050.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">五岳寻仙</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>6</span></a></div>
+	</div>
+	<div class="bd">总结与思考：<br><br>1. 商业理解：如老师之前所讲，数据挖掘是工具，要么帮我批处理，要么拓展我们思考的规模。也就是说问题本身是人能够处理得了的，只是受限与时间太长或者规模太大，需要借助计算机。人工智能是人思考的放大，如果一个问题人都想不通，指望借助人工智能算法解决，目前恐怕还不现实。遇到问题，首先要“商业理解”，形成一个思路，然后考虑如何借助算法。<br>2. 问题归类：要解决的问题是属于分类，回归，聚类，还是关联分析等。每种类别的问题都有相对应的算法。不过有时候，对数据做不同的处理，能使问题适用于不同的算法。<br>3. 数据准备：数据准备已经能提现个人思想了，处理常规的缺失值处理、标准化&#47;归一化，更重要的是所谓的“特征工程”，它决定了数据呈现的方式。同样的数据，呈现方式不同，算法学到的东西也不同。<br>4. 模型评估。有很多不同的评估指标，需要根据具体问题选择。模型的训练是一个最优化问题，目标不同，优化的方向也不同。<br><br>课后思考题：<br><br>根据老师文中讲到的方法，我觉得有如下这些方法可以用来做商品间关联分析：<br><br>1. Apriori：文中提到是通过挖掘频繁项集，来揭示商品间关系。(不太了解这个算法，期待后续学习)<br>2. KNN：通过临近商品，判断该商品的特征。我不确定是否试用，但感觉应该能解释商品间的相似性。<br><br>以上是自己对课程的理解，有不对的地方，请老师和大家指正。<br></div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/ad/92/8f1b5144.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Robin</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>4</span></a></div>
+	</div>
+	<div class="bd">apriori</div> <span class="time">2018-12-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/cb/81/57024c59.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">HxScript</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>4</span></a></div>
+	</div>
+	<div class="bd">文中的引子我深有体会：<br>我本科就是学的石油工程。油藏的勘探、储量预测、钻井、采油的确对应了数据挖掘的发现业务中的key points、收集业务中的相关数据并建模、再将模型反代入业务进行模型持续的评估、输出可视化的数据分析结论以及报告。<br><br>我们在储量预测（数据建模）的时候，也有很多针对不同应用场景的不同方法，增产期用什么、断块油藏用什么模型（将数据分类用什么、对数据进行关联分析用什么算法）<br><br><br>再回答电商网站挖掘商品间的关联关系，提高销售额的问题：<br>根据Apriori算法的描述，电商的推荐系统（大家熟知的啤酒尿片）应该就是用其建立的。<br>当然也可能不止这一种，可能还会用分类算法，对用户分群建立用户画像，某一类用户画像，又通过pagerank算法，发现该用户画像下，出现概率高的商品，并进行推荐。<br><br>以上是自己的浅薄理解，有误还望童靴们和老师指正~</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTLs9zplqBLfoM1z0UDgmZBIYIJ36eK0IyCNV3WNa2HwgNAMdbYUiasqPwUialZtQxSUb5G0fmzZIv5g/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">sarach</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd"> <br>一直对数据挖掘感兴趣，但没有找到合适的学习方法，通过这节课 系统的对数据挖掘算法整体有了个认识；希望之后的每一天都可以进步·～<br><br>课后思考题：<br>我觉得可以采用  ‘朴素贝叶斯（Naive Bayes）’  对商品进行分类；<br>                       ‘ KNN ’ 商品的分类 邻近算法 知道有哪些相关的 分类；<br>                       使用关联Apriori 算法 对购买过相关品类的人进行推荐；来提升销售额；<br>麻烦老师点评是否正确？</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a9/ad/6b16f806.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">十二先森</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">我大学不是计算机专业，学习这个概率和统计学从哪方面下手</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">感谢关注，其实高中的时候，我们也会接触简单的概率论知识。这里你可以带着问题，去思考。先知道每个概念代表的意义即可，如果不能推导公式，没有关系。不影响你对“条件概率”“联合概率”的理解，也不会影响你使用这些工具，因为在python中都有相应的类库<br>在使用的基础上，如果你想进一步探索概率论的原理，可以自己推导下这些公式，也可以多做一些相关练习，来加强自己的理解</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/28/72/99f7f63d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">凛冬里的匍匐者</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">C4.5算法中的剪枝是什么意思？机器学习中的梯度下降法是不是也是以最优化方法为数学基础的？</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/e5/c3/a4e55fbd.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Jane</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">随机森林，xgboost这种在经典算法基础上衍生出来的算法老师能不能在讲基础算法的时候拓展介绍一下啊。<br>应该可以通过Apriori将相关商品关联起来，比如亚马逊“购买过此类商品的人通常也会购买”这种商品推荐。</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">很好的建议！其实不光是随机森林，xgboost，还有逻辑回归都是很常用的算法，有时间一起介绍下</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/09/97/4314e2d8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">双木公子</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">发现我天然具有学数据挖掘的条件，基础数学理论知识掌握的比较牢固，算法中的图论知识也比较感兴趣。</div> <span class="time">2019-01-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/2f/51/8aa74eb5.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Becky</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">思考题回答：<br>商业理解：商业目的是为了提升销售额。<br>数据理解：搜集电商网站部分数据，进行数据探索。<br>数据准备：搜集电商网站数据，将用户按性别、消费额等类别分类。<br>模型建立：将用户分成的类别所购买的产品使用分类算法（KNN）将产品分类；使用关联分析（Apriori）挖掘产品间的关联关系。<br>模型评估：（略，不会）<br>上线发布：将有关联关系的产品做成报告，可供Marketing使用，也可附相关建议（如产品组合策略…）</div> <span class="time">2019-01-08</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/cc/f3/5e4b0315.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">追梦小乐</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">咦 ，怎么没有隐马尔科夫HMM？</div> <span class="time">2019-01-01</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">这里只介绍十大经典算法，有一些算法没有放进去，深度学习，HMM这些确实用的也比较多</p> <p class="reply-time">2019-01-02</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/29/3f/ae7718f6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">蜘蛛的梦呓</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">数据挖掘是把预处理后的数据根据业务合理的分类。<br>首先通过分类算法根据某种特性，按业务需求分类。<br>然后通过连接算法，找出影响力最强的商品，合理的分配投入资源。<br>最后通过关联算法，合理的推荐商品或者陈列商品。</div> <span class="time">2018-12-27</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/be/76/55e5e326.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Chen</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">决策树这块，C4.5和CART主要不同在哪呢？一般什么时候用C4.5，什么时候用CART呢？<br>CART即是分类树，又是回归树，是即可以解决分类问题，又可以解决回归问题吗？怎么用呢？</div> <span class="time">2018-12-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/a2/5a/71d4603e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">denzel.mffl</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">https:&#47;&#47;mubu.com&#47;doc&#47;fplKTT3Gln<br>楼上推荐的幕布真是个好应用，总结特别方便，理解也更加深刻了，还可以导出思维导图。</div> <span class="time">2018-12-23</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">幕布确实很好用，我也是看到留言中不少人在用👍</p> <p class="reply-time">2018-12-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/07/7f/a34263c6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Louie Zhang</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">可以使用Apriori算法得到各样品之间关联的程度大小，关联性越大，那么可将该对应商品捆绑销售，可达到提升销售额的目的。还望老师批评指正，谢谢！</div> <span class="time">2018-12-21</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a4/12/22e802e5.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Seventeen</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">第一个想到的是apriori算法，关联算法。听完之后有去百度每个算法，给自己一个大概的认知，但是每个算法都是各种函数各种算，数学已经扔了好多年了，有什么基础的数学书籍可以开始补吗</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/06/98/11f0da5c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">寒天</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">这些算法都不会啊，好怕自己跟不上课程</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">没事的 跟着学 跟着练 不懂就问 也可以看下大家的笔记整理 懂的就越来越多</p> <p class="reply-time">2018-12-20</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">captain</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">陈老师好～我是一名产品经理。目前掌握了简单的python语法，sql语句，在工作中主要使用Tableau作为数据分析工具。希望陈老师推荐下一些书籍（数据分析和统计学）谢谢</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">《利用Python进行数据分析》（使用Python的人可以看看）<br>《Pentaho Kettle解决方案》（ETL工程师会用到）<br>《精益数据分析》（商业模式画布，如何构建数据指标体系）<br>《Tableau数据可视化实战》（这个你应该会了）<br>《看穿一切数字的统计学》<br>《写给所有人的极简统计学》</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/8f/2d/6117ff62.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">竹墨轩</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">老师，我自己是计算机专业，工作上做的事情没用到多复杂的数学知识及算法，很多东西在框架上都帮我们实现了，更多的是代码的堆砌。每每看到数学能力比我好的人，都心生嫉妒与不平，感觉自己的数学很差，学了也提不上来，高中及大学学的知识都还给老师了。刚在听你对十大算法的介绍听完就有点晕乎乎了，希望能指点迷津！</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">做就比不做要强。我也接触过一些公司，发现一个怪现象：他们都会建数据团队，但是做算法的很少，大部分都是做数据集成的。实际上算法没有想象的那么难，而且价值也会更大。所以在专栏里，我把算法放到了主要的部分，也希望通过对算法的讲解，能带大家掌握他们，并且进行项目实战</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/98/27/5188d93b.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">印第安老斑鸠</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">没有接受过概率论和线性代数的学习，能跟上课程吗</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">可以的 放心吧 </p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/db/e4/27c594e6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">AaronYu</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">体会：数据挖掘需要概率论与数理统计，线性代数等底层数学知识作为基础。另外，数据挖掘只是一个手段，工具，是要来完成我们对业务的诉求的，不可本末倒置。<br><br>思考题：采用 Apriori 算法，通过挖掘频繁项集来揭示商品间的关联关系，很适用于电商网站分析商品。</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">同意你的分享，很多人不知道如何解决业务问题，就认为是工具没掌握，或者工具使用有问题。其实这些工具就是分类器。他们只是工具，还是要从“业务”角度去理解</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a3/78/63f150f5.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">微光lu</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">关联分析，用来探究商品之间的潜在联系</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/90/d0/48037ba6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">奶爸 奶爸</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">老师的思路非常清晰，期待后续更精彩的内容。<br>另外我想问一个无关的问题，老师图为什么做得做么漂亮？是工具好， 还是和思路有关系？有没有什么经验可以介绍下？</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">首先你需要确定一个图片的风格，比如小清新的风格，以及相应的色调<br>制作上：你可以使用XMind思维导图工具，它帮你做一些简单的美化<br>当然，最好的体验，还是要自己亲自动手，专栏的图片都是编辑自己手工制作的，这里要感谢下编辑。里面用到了一些手写字体</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/75/24/422571c5.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">hillw4h</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">最难的部分应该是数据获取吧？</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不同阶段，各有各的难点。数据获取是前提，在数据获取中，更主要的是各个网站的反爬虫机制。尤其针对手机，你还需要进行模拟。切换不通的IP，有些网站需要多个账号登录，你就需要准备多个账号轮流切换。<br>另外在数据挖掘过程中，模型算法的选择也很重要。有时候选择比努力更重要，不是说你参数优化调整不好，而是在最开始的时候，就可以选择一种适合的算法模型，这也是为什么，很多人针对一个项目，会使用多种算法，看下哪个算法的效果好，再确定采用哪个模型</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/15/91/ef/ea8a6e66.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">远山</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">这些算法第一次接触，看的云里雾里，老师出的思考题，觉得应该用那个关联算法，见aproiro</div> <span class="time">2019-02-13</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">三硝基甲苯</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">感觉 Apriori 和 C4.5 比较需要 ，先分类，然后在关联吧 大概这样</div> <span class="time">2019-02-11</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/53/ca/44088dd0.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">花生</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">觉得最难的不是算法，而是数据到算法选择过程中的衔接工作，比如特征工程。还有就是得到分析结果并不难，解释结果怎么来的，合理性分析很难。</div> <span class="time">2019-02-11</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/cb/50/66d0bd7f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">杰之7</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">通过这一节的阅读学习，整个数据挖掘的核心是在理解商业目的和数据理解的前提下使用合适的算法进行数据挖掘，得到一套数据模型并不断优化的产物。<br><br>在算法这块，主要涉及到分类，聚类，回归，关联等，而这些算法的本质是对统计概率和线性代数的理解。<br><br>python等是工具，算法是内核，数学是抽象的灵魂，用好工具，不断训练算法，分享自己的感悟就是提升数据挖掘的路径。</div> <span class="time">2019-02-08</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/58/9d/3c77abb8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">AlexZENG·Q</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">整理了一下学习笔记：https:&#47;&#47;mubu.com&#47;doc&#47;muHN1aoFE0 <br>1、老师给了一个整体的概述，对数据分析怎么学有认识，一个一个打怪去学习他们，算是自上而下的学习方式吧。感觉数据分析的前的业务理解，沟通很重要，才能更好利用算法解决问题。最后数学的基础很重要，要慢慢补上去<br>2、物与物之间的联系适用Apriori算法。<br><br>记得之前的公司的，是一个K12教育的，题目的分类用的是聚类算法，不是知识点的堆砌，而是运用算法认为做出这些题目，相类似的题目一定可以做出来。</div> <span class="time">2019-01-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">五只羊</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">没有基础的情况下 听这篇太飘渺了</div> <span class="time">2019-01-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/cb/50/66d0bd7f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">杰之7</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">通过这一节的阅读学习，对数据挖掘的本质有了清晰的认识，挖掘的背后是对商业现象的理解，通过算法计算，挖掘出有用的价值。算法的理论基础是概率统计和线性代数。<br><br>回到老师的问题，挖掘商品之间的关联，提升销量的算法，我认为首先是Apriori关联算法,然后朴素贝叶斯,KNN分类算法。因为Apriori算法是计算物品之间的关联关系的算法，而分类算法首先可以通过对商品进行分类处理，为关联关系挖掘提供了前提保证。期望老师给予点评更正。<br><br></div> <span class="time">2019-01-27</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/15/32/f1/4fa56c84.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">城市部落一角</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">Apriori，关联规则暗示着两种物品之间可能存在很强的关系。可以从以往销售记录中寻找购买物品的搭配关系，从而在进货数量、摆放位置进行预测和把控。</div> <span class="time">2019-01-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/8e/02/7a87562a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">******</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">你好，针对数据挖掘背后的数学原理，麻烦推荐一下相关数学自学书籍或者其他资源，由于大学没有学习数学课程，谢谢你。</div> <span class="time">2019-01-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/78/4e/46047725.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">月亮上的熊猫_lv</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">用apriori关联分析算法，找到物品之间的强联系，然后根据一个购买记录推荐另一个相关联的物品，可以有效提高销售额。因为根据大量数据的积累和挖掘，可以得到购买了A的顾客，也有极大的概率购买B。这样的推荐更有效率。</div> <span class="time">2019-01-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/bf/b4/0827ce7d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">余二</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">听完感觉一脸懵逼，里面的名词都没听过。不知道再听一遍会不会好点？</div> <span class="time">2019-01-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/09/97/4314e2d8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">双木公子</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">https:&#47;&#47;mubu.com&#47;edit&#47;y0Am9vcG3I，阅读知识整理</div> <span class="time">2019-01-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/09/1b/8665aa89.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">……</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">数学比较差，，老师有没有什么建议？</div> <span class="time">2019-01-16</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">柚子</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">这一段时间在摸索着学数据挖掘的知识，但一看到那么多的数学知识和复杂的算法原理就头大，看不下去就歇歇再接着看，希望这次老师的系统化讲解能给我拨开迷雾。</div> <span class="time">2019-01-16</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/f6/da/698acb74.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">灰灰静静</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师的数据挖掘经典算法结构非常清晰，数学比较薄弱，同学们的留言也很有启发呢，希望后面能跟上。<br><br>商品关联可选择关键算法Apriori来实现。</div> <span class="time">2019-01-14</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/21/5f/915d4cad.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">叶えなくちゃ</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">商业理解和数据理解是思维上的工作，数据准备到上线发布是实践的工作。<br>电商网站挖掘商品间的关联关系，使用关联分析。</div> <span class="time">2019-01-08</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/aa/d1/076482f3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">白夜</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">平均一个人与另一个人的连接，只需要 3.57 个人。这个只是Facebook上，没考虑那些不玩Facebook的人群。不过随着数字化的加深，这个六度迟早变成五度四度。<br><br>这些算法，其实也是一种哲学思想，比如，先分细的，再把相似的小类放在一起成为大类。生活中也都是这样干的，只是数据量大了，就产生质变了。<br>EM 算法，文章的这个解释不太懂 - .-看起来有点像遗传算法，取极限值，明天看看？<br><br>数学原理，这是要学高数了。。<br><br>最后这个问题，用Apriori吧，有些人一起打包买的东西，说明之间有关联性，给其他人也打包再加个折扣卖，稳稳的。虽然啤酒与尿布的故事是卖软件的公司编的，但这个思路感觉还是对的。<br><br></div> <span class="time">2019-01-08</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/5d/c4/cf9b06b9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Sunway.</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">1.我对于数据挖掘的6步基本流程以及算法有了初步的认识，之前在学校学习商务智能课程时运用过C5.0，K-means和Apriori算法做实验，但是只是知道如何去用了，并没有完全理解算法背后的含义，知识没有打牢，通过这一次的梳理我对于十大算法的用途以及含义都加深了理解。<br><br>2.可以采用Apriori算法，分析不同商品的销售额，从而得出哪几项商品的关联度最高，形成新的捆绑营销策略，从而提示销售额~</div> <span class="time">2019-01-07</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/8a/37/92b98544.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">吾儿滨滨</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">第二讲笔记<br>https:&#47;&#47;mubu.com&#47;doc&#47;3QadR_xU7v<br></div> <span class="time">2019-01-07</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/e1/aa/3aa78810.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">七步</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">这一课让我对数据分析这门课有了更深的认识，深在哪里？第一，我原来以为的算法是通过自己的发现或者利用一些统计模型来做的，而现在光是评选出来的顶级算法就有10个之多，并且其中的原理，自己还未了解过，有些心慌；第二，数据也需要通过6个步骤来分析是否为有用的数据而不是随意拿来的数据；第三，数据分析所用的数学知识，都已经忘得七七八八了，尤其是线性代数，几乎就没怎么用，而图论和最优化方法更是没怎么接触，这一点对现在的我来说是个不小的挑战。<br><br>老师最后提到的“电商网站想要挖掘商品之间的关联关系，从而提升销售额，用哪种算法好？为什么？” 通过对课件中，老师对十大算法的描述，在未翻阅资料的情况下，我认为第十种算法“PageRank”会更适用一些。首先，因为电商网站是通过页面点击进入而购买商品的，那么就可以通过点击某商品页面后而跳转到另外一商品页面的关联统计，就可以得到某商品网站跳转其他商品页面的权重；然后通过权重分析，来找到商品与商品的关联度；最后，通过找到的关系，利用营销刺激的方式，在提高某一种商品销售的同时来带动另一种商品的销售。</div> <span class="time">2019-01-06</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/7d/05/4bad0c7c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">王彬成</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">一、学习总结：<br>1、数据挖掘六步骤：商业理解——数据理解——数据准备——模型建立——模型评估——上线发布<br>2、数据挖掘的十大算法<br>3、数据挖掘涉及的数学原理<br><br>二、思考题回答<br>如果某电商网站想挖掘商品之间的关联关系，从而提升销售额，你觉得可以采用上面的哪个算法？为什么？<br>1、体会：看到数据挖掘涉及的知识点，一开始因为高深的知识点对他望而却步，但是既然老师能把高深的知识点总结出来，那么之后只要跟随老师的步伐，一定可以克服知识的障碍，并最终掌握数据挖掘。<br>2、在挖掘商品见的关系，关联算法是比较合适的。“啤酒和尿布”是经典的商品存在关联的案例。可以应用到结算后的商品推荐服务中</div> <span class="time">2019-01-03</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/c1/cc/fb306fe2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">狒狒呀狒狒呀</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">https:&#47;&#47;mubu.com&#47;edit&#47;ic1VE6fcc4<br>感觉在学习的过程中，可以代入自己在做数据分析这件事情，了解自己的需求：我做这件事情的目的，方法，期望结果，然后再去理解知识点，会清晰很多。<br>老师的提问关于电商挖掘商品关联关系用到的算法应该是关联分析中的Apriori<br></div> <span class="time">2019-01-03</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">用幕布这种方式不错，不过你这个是私有的，还需要共享出来才能看到</p> <p class="reply-time">2019-01-11</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/2b/f6/87adbbe0.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">风</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">Apriori 可以通过挖掘频繁项集来揭示物品之间的关联关系，这个方法比较合适。</div> <span class="time">2019-01-02</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/40/79/b8dbf66a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">灵灵</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，你好，学习了这个章节有以下几个想法，想请教一下：<br>1、朴素贝叶斯算法是不是可以理解为：对未知物体的分类，在同样的条件下，所有存在物体的分类占比中，占比最大的分类会是未知物体的分类？<br>2、k-means算法，在新的点进入这个类别后，会对中心点进行修正吗？</div> <span class="time">2019-01-02</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/40/79/b8dbf66a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">灵灵</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">课后习题：<br>apriori算法，即买什么的用户更有可能买什么商品。<br>想要问一下：经典的啤酒和尿布是不是也是类似的关系？</div> <span class="time">2019-01-02</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/23/af/84f4714e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">caidy</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">十大算法都没有接触过，老师又给我打开了另一个门，线性代数，概率论都还给老师了，挖掘电商商品之间的关联关系，我会使用Apriori算法，原因是他是通过挖掘频繁项集来揭示物品之间的关联关系，通过这个算法，可以给客户推荐关联性大的商品。</div> <span class="time">2018-12-30</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">加油，十大经典算法算是数据挖掘的核心，后面很多算法都是在这个接触上衍生的。而且sklearn给我们提供好了封装的KPI，可以直接使用。后面我会讲到</p> <p class="reply-time">2019-01-02</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/d2/9b/4b7761c2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">.</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">用Apriori</div> <span class="time">2018-12-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">米可哲</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">没有找到社群跟题库啊😂</div> <span class="time">2018-12-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">米可哲</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">https:&#47;&#47;mubu.com&#47;doc&#47;p8vyO1PGx0<br>课后答案：apriori算法，是一种关联算法。揭示物品之前的关联关系</div> <span class="time">2018-12-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/bc/ab/82b80c7b.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Enlorevy</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">先分类，用c4.5<br>然后再用关联分析法分析关联关系</div> <span class="time">2018-12-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83erBSoNm28CNCYpvytDbhfSYpgCo6T9vuzKkSoflr3sX8VucMz8ykrichKDY9vVoMVomUIakXSQq9icw/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">xfoolin</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">1. 底层逻辑是商业思维<br>2. 所有的数据分析都是为了实现商业目的而做的<br>3. 要实现目的，就要有相应的知识（数学原理等），核心就是算法<br>4. 知道算法后，利用工具来实现<br>5. 这个工具就是Python<br><br>---<br><br>通过 apriori 算法来挖掘购买产品的相关性。</div> <span class="time">2018-12-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/c2/0a/8a8f0bec.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">岳麓</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">总结得很好，接下来学习中可以边对照，边掌握。</div> <span class="time">2018-12-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/9b/9a/dcb2b713.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">hufox</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">电商网站想挖掘商品之间的关联关系，提升销售额，应该是使用Apriori</div> <span class="time">2018-12-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83epDFniaeaP8cGKfMic9pFlOOyUQpISjaHGEoBQWjiae2zZhzhgQNfST3K9zeQicajSdFs11nMhfuQB4ibQ/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">修.</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">看完需要掌握的数学知识，发现一个不会，我还能继续学下去么？</div> <span class="time">2018-12-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/a3/b2/71ab80d2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">文武</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">在数据挖掘的过程中，商业理解我理解应该是贯穿始终的，真正的了解业务流程，是需要一次次的调整和讨论才能逐渐明白的。<br><br>如果某电商网站想挖掘商品之间的关联关系，从而提升销售额。<br><br>按照数据挖掘的过程，首先是商业理解：挖掘商品之间的关系，是为了推荐给用户在购买某一商品的时候，可以推荐给他其他不同关联度大的商品，进而提升销售额。根据上面10大算法的介绍，Apriori 是一种挖掘关联规则的算法，应该是首选尝试这个算法；挖掘一下历史数据中，哪些商品容易被一起购买，找到某些商品的关联关系进行推荐。</div> <span class="time">2018-12-27</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/60/de/5c67895a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">周飞</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">挖掘商品之间的关系我觉得应该用Apriori算法。虽然不了解这个算法，但看本节课程的内容知道适合挖掘关联关系。</div> <span class="time">2018-12-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/6d/4d/ada0aa8a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">亚东</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">7. Apriori，使用这个算法，商品之间的关联关系</div> <span class="time">2018-12-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">zengyunda</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">希望老师加餐一篇关于线性代数，统计学，概率论的内容！谢谢！<br>最后的问题使用的是关联分析！<br>有个很著名的故事，啤酒与尿布！</div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">这个我也在计划中，和运营同学联系下做个专题</p> <p class="reply-time">2018-12-26</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/b1/fc/8503c08a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">易平</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">通过老师的讲解对数据挖掘有一个整体的认知。尤其是数据流的处理和十大算法。<br>如果是要通过商品之间的关联关系做推荐算法的话我是这么理解的:<br>1. 如果是通过商品和商品直接建立关联，Apriori算法是最直接的。用于客户购买过一个商品，推荐一个用户可能会感兴趣的另一个商品<br>2. 所有分类的算法：C4.5, 朴素贝叶斯，SVM, KNN, Adaboost, CART，可以进行更粗颗粒的来建立关联关系。如果判断通过商品的分类，再关联到这个类别下相关商品的特点。</div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/e5/a6/0be17cd5.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">闫东汉</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">我觉得应该用Apriori（关联分析），买了一个商品之后推荐一个强关联的，可以提升销售额</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/af/0e/eacb7d32.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">香ᝰAmyTian</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">强烈要求老师整理一篇“白话数学基础：数学基础不好的人，如何理解数据挖掘算法”， 不然感觉后来会越来越迷茫的。 谢谢老师</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">可以 多谢反馈 我和运营沟通下 争取做个专题出来</p> <p class="reply-time">2018-12-24</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/58/f7/22ea9761.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">wolfog</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">能想到就是使用apriori 算法，这个可以找到频繁项集的关联关系。我想到了之前看到的一个故事：沃尔玛一位经理发现啤酒和纸尿裤在周末的时候销量增加明显。经理就通过观察发现：一般是周末出现这种情况；购买者多是已婚男性，家里有不到两岁的宝宝；他们喜欢看比赛节目，而且是边喝边看；周末是比赛扎堆的日子。由于上面的发现，经理将妇婴用品和饮料用法和零食用品货架放到一起，引起了销售额明显的增长。这个故事就是由于发现了尿不湿和啤酒，啤酒喝零食的关联关系，对货架进行了处理，导致的销售额的增加。</div> <span class="time">2018-12-23</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/ab/d6/d58110a8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">司艳</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">Apriori</div> <span class="time">2018-12-23</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Geek_9c00d6</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">90年代的文科生，没有统计学和概率的基础，网上哪里有比较好的这方面的课程呢？</div> <span class="time">2018-12-23</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">之前有个同学说，需要有个白话数学基础的专题，我在思考这个，给专栏做个专题。到时候可以一起学习下</p> <p class="reply-time">2018-12-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/67/f7/1ca42972.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">晴天小雨</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请问陈老师，图片的笔记时手写的么？感觉好Q！如果是用工具制作的话，可以推荐一下么？</div> <span class="time">2018-12-23</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>编辑回复</span></div> 
+	<p class="reply-content">字体是手书体，软件用的是SketchBook。</p> <p class="reply-time">2018-12-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">爱极客</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">对于就如何进行数据分析学习，我的答案是：从实际需求出发，在数据中找到需求的满足点，要找到满足点，就要用数学理论工具或者是已有的经典算法。<br>问题2：从商品到销售额的提升。我个人认为用Apriori算法，因为它的频繁项集，就能满足热销这个分析需求。或者是EM算法，因为EM算法叫最大期望至算法，能够让商品和销售额之间有预测。<br>希望得到老师的回馈。谢谢。</div> <span class="time">2018-12-23</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/90/13/b5479887.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">印宏宇</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">虽然学这个专栏的绝大多数都是技术人员，但在数据挖掘中商业理解是第一位的，我觉得商业理解是数据挖掘的灯塔和方向，只有有了商业理解数据挖掘才有意义。<br>另外大学的基础课程不是白学的，如果白学了，那么现在这条路还要重新走。</div> <span class="time">2018-12-23</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">对的 总结的很好</p> <p class="reply-time">2018-12-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/07/3f/53ae01f6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Kevin.zhang🌏</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">作业：<br>1、体会：老师整理的这些知识精华，一下帮我梳理了知识点，让我有了全局的认识！<br>2、某电商网站想挖掘商品之间的关联关系，从而提升销售额，我觉得得采用关联算法Apriori，因为通过挖掘频繁项集，可以很好的分析两件商品的关联情况，eg.刘润曾经讲述一个案例，说是超市经营者通过对每天账单的分析，得出了一个潜在的规律：买啤酒的顾客会顺带着买尿不湿，或者买尿不湿的顾客会顺带买啤酒，单独看这两样商品很难有联系，但是超市随即把两者放在一起进行做活动，结果出奇的好！</div> <span class="time">2018-12-23</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/ae/c4/b7fa61a6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">大谦</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">在第一课的时候，提到了有3个部分，数据采集，数据挖掘，数据展示，我原来的理解是这3个部分是有时序关系的。在这一课，数据挖掘基本流程的数据理解和数据准备又谈到了数据采集，那么是不是数据采集是数据挖掘的内含步骤，而并不是我原来的理解（先于数据挖掘的一个步骤）。还请老师解惑😁</div> <span class="time">2018-12-22</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">如果你把数据挖掘作为你的目标的话，那么数据采集，数据清洗就是你做数据挖掘前的准备工作<br>这就好比 做菜和买菜、洗菜是一样的。你可以理解做菜包括了买菜、洗菜。也可以理解做菜之前需要买菜和洗菜<br>所以你的理解没有错，数据采集、数据清洗肯定是在数据挖掘之前。同时这个章节，我把 数据挖掘作为了一个更大的概念，就是如果我们想通过数据挖掘得到模型，发挥更大价值的时候，都需要从哪些步骤进行考虑。当然其中有个关键的步骤就是模型建立</p> <p class="reply-time">2018-12-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83epzA7E8kS3g2oBf8APksN7E3QLTags5wo6zDUWQEId7aosL081pWRpPr7ZbrNagsYUicmBtYrowFzg/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Cheer</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">从算法介绍来看，应该是Apriori算法，但是数学基础基本已经还给原来的老师，所以不明白为什么，以及这个算法的原理。有幸陈老师的课程中会讲，给老师点赞</div> <span class="time">2018-12-21</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">谢谢 温故而知新 多看几遍就会有体会</p> <p class="reply-time">2018-12-21</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/29/b4/f95e8e9e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">孑</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">课后思考，第一反应是Apriori算法，这个用排除法，十个算法中其他算法要么是归类，要么是聚类，只有Apriori算法是关联算法，既然是提高销量，自然推算相关组合，买一个给推荐另一个，成交率高，或者根据关联放置商品的位置。<br>看评论里提到的沃尔玛啤酒与尿布好像在管理学里听过这个案例，要不是有人提真真没想到这个是关联算法</div> <span class="time">2018-12-21</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/e5/43/7bc7cfe3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">跳跳</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">体会：<br>很多职业的本质都是发现问题、分析问题、解决问题的思路。只是数据分析师用的是数学的工具、算法工具。<br>算法：可以先分析受欢迎商品的特征属性，分析其他商品与受欢迎商品之间的关系，来做相应的推荐曝光操作。</div> <span class="time">2018-12-21</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">楠溪</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">体会:学习数据挖掘，最好要有数学原理的支撑，充分了解数据挖掘流程，掌握各种核心算法。<br>电商应用算法:Apriori，通过频繁项来揭示物品之间的关联关系</div> <span class="time">2018-12-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/ab/87/d9a5aa9c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">阳黎明</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">关联分析Apriori算法，啤酒和尿布的经典案例</div> <span class="time">2018-12-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">楠溪</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">毕业10多年了，上大学时候数学还是不错的，但工作之后就再没用到过，不知道还能不能跟上老师的节奏</div> <span class="time">2018-12-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">captain</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">陈老师好，遇到两个实际问题：一是有一组时间序列的离散度量值，如何计算这组数据的上升下降趋势，或者说斜率？ 二是有什么比较合适的算法去衡量一组数据的离散波动程度，目前我只知道方差标准差，谢谢。</div> <span class="time">2018-12-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/ad/92/8f1b5144.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Robin</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">apriori 关联分析</div> <span class="time">2018-12-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/32/52/c843fc53.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">feng</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请问老师数据分析和数据挖掘及大数据直接的区别和联系是什么？</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">小灰灰</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">挖掘关联关系，用算法Apriori</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">细雨梧桐</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">商品与商品哪种搭配销售最受欢迎，可以用关联模型来挖掘；购买不同商品或商品组合的用户分别属于什么群体，可以用K-means聚类分析分群；竞品或者关联较强的商品之间做销售预测可以用EM最大期望值算法；通过社交圈购买商品偏好来推测目标客户的偏好，可以用KNN最近邻算法。不知道对不对？</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/4b/dd/41614582.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">HomeyLiu</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">买你这个课程太值了！谢谢🙏的分享。打算深入</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">加油 系统梳理+专属题库+不懂就问 👍</p> <p class="reply-time">2018-12-20</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">夜路破晓</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">学习打卡https:&#47;&#47;mubu.com&#47;doc&#47;hssKaWgtA0。<br>跟许多人类似，担心数学是个不好迈过去的坎。不过只是应用的话应该问题不大，要是想举一反三、灵活运用就需要下点功夫了。<br>这一点后期要视具体情况而定，工作需要的话再去学也不迟，关键是先领悟原理与分析思维，万变不离其宗。知识类的学习说起来难度并不大，理解与掌握知识背后的逻辑与代表的规律才是痛点、难点与易跑偏的地方，如何应对是关键。</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTKibyrGcIryPOsswr1mxI6TTvymXHR43ONmgPCv2oVdjBDItZbN18Wib6n4RB5CVxESuXmEiahX0sdNw/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Conan</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">想要挖掘商品之间的关联关系，我认为可以用Apriori方法。可以分析出两种物品间的强相关关系。类似于啤酒和尿不湿的例子应该就可以通过这种方法找到。<br>除此之外，我感觉还可以用K-Means方法，新点和中心点的距离和两个商品的关系有点像；<br>还有PageRank方法，两个商品如果看成两篇论文或是两个网页，那么相互引用最多的就是相关性最强。</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/37/5d/bf3b09f5.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">任欣</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">那个大海，地质信息，石油的比喻解释的深入浅出，数据挖掘的流程，以及常用的算法，还有算法背后的数学原理。也是一步步的从实践到理论，刚刚好，怕太深入原理难得自己就放弃了，想问下老师产品经理了解数据分析知识的话到什么程度就可以了，需要了解数学原理吗<br><br>课后的问题，用到关联分析apriori算法，经典的啤酒与尿布的分析算法，用在电商领域原理也差不多吧。  后面课程会有每个算法的实践吗</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">后面课程会有每个算法的实战。产品经理应该先从认知出发，可以的话，还是希望能了解更多工具的使用。当然如果你有兴趣的话，可以跑下我案例中的代码。如果是PM的话，自己就算是不写代码，能运行一遍也是不错的。增加你的认知</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/ec/8f/c7884530.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">🍏</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">前段时间看了下吴恩达的机器学习课程，虽然是入门课，但是也不简单。特别羡慕数学好的人。<br>商业理解，数据理解，数据准备，建模，评估，上线</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">数学是科学的基础，所以想要进阶的话，确实可以补一下数学。不过总的来说，不影响你对概念的认知，和工具的使用。</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83eq2AjG9LLDd69vIKYV0JlP5iaAWhtZ45m000iclvKPoaZyRrQTQo56I9SCtSj3ZeerNfN4Ek2nUvANw/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">wtrsakura</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">我觉得这个语速可以</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">谢谢</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/c2/c3/bf3f2548.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">冬杨</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">Apriori</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a9/f1/b9721f95.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">kevin</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请问从事该方向的研究，对于线代和概率论等数学课程要理解到什么程度？</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">从理解和应用的层面出发即可。就像我们写论文的时候，大部分人都不是原始创新，基本上都是组合式创新，所以在于理解和应用。<br>如果想要做大牛，做原始性的创新，比如何凯明提出ResNet模型，就需要较强的数据功底了。</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/57/ce/2fb3b3f8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">七花</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，语速可以稍微慢一点点吗？上一句还在理解过程中,下一句接上来了.(我是小白听客)感谢感谢🙏!</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a9/1b/1f13e299.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Tommy</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">关联分析，电商需要客户购买更多的东西。我做过这样分析，但不是算法做出来的，我叫品牌关联</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/38/50/d3b4f8c4.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">●</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">体会：通过知识清单进阶结构化的学习，理解各个知识点的特性，能够快速建立知识脑图。<br>问题：在查漏补缺的过程中，发现有不少概率论和线性代数的知识遗忘了，还要针对性的补漏。<br>课后题：通过Apriori来挖掘商品之间的关联关系，从提升销售额上，还可以通过朴素贝叶斯算法进行商品分类，通过K-Means进行聚类推荐给用户。（实际应用中，会使用多种算法来修正参数吧？）</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/28/f4/b9217163.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">WZP</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">数学基础太差，很担心不能跟上课程。。。<br>思考题的话感觉应该是用Aprior这个算法，因为文章提到Aprior是一种挖掘关联关系的算法，可以揭示物品之间的关联关系，正好符合题目的要求，即寻找商品之间的关联关系。</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">不用担心，这些算法在Python中就是几行语句。理解概念+使用工具对你来说更重要。</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a4/75/9476ccd2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">チカラ</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">数据挖掘感觉是整个流程中类似发动机引擎一样的作用，应该要先要针对自己想要分析的问题的进行抽象出来后，再想要去挖掘哪方面的数据吧。那么多算法，还不怎么了解，看起来得自己先补补课。。</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">慢慢来 每次课程都跟上 及时整理笔记 养成好习惯</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/90/fa/bc3342c4.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">蒋三折</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">感谢老师，让我这样只学过一点医药统计学，转型无门的小白有机会系统地学习数据分析。<br>以下是几点疑问：<br>1 可以看到分类算法最多，也就是说分类是数据挖掘中最难的？或者说不同的需求下分类的要求不同导致了不同分类方法的产生？是不是用不同的分类方法做同一个项目得出的结果也会不同呢？<br>2 什么叫“减枝”？连续的属性，是不是指身高之类的具有连续性的数据？<br>3 KNN算法中，怎么样算作“近邻”呢？那“分散的”数据也能用这种算法吗？是不是只适用于有序的数据呢？<br>4 Apriori在网络安全中的应用，是不是可以实现类似于米国当年波士顿爆炸案之后，因为买了个高压锅被查水表，这样的操作？<br>以上，谢谢！~</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">1、关于分类算法<br>这些分类算法都是工具，出发点是他们看待“分类”的视角不同，并不代表这些结构是不同的，当然模型算法有适合与否，需要你来验证哪个算法针对你的问题是有效的<br>分类算法涉及到数学原理，也不能说是最难的，当你懂了这些原理之后，就会容易很多<br>2、关于连续属性和剪枝<br>你说的没错，身高这种存在可以无限分割的数值可能时，就是连续属性。<br>剪枝，是避免过拟合的一种方式。这个在决策树里，我会讲到。你先记住这个概念就好<br>3、关于KNN<br>你可以想象一幅画面，如果一个画面上有很多点。那么距离点A，一定会有K个邻居。当然这个距离你可以自己来定义（通常使用欧氏距离或曼哈顿距离）。在实际操作工程中，你也会给出定义距离的计算方式，这样就可以比较远近了<br>4、关于Apriori案例<br>你说的这个是个有趣的例子！把高压锅和爆炸物进行了关联<br>感谢你的分享😄</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/2f/e2/58ae492c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">小熊猫</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请问有哪些书单或者网站可以推荐呢？希望后面能出一节介绍下一些书单和网站</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/d8/51/2e1e9972.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">草莓味冰糕</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">①知识体系的构建非常重要，通过数据挖掘的基本流程，将算法与实际应用连接起来的能力对一个数据分析师是十分重要的。<br>②电商想挖掘的商品之间的联系，很像以前所听说过的购物篮子分析，记得的例子有为什么超市将啤酒和纸尿裤、面包和牛奶放在临近的地方，利用的算法Apriori算法，计算各频繁项同时发生的概率，就能很好的给客户推荐其想要一起购买的商品。也可以利用Apriori算法，组建电商针对客户的购物套餐等。</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/e1/1e/8ea64556.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">荔枝先生</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">我觉得应该是关联分析算法，比如说Apriori关联规则算法，一般提到这一挖掘算法就想到经典的“啤酒鱼尿布”的案例，这跟老师所提出的某电商网站想挖掘商品之间的关联关系，从而提升销售额的问题是类似的。此外，目前应用的比较热的就是协同过滤方法，包括基于用户的和基于商品的，这个应用也是十分广泛。此外，想请教老师：商品推荐中冷启动的问题有什么比较好的方法？谢谢</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/3d/e1/5279ea2f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">鱼鱼鱼培填</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">感觉要学习的东西还很多，算法的理解需要数学原理的支撑，老师讲解算法的时候是否会详解运用的数学原理呢？<br>思考题：关联关系首先就想到使用Apriori，觉得朴素贝叶斯也可以，因为这个算法也可以对商品分类，挖掘商品的关联。刚学习，对算法理解不深，希望老师指正<br>在@Alex王伟健的基础上整理了笔记 https:&#47;&#47;mubu.com&#47;doc&#47;iAUqDB8iIf，希望大家能相互交流</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">感谢分享，Apriori和贝叶斯网络 都是不错的思路。基于贝叶斯网络也可以做推荐算法。Apriori应该算是“购物篮问题”中常用的算法</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a3/27/91472366.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">告别流浪的喵</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">K-Means（先聚类）、（KNN）再分类、以及Apriori算法，可以用来做商品分析。</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/62/a5/43aa0c27.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Destroy、</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">EM 算法也叫最大期望算法，是求参数的最大似然估计的一种方法。这句话中的最大似然估计我一开始还以为是写错了，后来查了下原来‘最大似然估计’是一种统计方法。<br>课后题：Apriori</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">对的 似然就是可能性的意思，其实如果说“最大可能性估计”一般人都能理解，不过术语上，我们还是叫“最大似然估计”</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a2/c8/7ca5d825.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">斌</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">一、关联分析：Apriori算法。理由是它通过挖掘经常一起出现的事物，来揭示他们之间某种强相关性，那么商品之间的关系也可以利用此算法，就好比牙膏和牙刷，把二者放在同一个区域肯定是符合逻辑的。<br>二、连接分析：PageRank算法。这种算法更多应该是电商商品的相关性分析，例如淘宝，它在下面有一栏是猜你喜欢，链接到别的商品。<br>数据挖掘最关键的点：算法及其背后的数学原理。<br>难点：如何选择挖掘模型，我觉得这个需要通过实践→总结思考→再实践→再总结思考→......，不断地循环迭代的过程。</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">感谢分享，PageRank你可以抽象是PR的缩写，你应该知道PR值代表的什么？PR值是衡量一个事物影响力的指标。比如网站的PR值<br>Apriori算法是最直观的关联分析算法，它的提出是用来解决“购物篮问题”。同样你提到了“猜你喜欢”，这是个很好的思路，一般在电商网站里使用的是推荐算法，这个在后面我会讲到</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/ab/b5/d0c9088d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">德胜</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">KNN，Apriori，K-Means，EM感觉都可以用于电商物品关联</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">Apriori是更常用的“购物篮问题”解决方案，它的提出就是解决商品之间的关联关系。KNN是分类算法，和K-Means, EM这两种聚类算法还是有些区别。K-Means, EM这两个聚类方法在电商里做客群聚类比较多</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a3/ea/acb1eed3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">tinn</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师有推荐的关于数据分析方面的学习论坛或者博客吗？谢谢老师回复：）</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/23/f9/2eaf6d45.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">NaNa</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">Apriori和Pagerank</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/39/bb/12bd370d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">frazer</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">关联算法Apriori肯定是要用的</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的 这个场景是最常用的</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/fa/37/5cc4db27.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">可乐不甜</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">用朴素贝叶斯对商品关系进行分类</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/fa/37/5cc4db27.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">可乐不甜</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">数据挖掘算法很多，对其中一些算法有一定了解。但是不是这些算法就够了呢</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">算法有很多，还有随机森林，xgboost，逻辑回归，深度学习。文章中提到的10大算法是最经典的算法。其他算法在实际工作中，也会接触到。算法看起来很多，当你明白原理后，在python中就是一行代码的问题</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">风翱</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">Apriori和K-Means，聚类和关联。<br><br>看到其他人的回复，都是在说数据基础弱，或者基础较为一般。看课程，数据基础还是挺重要的。 请问这部分怎么补呢？ 还是后续的课程中会有对应的分析和补充相关的知识点和资料信息。</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/4d/51/b6833de8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">(｡•́︿•̀｡)面团</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">是不是用Apriori算法？两种商品如果经常一起出现，顾客买一种商品时推荐另一个应该会有不错的效果</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的，我的分享里主要提到了Apriori是用来解决这个问题的。当然，除了Apriori，你也可以考虑不同的维度，比如推荐算法，或者用聚类算法来考虑</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a4/95/958070a1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">白铉辰Baik Chenจุ๊บ</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">感觉很深奥呢…估计我要补的课要越来越多了。</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">慢慢来，现有个基本概念</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/wgXT18IR9icbX4ZhAHhjaRYnCr8OPoapcnWLIJwg1sgMgDcV6B3UApztkf6m2h2wI3MicY4oKvzXkvSgRlyTboVA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">larry</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">关联分析？</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">对的 关联分析是个比较显性的算法，Apriori算法的提出就是来解决这个问题的。当然在推荐算法里，除了关联分析，还有协同过滤。现在很多电商网站也会用到协同过滤，从而发现基于商品之间的关联关系</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a6/ee/08f0d325.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">三年二班邱小东</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师你好，我想问下数学原理里的知识都不太了解。需要怎么去学呢？</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">数学原理不太明白，我觉得不用太纠结。我尽量在后面的专栏里，用白话进行讲解。另外你自己也可以多动手实现下代码，从使用的角度上也会帮你进行提升。</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a4/b2/82261a34.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">陈波</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">从初步理解，Apriori 挖掘关联规则的算法，这个是答案，但是感觉不是绝对</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的！Apriori算法是关联规则挖掘的经典算法，当然也存在其他关联分析的算法。关联分析算法的创建就是用来解决“购物篮问题”。如果面试官问你这个题目，你回答这个就可以了。不过你可以考虑不同的维度，比如推荐算法，聚类算法，因为在实际工作中，你可能会使用到多个算法帮你解决不同问题。<br>比如在一个产品中，你会用到推荐算法帮你做商品推荐，也会用到聚类算法帮你来做客群分析，这些算法的结果都可能会对“购物篮问题”有帮助。</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/2d/58/aa35c402.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">无法言喻.</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">基于物品的协同过滤，用关联分析？</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">很好的思路，关联分析是最主要的，同时也可以从基于物品的协同过滤来考虑👍</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/28/72/99f7f63d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">凛冬里的匍匐者</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">任何技术都是为商业服务，数据分析也不例外，所以最重要的是商业理解，然后对产品或者服务的各种数据进行理解，划定数据源的范围。然后进行数据采集。再往后如何操作，还不清楚，希望跟着老师能够掌握。</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">慢慢来 后面都会掌握的</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/b3/22/cb76995f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">MJKlose</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">apriori算法，它是用来揭示物品的关联关系，在电商网站中，我们不希望用户只购买一件商品就走了，而是希望他能多购买几件，我们需要向用户推荐合适且关联关系强的商品，这样用户才会喜欢乐意购买</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">Apriori是常用的关联分析算法，通过也可以从推荐算法（协同过滤）的角度进行考虑</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/24/92/28a78e87.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">🎱</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">Apriori</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/0d/02/4f4484f6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Zahputor</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">我猜应该用Apriori算法</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTKGVWwZB0EwdiajI80w0pIkMRCZGUoAweqG9gVE5hkqkTkZfjTSia7Y9CpAcGMrKTo3UAbHktsFrhYQ/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">讲究人</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">应该是Apriori算法吧</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">对的 Apriori是常有的“购物篮问题”算法</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a1/49/a787ddaf.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">吴晓岚 jim wu</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">电商物品间的关联性可采用apriori算法</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Sksod3kiaC92GMwibjpPkRal3ovBBWia7Sr0fYlUJx2FeGeibIawaD8DicbjxF3WNPicqROwTKUQE0e9EQM4RHDqLUzA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">塔塔M</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">感觉老师的确在多维系统的讲解数据分析。商品的关联是用Apriori吗？矩阵已经多年没有接触，感觉理论与实际没有关联，所以大学是基本是放弃学习的。希望老师在后面讲解可以多举例子，举得像大海一样多～谢谢老师！</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/e4/21/eab2c0e6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">从0开始</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师你好，针对电商的挖掘我估计是Apriori算法。看了老师今天的文章，感觉自己的主要缺点还是在数学基础上，毕竟平时的工作中直接运用到的很少，对于这块的缺失，老师有什么建议吗？感谢老师做天留言的回复</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">感谢提问，我认为：<br>1、如果是直接使用，而不是做改进型的工作，数学平时运用的是很少<br>2、数学基础，可以帮你提升算法的质量。所以有时间可以培养下兴趣，从兴趣出发<br>3、有时间，我整理个白话数据挖掘的数学基础，针对数学基础不好的人。主要也是激发下兴趣</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/1c/a8/e9e2d1c9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">jinchao</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">Apriori</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a4/ba/befbdfae.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Patrick Pan</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">答案是不是K-Means？</div> <span class="time">2018-12-19</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">上面我讲了关联分析，这个是用来解决“购物篮问题”的，所以Apriori算法更适合。K-means用于做聚类，是一种思路，不过它的问题在于划分的会有些粗。很多时候，我们会用它做客群划分</p> <p class="reply-time">2018-12-19</p>
+	</div>
+</div>
+</li></ul></div></div></div></div><div id="translate-man-app" class="content-3WfBL_0" style="background-color: rgb(255, 255, 255); display: none;"><div data-v-ea0bd11e="" class="outputBox-qe9A4_0"><div data-v-ea0bd11e="" class="outputBox-3oESn_0"><span data-v-ea0bd11e="" class="outputBox-13Ovx_0"></span></div><div data-v-ea0bd11e="" class="outputBox-1GLb__0"><div data-v-ea0bd11e="" class="outputBox-onVZH_0"><img src="chrome-extension://fapgabkkfcaejckbfmfcdgnfefbmlion/static/sound.svg"            class="icon-tprjJ_0"></div></div><div data-v-ea0bd11e="" class="outputBox-2sJgr_0"></div><div data-v-ea0bd11e="" class="outputBox-17RAm_0" style="display: none;"><div data-v-ea0bd11e=""></div></div></div></div><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({        showProcessingMessages: false,        messageStyle: "none",        tex2jax: {          inlineMath: [['$','$'], ['\\(','\\)']],          displayMath: [ ["$$","$$"] ],          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'a']        }      });      MathJax.Hub.Register.MessageHook("End Process", function (message) {        var eve = new Event('mathjaxfini')        window.dispatchEvent(eve)      })</script></body></html>

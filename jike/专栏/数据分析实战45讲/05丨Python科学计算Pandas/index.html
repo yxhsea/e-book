@@ -1,0 +1,998 @@
+<html class="cye-disabled cye-lm"><head><meta charset="utf-8"><link rel="apple-touch-icon" sizes="180x180" href="http://static001.geekbang.org/static/icon/time/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="http://static001.geekbang.org/static/icon/time/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="http://static001.geekbang.org/static/icon/time/favicon-16x16.png"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="format-detection" content="telephone=no"><title>05丨Python科学计算：Pandas</title><link href="https://static001.geekbang.org/static/time/css/app.b230db929e53af87acd535637f5011b8.css" rel="stylesheet"><style id="nightModeStyle">    html.cye-enabled.cye-nm:not(*:-webkit-full-screen) body,html.cye-enabled.cye-nm:not(*:-webkit-full-screen) #cye-workaround-body {-webkit-filter:contrast(91%) brightness(84%) invert(1);}</style><style id="cyebody">html.cye-enabled.cye-lm body{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyediv">html.cye-enabled.cye-lm div{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyetable">html.cye-enabled.cye-lm th{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}html.cye-enabled.cye-lm td{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyetextInput">html.cye-enabled.cye-lm input[type=text]{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}html.cye-enabled.cye-lm textarea{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeselect">html.cye-enabled.cye-lm select{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeul">html.cye-enabled.cye-lm ul{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style id="cyeChangeByClick">html.cye-enabled.cye-lm .cye-lm-tag,html.cye-enabled.cye-lm.cye-lm-tag{background-color:#cce8cf !important;border-color:rgb(51, 58, 51) !important;background-image:none !important;color:#000000  !important}</style><style type="text/css">    .hljs-ln {      border-collapse: collapse    }    .hljs-ln td {      padding: 0    }    .hljs-ln-n:before {      content: attr(data-line-number)    }</style><style type="text/css">    #iv-container {      position: fixed;      background: #0d0d0d;      width: 100%;      height: 100%;      top: 0;      left: 0;      display: none;      z-index: 1000    }    .iv-container {      overflow: hidden    }    .iv-close {      width: 26px;      height: 26px;      position: absolute;      right: 20px;      top: 20px;      cursor: pointer;      text-align: center;      overflow: hidden;      text-shadow: 0 0 3px #6d6d6d;      -webkit-transition: all .2s ease;      -moz-transition: all ease .2s;      -o-transition: all ease .2s;      transition: all .2s ease    }    .iv-close:after,    .iv-close:before {      content: "";      height: 2px;      width: 26px;      background: #fff;      position: absolute;      left: 0;      top: 50%;      margin-top: -2px;      border-radius: 2px    }    .iv-close:before {      -webkit-transform: rotate(45deg);      -moz-transform: rotate(45deg);      -ms-transform: rotate(45deg);      -o-transform: rotate(45deg);      transform: rotate(45deg)    }    .iv-close:after {      -webkit-transform: rotate(-45deg);      -moz-transform: rotate(-45deg);      -ms-transform: rotate(-45deg);      -o-transform: rotate(-45deg);      transform: rotate(-45deg)    }    .iv-close:hover {      -webkit-transform: rotate(90deg);      -moz-transform: rotate(90deg);      -ms-transform: rotate(90deg);      -o-transform: rotate(90deg);      transform: rotate(90deg)    }    .iv-image-view {      position: absolute;      height: 100%;      width: 100%    }    .iv-image-wrap {      display: inline-block    }    .iv-image-wrap:active {      cursor: move    }    .iv-large-image {      cursor: move;      max-width: 100%;      max-height: 100%;      background-color: #ececec;      -moz-transform: translateZ(0);      -o-transform: translateZ(0)    }    .iv-large-image,    .iv-loader {      position: absolute;      -webkit-transform: translateZ(0);      -ms-transform: translateZ(0);      transform: translateZ(0)    }    .iv-loader {      top: 50%;      left: 50%;      border-radius: 50%;      width: 32px;      height: 32px;      z-index: 100;      margin-top: -16px;      margin-left: -16px;      font-size: 5px;      text-indent: -9999em;      border-top: 1em solid hsla(0, 0%, 100%, .2);      border-right: 1em solid hsla(0, 0%, 100%, .2);      border-bottom: 1em solid hsla(0, 0%, 100%, .2);      border-left: 1em solid #fff;      -webkit-animation: load8 1.1s infinite linear;      animation: load8 1.1s infinite linear    }    .iv-loader:after {      width: 10em;      height: 10em;      border-radius: 50%    }    @-webkit-keyframes load8 {      0% {        -webkit-transform: rotate(0deg);        transform: rotate(0deg)      }      to {        -webkit-transform: rotate(1turn);        transform: rotate(1turn)      }    }    @keyframes load8 {      0% {        -webkit-transform: rotate(0deg);        transform: rotate(0deg)      }      to {        -webkit-transform: rotate(1turn);        transform: rotate(1turn)      }    }</style><style type="text/css">    .vue-pull-to-wrapper[data-v-12abd9fb] {      display: -webkit-box;      display: -webkit-flex;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -webkit-flex-direction: column;      flex-direction: column;      height: 100%    }    .scroll-container[data-v-12abd9fb] {      -webkit-box-flex: 1;      -webkit-flex: 1;      flex: 1;      overflow-y: auto;      -webkit-overflow-scrolling: touch    }    .vue-pull-to-wrapper .action-block[data-v-12abd9fb] {      position: relative;      width: 100%    }    .default-text[data-v-12abd9fb] {      height: 100%;      line-height: 50px;      text-align: center    }</style><style type="text/css">    .button-cancel[data-v-87ffcada] {      color: #888;      border: 1px solid #888;      border-radius: 3px;      margin-right: 12px    }    .button-cancel[data-v-87ffcada],    .button-primary[data-v-87ffcada] {      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      height: 35px;      display: inline-block;      font-size: 15px;      text-align: center;      line-height: 36px    }    .button-primary[data-v-87ffcada] {      color: #fff;      background-color: #ff5a05;      border-radius: 3px    }    .article[data-v-87ffcada] {      max-width: 46.25rem;      margin: 0 auto    }    .article .article-unavailable[data-v-87ffcada] {      color: #fff;      text-align: center;      font-size: .875rem;      font-weight: 400;      width: 100%;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 0 15%;      height: 4.9rem;      background-image: url(data:image/jpeg;base64,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);      background-position: 0 0;      background-repeat: no-repeat;      background-size: cover;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center    }    .article .main[data-v-87ffcada] {      padding: 1.25rem 1.375rem;      margin-top: 52px;      margin-bottom: 52px    }    .article-title[data-v-87ffcada] {      color: #353535;      font-weight: 400;      line-height: 1.65rem;      font-size: 1.34375rem    }    .article-info[data-v-87ffcada] {      color: #888;      font-size: .9375rem;      margin-top: 1.0625rem    }    .article-content[data-v-87ffcada] {      margin-top: 1.0625rem    }    .article-content.android video[data-v-87ffcada]::-webkit-media-controls-fullscreen-button {      display: none    }    .audio-player[data-v-87ffcada] {      width: 100%;      margin: 20px 0    }    .to-comment[data-v-87ffcada] {      overflow: hidden;      margin-bottom: -30px    }    .to-comment a.button-primary[data-v-87ffcada] {      float: right;      height: 20px;      font-size: 12px;      line-height: 20px;      padding: 4px 8px;      cursor: pointer    }    .article-comments[data-v-87ffcada] {      margin-top: 2rem    }    .article-comments h2[data-v-87ffcada] {      text-align: center;      color: #888;      position: relative;      z-index: 1;      margin-bottom: 1rem    }    .article-comments h2[data-v-87ffcada]:before {      border-top: 1px dotted #888;      content: "";      position: absolute;      top: 56%;      left: 0;      width: 100%;      z-index: -1    }    .article-comments h2 span[data-v-87ffcada] {      font-size: 15.25px;      font-weight: 400;      padding: 0 1rem;      background: #fff;      display: inline-block    }    .article-sub-bottom[data-v-87ffcada] {      z-index: 10;      cursor: pointer    }    @media (max-width:769px) {      .article .breadcrumb[data-v-87ffcada] {        padding: 10px 0      }    }</style><style type="text/css">    .share-poster-wrapper {      position: fixed;      background-color: #fff;      left: 0;      bottom: 0;      z-index: 100;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      overflow: hidden;      width: 100%;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -moz-user-select: -moz-none;      -webkit-user-select: none;      -ms-user-select: none;      user-select: none    }    .share-poster-wrapper .poster-bottom,    .share-poster-wrapper .poster-middle,    .share-poster-wrapper .poster-top {      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .poster-middle {      padding: 16px 32px;      -webkit-box-sizing: border-box;      box-sizing: border-box    }    .share-poster-wrapper .poster-middle .poster-userinfo {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      padding-bottom: 18px    }    .share-poster-wrapper .poster-middle .poster-userinfo .poster-avatar {      min-width: 45px;      min-height: 45px;      width: 7vw;      height: 7vw;      border-radius: 50%;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .poster-middle .nickname {      font-size: 5vw;      font-weight: 400;      margin-left: 18px    }    .share-poster-wrapper .poster-middle .time {      font-size: 3.2vw    }    .share-poster-wrapper .poster-middle .poster-middle-content {      font-size: 4vw;      font-weight: 400;      white-space: normal;      word-wrap: break-word;      word-break: break-word;      letter-spacing: 1px    }    .share-poster-wrapper .poster-middle .poster-middle-content p {      margin-bottom: 22px    }    .share-poster-wrapper .poster-middle .quote-content {      font-size: 3.7vw;      padding: 32px 0    }    .share-poster-wrapper .poster-middle .quote-content p {      margin-bottom: 22px    }    .share-poster-wrapper .poster-middle .quote-info {      border-left: 1px solid #000;      padding-left: 10px;      margin-top: 38px    }    .share-poster-wrapper .poster-middle .quote-info p {      font-size: 3.2vw;      line-height: 1.5    }    .share-poster-wrapper.theme0 .poster-top {      width: 100%;      height: 25px;      margin-top: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/top.png") no-repeat 15px 1px    }    .share-poster-wrapper.theme0 .poster-middle {      width: 100%;      padding-left: 56px;      padding-right: 56px;      background-image: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/middle.png");      background-repeat: repeat-y;      background-position: 15px 0    }    .share-poster-wrapper.theme0 .poster-middle .time {      margin-bottom: 45px    }    .share-poster-wrapper.theme0 .poster-middle .quote-content {      border-top: 1px solid #e3e1dc;      margin-top: 30px    }    .share-poster-wrapper.theme0 .poster-bottom {      width: 100%;      height: 25px;      margin-bottom: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme1/bottom.png") no-repeat 15px -10px    }    .share-poster-wrapper.theme1 .poster-top {      width: 100%;      height: 25px;      margin-top: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/top.png") no-repeat 38px 1px    }    .share-poster-wrapper.theme1 .poster-middle {      width: 100%;      padding: 0 42px 10px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/middle.png") repeat-y 38px 0    }    .share-poster-wrapper.theme1 .poster-middle .poster-userinfo {      border-bottom: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .poster-userinfo .poster-avatar {      margin-left: 38px    }    .share-poster-wrapper.theme1 .poster-middle .poster-middle-wrapper {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      min-height: 260px;      border-bottom: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .time {      max-width: 65px;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      text-align: center;      vertical-align: middle;      border-right: 1px solid #b5a899    }    .share-poster-wrapper.theme1 .poster-middle .time span {      white-space: nowrap;      -webkit-transform: rotate(90deg);      transform: rotate(90deg)    }    .share-poster-wrapper.theme1 .poster-middle .poster-middle-content {      padding: 30px    }    .share-poster-wrapper.theme1 .poster-middle .quote-content {      font-size: 3.7vw;      margin-left: 36px;      margin-right: 36px    }    .share-poster-wrapper.theme1 .poster-middle .quote-info {      margin-left: 36px;      margin-right: 36px    }    .share-poster-wrapper.theme1 .poster-middle .footer {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      margin-right: 30px    }    .share-poster-wrapper.theme1 .poster-bottom {      width: 100%;      height: 25px;      margin-bottom: 27px;      background: url("https://static001.geekbang.org/static/time/page/img/sharePoster/theme0/bottom.png") no-repeat 38px -10px    }    .share-poster-wrapper .share-poster {      background: #fefdf8;      -webkit-box-sizing: border-box;      box-sizing: border-box;      color: #9b8d73;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      overflow: auto;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      -webkit-overflow-scrolling: touch;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .share-poster-wrapper .share-poster.color0 {      background-color: #fefdf8    }    .share-poster-wrapper .share-poster.color1 {      background-color: #4d4d4d    }    .share-poster-wrapper .share-poster .footer {      margin-top: 2rem;      position: relative;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: end;      -ms-flex-pack: end;      justify-content: flex-end;      -webkit-box-align: end;      -ms-flex-align: end;      align-items: flex-end    }    .share-poster-wrapper .share-poster .footer p {      margin: 0;      line-height: 1.4;      margin-left: 20px;      text-align: right;      padding-right: 20px    }    .share-poster-wrapper .controls {      background: #fff;      border-top: 1px solid #f5f5f5;      width: 100%;      padding-top: 5px;      -webkit-box-shadow: 0 -4px 10px 0 rgba(0, 0, 0, .1);      box-shadow: 0 -4px 10px 0 rgba(0, 0, 0, .1);      z-index: 1;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .controls>div {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: center;      -ms-flex-pack: center;      justify-content: center;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      padding: 10px 0    }    .share-poster-wrapper .controls>div span {      font-size: .85rem    }    .share-poster-wrapper .controls>div button {      width: 100px;      height: 24px;      background: #eee;      margin: 0 10px;      border-radius: 5px;      border: 2px solid #b2b2b2;      outline: none    }    .share-poster-wrapper .controls>div button.on {      border: 2px solid #ff5a05    }    .share-poster-wrapper .controls .controls-themes button {      color: #b2b2b2;      font-size: 12px;      background: #fff;      text-align: center    }    .share-poster-wrapper .controls .controls-themes button.on {      color: #ff5a05    }    .share-poster-wrapper .buttons {      background: #fff;      border-top: 1px solid #f5f5f5;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -ms-flex-negative: 0;      flex-shrink: 0    }    .share-poster-wrapper .buttons a {      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      text-align: center;      color: #000;      font-weight: 400;      height: 3rem;      line-height: 3rem    }    .share-poster-wrapper .buttons a:last-child {      border-left: 1px solid #f5f5f5    }    .share-poster-wrapper img {      max-width: 100%    }    .share-poster-wrapper.android .poster-middle .nickname {      font-size: 10vw    }    .share-poster-wrapper.android .poster-middle .time {      font-size: 6.4vw    }    .share-poster-wrapper.android .poster-middle .poster-middle-content {      font-size: 8vw    }    .share-poster-wrapper.android .poster-middle .quote-content {      font-size: 7.4vw    }    .share-poster-wrapper.android .poster-middle .quote-info p {      font-size: 6.4vw    }</style><style type="text/css">    .mobile-tips {      width: 100%;      height: 51px;      background: rgba(0, 0, 0, .8);      position: fixed;      top: 0;      left: 0;      z-index: 20;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 0 12px;      -webkit-transition: opacity .35s;      transition: opacity .35s;      opacity: 0;      pointer-events: none    }    .mobile-tips.istop {      opacity: 1;      pointer-events: auto    }    .mobile-tips .mobile-tips-info {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: start;      -ms-flex-pack: start;      justify-content: flex-start    }    .mobile-tips .mobile-tips-info i {      width: 36px;      height: 36px;      background-image: url(data:image/png;base64,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);      background-position: 0 0;      background-repeat: no-repeat;      background-size: contain;      border-radius: 7px    }    .mobile-tips .mobile-tips-info h2 {      font-size: 15px;      color: #fff;      font-weight: 400;      margin-left: 6px    }    .mobile-tips .mobile-tips-info h2 span {      font-size: 11px    }    .mobile-tips a {      width: 72px;      height: 31px;      text-align: center;      border: 1px solid #ff5a05;      border-radius: 3px;      font-size: 13px;      color: #ff5a05;      line-height: 31px    }</style><style type="text/css">    .mini-audio-player {      width: 100%;      height: 5.25rem;      border: 1px solid #d9d9d9;      background: #fafafa;      -webkit-box-sizing: border-box;      box-sizing: border-box;      padding: 1rem;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      margin: 1rem 0    }    .mini-audio-player>a {      border: none;      -ms-flex-negative: 0;      flex-shrink: 0    }    .mini-audio-player .btn-play {      background-image: url(data:image/png;base64,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)    }    .mini-audio-player .btn-pause,    .mini-audio-player .btn-play {      width: 2.6875rem;      height: 2.6875rem;      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain;      text-decoration: none    }    .mini-audio-player .btn-pause {      background-image: url(data:image/png;base64,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)    }    .mini-audio-player .audio-info {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1;      -webkit-box-orient: vertical;      -webkit-box-direction: normal;      -ms-flex-direction: column;      flex-direction: column;      margin-left: .6875rem;      min-width: 0    }    .mini-audio-player .audio-info h3 {      color: #353535;      font-size: 15.25px;      margin: 0;      white-space: nowrap;      overflow: hidden;      text-overflow: ellipsis    }    .mini-audio-player .audio-info p {      margin: 0;      margin-top: .125rem;      font-size: 11px;      line-height: 1rem    }    .mini-audio-player .audio-info p span {      color: #888    }    .mini-audio-player .btn-download {      width: 1.25rem;      height: 1.25rem;      position: relative;      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAA+CAYAAACbQR1vAAABS2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxMzggNzkuMTU5ODI0LCAyMDE2LzA5LzE0LTAxOjA5OjAxICAgICAgICAiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIi8+CiA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgo8P3hwYWNrZXQgZW5kPSJyIj8+IEmuOgAAA4hJREFUaIHtm8lOFFEUhr9qCWGHGxcaY1joK2h0YRzAtYmsWbAGGidEXOACbAYRxfgAPoEPoInGxJgg86gsJTHMw86EhS7O7TDk3uqq6qo6HahvQ7pOce7//1U0feve9vr6+lAiD3QC/4AC8FZDRJXGoMB14PWB1yPANPA1bSG5tAc0XLEcu5y6CvQCOGU5pnI3agVQMWQBaAvQJgtAW4A2WQDaArTJAtAWoE0WgLYAbbIAtAVokwWgLUCbLABtAdpkAfjU6oC7wKV0pCTCRcRDnesEVwDNwC/gg/nZHbeyFOgGltj30Gw7yRZALfAOqDavPeA50BO7xOToQTR75nU14qn26Im2AM4DNZbjz4DeePQlSi+i9Sg1iLdD2AJYApYdzbuo7BBeIBptLCPeDmELYA9oBHYdjbqQpaxKowA8ddR2gXuIt0O43gRHgTu4Q+ikskIoIJps7AINwA9b0e/fYJAQ1FZWD9CP2/wOUI/DPJT+IDRqGrhCeGIEaNEPdDhqO8iVH/NrEOST4BgSwo6j3gEMBOgTNwP4m6+nhHkI/lG4VAiPgcGAveJg0IxpYxvROh6kUZi5wLhpvO2oPyKdEF6asWyEMg/hJ0PjyN+VXwhDIXuGYQh46KhtIeYnwjSMMhss3glbjvoDkglhyPS2Eck8RJ8OTyB3gl8IryL2tjGM2/wmYn4ySuNyngdMmIE3HfX7iHDPUQ+CZ3q0O+qbyIWIZB7KfyAyaQS4QmhH7oQoIZQyv0EZV75IHE+EJvG/E9oJfyd4yC6yvKO+gQQ/FaKnlbgeiU0hIWw46nnEUJAQiubbHPV1M1bZ5iHeZ4KlQmgD3uAfgofsGfQz34DsKYyFuLemTSMhfATOWOqtiMk/llrRfIuj9zpwG5gtX+Y+SezNK4bwCXsILdgDaAXOOnomYh6Seyw+gwhed9TPWY75mb9FAuYh2XWBWUS4K4QgrAE3gblYFFlIemFkDjEQJYQ1JMD5WBUdIY2VoXkkhLUQv7NqfidR85De0liYEFaRK7+QqCJDmmuDC0gIqz7nrJhzUjEP6S+O+oWwglz5xTQFaawOLwI3gO8Hjo2ZY6maB72vzPwErgEXkO8MuVaiEkcrgCK/lcfPNkhkAWgL0KYKmZiMIG9Ktn0Bx5G/wDcgXwW8R6avJ41G4HQOufInlas5ZO5+UpnJAU3AFyy7J44xe8BnoOk/JruwYo92bigAAAAASUVORK5CYII=);      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain;      text-decoration: none;      padding-right: .25rem    }    .mini-audio-player .btn-download .icon-download-done {      width: .45rem;      height: .45rem;      position: absolute;      bottom: 0;      right: 0;      display: inline-block;      background-image: url(data:image/png;base64,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);      background-repeat: no-repeat;      background-position: 0 0;      background-size: contain    }</style><style type="text/css">    .MathJax_Display {      overflow: auto    }    .poster {      position: fixed;      left: -10000px;      top: -10000px;      overflow: hidden;      padding: 1rem;      background: #ececec    }    .richcontent-pre-copy {      font-size: 13px;      color: #888;      position: absolute;      right: 1em;      top: .2em;      cursor: pointer;      -webkit-user-select: none;      -moz-user-select: none;      -ms-user-select: none;      user-select: none    }    .richcontent-pre-copy .iconfont {      font-size: 12px;      margin-right: .2em    }</style><style type="text/css">    .comment-item {      list-style-position: inside;      width: 100%;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      margin-bottom: 1rem    }    .comment-item a {      border-bottom: none    }    .comment-item .avatar {      width: 2.625rem;      height: 2.625rem;      -ms-flex-negative: 0;      flex-shrink: 0;      border-radius: 50%    }    .comment-item .info {      margin-left: .5rem;      -webkit-box-flex: 1;      -ms-flex-positive: 1;      flex-grow: 1    }    .comment-item .info .hd {      width: 100%;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-pack: justify;      -ms-flex-pack: justify;      justify-content: space-between;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .comment-item .info .hd .username {      color: #888;      font-size: 15.25px;      font-weight: 400;      line-height: 1.2    }    .comment-item .info .hd .control {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center    }    .comment-item .info .hd .control .btn-share {      color: #888;      font-size: .75rem;      margin-right: 1rem    }    .comment-item .info .hd .control .btn-praise {      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      font-size: 15.25px;      text-decoration: none    }    .comment-item .info .hd .control .btn-praise i {      color: #888;      display: inline-block;      font-size: .75rem;      margin-right: .3rem;      margin-top: -.01rem    }    .comment-item .info .hd .control .btn-praise i.on,    .comment-item .info .hd .control .btn-praise span {      color: #ff5a05    }    .comment-item .info .bd {      color: #353535;      font-size: 15.25px;      font-weight: 400;      white-space: normal;      word-break: break-all;      line-height: 1.6    }    .comment-item .info .time {      color: #888;      font-size: 9px;      line-height: 1    }    .comment-item .info .reply .reply-hd {      font-size: 15.25px    }    .comment-item .info .reply .reply-hd span {      margin-left: -12px;      color: #888;      font-weight: 400    }    .comment-item .info .reply .reply-hd i {      color: #ff5a05;      font-size: 15.25px    }    .comment-item .info .reply .reply-content {      color: #353535;      font-size: 15.25px;      font-weight: 400;      white-space: normal;      word-break: break-all    }    .comment-item .info .reply .reply-time {      color: #888;      font-size: 9px    }</style><style type="text/css">    .breadcrumb {      padding: 30px 0;      display: -webkit-box;      display: -ms-flexbox;      display: flex;      -webkit-box-orient: horizontal;      -webkit-box-direction: normal;      -ms-flex-direction: row;      flex-direction: row;      -webkit-box-align: center;      -ms-flex-align: center;      align-items: center;      -ms-flex-wrap: wrap;      flex-wrap: wrap;      background: #fff    }    .breadcrumb a.title {      color: #e57c39;      font-size: 15px;      font-weight: 400    }    .breadcrumb span.title {      color: #888;      font-size: 15px;      font-weight: 400    }    .breadcrumb .split {      color: #ccc;      font-size: 10px;      margin-right: 5px    }</style></head><body style=""><div id="app"><div data-v-87ffcada="" class="article"><div data-v-87ffcada="" class="main main-app" style="margin-top: 0px;"><h1 data-v-87ffcada="" class="article-title">          05丨Python科学计算：Pandas</h1><div data-v-87ffcada="" class="article-info"><span data-v-87ffcada="">2018-12-24</span><span data-v-87ffcada="">陈旸</span></div><div data-v-87ffcada="" class="article-content typo common-content"><img data-v-87ffcada="" src="https://static001.geekbang.org/resource/image/d0/ec/d05de7616d91d99c3afe11ebd66497ec.jpg"><div data-v-87ffcada="" class="mini-audio-player"><a href="javascript:;" class="btn-play"></a><div class="audio-info"><h3>05丨Python科学计算：Pandas</h3><p><span>朗读人：秭明&nbsp;&nbsp;&nbsp;</span><span>00:09:16 | 8701</span></p></div><audio title="05丨Python科学计算：Pandas" src="https://static001.geekbang.org/resource/audio/a5/7b/a57cce18f0bf45f73b440a355ea9a37b.mp3" controls="controls"></audio></div><div data-v-87ffcada="" id="article-content" class=""><div class="text">              <p>上一章中，我们讲了Python的一个重要的第三方库NumPy，今天我来给你介绍Python的另一个工具Pandas。</p><p>在数据分析工作中，Pandas的使用频率是很高的，一方面是因为Pandas提供的基础数据结构DataFrame与json的契合度很高，转换起来就很方便。另一方面，如果我们日常的数据清理工作不是很复杂的话，你通常用几句Pandas代码就可以对数据进行规整。</p><p>Pandas可以说是基于 NumPy 构建的含有更高级数据结构和分析能力的工具包。在NumPy中数据结构是围绕ndarray展开的，那么在Pandas中的核心数据结构是什么呢？</p><p>下面主要给你讲下<strong>Series和 DataFrame这两个核心数据结构</strong>，他们分别代表着一维的序列和二维的表结构。基于这两种数据结构，Pandas可以对数据进行导入、清洗、处理、统计和输出。</p><h2>数据结构：Series和DataFrame</h2><p><strong>Series是个定长的字典序列</strong>。说是定长是因为在存储的时候，相当于两个ndarray，这也是和字典结构最大的不同。因为在字典的结构里，元素的个数是不固定的。</p><p><strong>Series</strong>有两个基本属性：index 和 values。在Series结构中，index默认是0,1,2,……递增的整数序列，当然我们也可以自己来指定索引，比如index=[‘a’, ‘b’, ‘c’, ‘d’]。</p><!-- [[[read_end]]] --><pre><code>import pandas as pd
+from pandas import Series, DataFrame
+x1 = Series([1,2,3,4])
+x2 = Series(data=[1,2,3,4], index=['a', 'b', 'c', 'd'])
+print x1
+print x2
+</code></pre><p>运行结果：</p><pre><code>0    1
+1    2
+2    3
+3    4
+dtype: int64
+a    1
+b    2
+c    3
+d    4
+dtype: int64
+</code></pre><p>这个例子中，x1中的index采用的是默认值，x2中index进行了指定。我们也可以采用字典的方式来创建Series，比如：</p><pre><code>d = {'a':1, 'b':2, 'c':3, 'd':4}
+x3 = Series(d)
+print x3 
+</code></pre><p>运行结果：</p><pre><code>a    1
+b    2
+c    3
+d    4
+dtype: int64
+</code></pre><p><strong>DataFrame类型数据结构类似数据库表。</strong></p><p>它包括了行索引和列索引，我们可以将DataFrame 看成是由相同索引的Series组成的字典类型。</p><p>我们虚构一个王者荣耀考试的场景，想要输出几位英雄的考试成绩：</p><pre><code>import pandas as pd
+from pandas import Series, DataFrame
+data = {'Chinese': [66, 95, 93, 90,80],'English': [65, 85, 92, 88, 90],'Math': [30, 98, 96, 77, 90]}
+df1= DataFrame(data)
+df2 = DataFrame(data, index=['ZhangFei', 'GuanYu', 'ZhaoYun', 'HuangZhong', 'DianWei'], columns=['English', 'Math', 'Chinese'])
+print df1
+print df2
+</code></pre><p>在后面的案例中，我一般会用df, df1, df2这些作为DataFrame数据类型的变量名，我们以例子中的df2为例，列索引是[‘English’, ‘Math’, ‘Chinese’]，行索引是[‘ZhangFei’, ‘GuanYu’, ‘ZhaoYun’, ‘HuangZhong’, ‘DianWei’]，所以df2的输出是：</p><pre><code>            English  Math  Chinese
+ZhangFei         65    30       66
+GuanYu           85    98       95
+ZhaoYun          92    96       93
+HuangZhong       88    77       90
+DianWei          90    90       80
+</code></pre><p>在了解了Series和 DataFrame这两个数据结构后，我们就从数据处理的流程角度，来看下他们的使用方法。</p><h2>数据导入和输出</h2><p>Pandas允许直接从xlsx，csv等文件中导入数据，也可以输出到xlsx, csv等文件，非常方便。</p><pre><code>import pandas as pd
+from pandas import Series, DataFrame
+score = DataFrame(pd.read_excel('data.xlsx'))
+score.to_excel('data1.xlsx')
+print score
+</code></pre><p>需要说明的是，在运行的过程可能会存在缺少xlrd和openpyxl包的情况，到时候如果缺少了，可以在命令行模式下使用“pip install”命令来进行安装。</p><h2>数据清洗</h2><p>数据清洗是数据准备过程中必不可少的环节，Pandas也为我们提供了数据清洗的工具，在后面数据清洗的章节中会给你做详细的介绍，这里简单介绍下Pandas在数据清洗中的使用方法。</p><p>我还是以上面这个王者荣耀的数据为例。</p><pre><code>data = {'Chinese': [66, 95, 93, 90,80],'English': [65, 85, 92, 88, 90],'Math': [30, 98, 96, 77, 90]}
+df2 = DataFrame(data, index=['ZhangFei', 'GuanYu', 'ZhaoYun', 'HuangZhong', 'DianWei'], columns=['English', 'Math', 'Chinese'])
+</code></pre><p><strong>在数据清洗过程中，一般都会遇到以下这几种情况，下面我来简单介绍一下。</strong></p><p><strong>1. 删除 DataFrame 中的不必要的列或行</strong></p><p>Pandas提供了一个便捷的方法 drop() 函数来删除我们不想要的列或行。比如我们想把“语文”这列删掉。</p><pre><code>df2 = df2.drop(columns=['Chinese'])
+</code></pre><p>想把“张飞”这行删掉。</p><pre><code>df2 = df2.drop(index=['ZhangFei'])
+</code></pre><p><strong>2. 重命名列名columns，让列表名更容易识别</strong></p><p>如果你想对DataFrame中的columns进行重命名，可以直接使用rename(columns=new_names, inplace=True) 函数，比如我把列名Chinese改成YuWen，English改成YingYu。</p><pre><code>df2.rename(columns={'Chinese': 'YuWen', 'English': 'Yingyu'}, inplace = True)
+</code></pre><p><strong>3. 去重复的值</strong></p><p>数据采集可能存在重复的行，这时只要使用drop_duplicates()就会自动把重复的行去掉。</p><pre><code>df = df.drop_duplicates() #去除重复行
+</code></pre><p><strong>4. 格式问题</strong></p><p><strong>更改数据格式</strong></p><p>这是个比较常用的操作，因为很多时候数据格式不规范，我们可以使用astype函数来规范数据格式，比如我们把Chinese字段的值改成str类型，或者int64可以这么写：</p><pre><code>df2['Chinese'].astype('str') 
+df2['Chinese'].astype(np.int64) 
+</code></pre><p><strong>数据间的空格</strong></p><p>有时候我们先把格式转成了str类型，是为了方便对数据进行操作，这时想要删除数据间的空格，我们就可以使用strip函数：</p><pre><code>#删除左右两边空格
+df2['Chinese']=df2['Chinese'].map(str.strip)
+#删除左边空格
+df2['Chinese']=df2['Chinese'].map(str.lstrip)
+#删除右边空格
+df2['Chinese']=df2['Chinese'].map(str.rstrip)
+</code></pre><p>如果数据里有某个特殊的符号，我们想要删除怎么办？同样可以使用strip函数，比如Chinese字段里有美元符号，我们想把这个删掉，可以这么写：</p><pre><code>df2['Chinese']=df2['Chinese'].str.strip('$')
+</code></pre><p><strong>大小写转换</strong></p><p>大小写是个比较常见的操作，比如人名、城市名等的统一都可能用到大小写的转换，在Python里直接使用upper(), lower(), title()函数，方法如下：</p><pre><code>#全部大写
+df2.columns = df2.columns.str.upper()
+#全部小写
+df2.columns = df2.columns.str.lower()
+#首字母大写
+df2.columns = df2.columns.str.title()
+</code></pre><p><strong>查找空值</strong></p><p>数据量大的情况下，有些字段存在空值NaN的可能，这时就需要使用Pandas中的isnull函数进行查找。比如，我们输入一个数据表如下：</p><p><img src="https://static001.geekbang.org/resource/image/34/ab/3440abb73e91e9f7a41dc2fbfeea44ab.png" alt=""><br>
+如果我们想看下哪个地方存在空值NaN，可以针对数据表df进行df.isnull()，结果如下：</p><p><img src="https://static001.geekbang.org/resource/image/5b/fe/5b52bca4eb6f00d51f72dcc5c6ce2afe.png" alt=""></p><p>如果我想知道哪列存在空值，可以使用df.isnull().any()，结果如下：</p><p><img src="https://static001.geekbang.org/resource/image/89/03/89cb71afc4f54a11ce1d4d05cd46bb03.png" alt=""></p><h2>使用apply函数对数据进行清洗</h2><p>apply函数是Pandas中<strong>自由度非常高的函数</strong>，使用频率也非常高。</p><p>比如我们想对name列的数值都进行大写转化可以用：</p><pre><code>df['name'] = df['name'].apply(str.upper)
+</code></pre><p>我们也可以定义个函数，在apply中进行使用。比如定义double_df函数是将原来的数值*2进行返回。然后对df1中的“语文”列的数值进行*2处理，可以写成：</p><pre><code>def double_df(x):
+           return 2*x
+df1[u'语文'] = df1[u'语文'].apply(double_df)
+</code></pre><p>我们也可以定义更复杂的函数，比如对于DataFrame，我们新增两列，其中’new1’列是“语文”和“英语”成绩之和的m倍，'new2’列是“语文”和“英语”成绩之和的n倍，我们可以这样写：</p><pre><code>def plus(df,n,m):
+    df['new1'] = (df[u'语文']+df[u'英语']) * m
+    df['new2'] = (df[u'语文']+df[u'英语']) * n
+    return df
+df1 = df1.apply(plus,axis=1,args=(2,3,))
+</code></pre><p>其中axis=1代表按照列为轴进行操作，axis=0代表按照行为轴进行操作，args是传递的两个参数，即n=2, m=3，在plus函数中使用到了n和m，从而生成新的df。</p><h2>数据统计</h2><p>在数据清洗后，我们就要对数据进行统计了。</p><p>Pandas和NumPy一样，都有常用的统计函数，如果遇到空值NaN，会自动排除。</p><p>常用的统计函数包括：</p><p><img src="https://static001.geekbang.org/resource/image/34/00/343ba98c1322dc0c013e07c87b157a00.jpg" alt=""></p><p>表格中有一个describe()函数，统计函数千千万，describe()函数最简便。它是个统计大礼包，可以快速让我们对数据有个全面的了解。下面我直接使用df1.descirbe()输出结果为：</p><pre><code>df1 = DataFrame({'name':['ZhangFei', 'GuanYu', 'a', 'b', 'c'], 'data1':range(5)})
+print df1.describe()
+</code></pre><p><img src="https://static001.geekbang.org/resource/image/e4/83/e4a7a208a11d60dbcda6f3dbaff9a583.png" alt=""></p><h2>数据表合并</h2><p>有时候我们需要将多个渠道源的多个数据表进行合并，一个DataFrame相当于一个数据库的数据表，那么多个DataFrame数据表的合并就相当于多个数据库的表合并。</p><p>比如我要创建两个DataFrame：</p><pre><code>df1 = DataFrame({'name':['ZhangFei', 'GuanYu', 'a', 'b', 'c'], 'data1':range(5)})
+df2 = DataFrame({'name':['ZhangFei', 'GuanYu', 'A', 'B', 'C'], 'data2':range(5)})
+</code></pre><p>两个DataFrame数据表的合并使用的是merge()函数，有下面5种形式：</p><p><strong>1. 基于指定列进行连接</strong></p><p>比如我们可以基于name这列进行连接。</p><pre><code>df3 = pd.merge(df1, df2, on='name')
+</code></pre><p><img src="https://static001.geekbang.org/resource/image/22/2f/220ce1ea19c8f6f2668d3a8122989c2f.png" alt=""></p><p><strong>2. inner内连接</strong></p><p>inner内链接是merge合并的默认情况，inner内连接其实也就是键的交集，在这里df1, df2相同的键是name，所以是基于name字段做的连接：</p><pre><code>df3 = pd.merge(df1, df2, how='inner')
+</code></pre><p><img src="https://static001.geekbang.org/resource/image/22/2f/220ce1ea19c8f6f2668d3a8122989c2f.png" alt=""></p><p><strong>3. left左连接</strong></p><p>左连接是以第一个DataFrame为主进行的连接，第二个DataFrame作为补充。</p><pre><code>df3 = pd.merge(df1, df2, how='left')
+</code></pre><p><img src="https://static001.geekbang.org/resource/image/90/ac/9091a7406d5aa7a2980328d587fb42ac.png" alt=""></p><p><strong>4. right右连接</strong></p><p>右连接是以第二个DataFrame为主进行的连接，第一个DataFrame作为补充。</p><pre><code>df3 = pd.merge(df1, df2, how='right')
+</code></pre><p><img src="https://static001.geekbang.org/resource/image/10/af/10f9f22f66f3745381d85d760f857baf.png" alt=""></p><p><strong>5. outer外连接</strong></p><p>外连接相当于求两个DataFrame的并集。</p><pre><code>df3 = pd.merge(df1, df2, how='outer')
+</code></pre><p><img src="https://static001.geekbang.org/resource/image/67/8c/6737f6d4d66af0d75734cd140b5d198c.png" alt=""></p><h2>如何用SQL方式打开Pandas</h2><p>Pandas的DataFrame数据类型可以让我们像处理数据表一样进行操作，比如数据表的增删改查，都可以用Pandas工具来完成。不过也会有很多人记不住这些Pandas的命令，相比之下还是用SQL语句更熟练，用SQL对数据表进行操作是最方便的，它的语句描述形式更接近我们的自然语言。</p><p>事实上，在Python里可以直接使用SQL语句来操作Pandas。</p><p>这里给你介绍个工具：pandasql。</p><p>pandasql 中的主要函数是 sqldf，它接收两个参数：一个SQL 查询语句，还有一组环境变量globals()或locals()。这样我们就可以在Python里，直接用SQL语句中对DataFrame进行操作，举个例子：</p><pre><code>import pandas as pd
+from pandas import DataFrame
+from pandasql import sqldf, load_meat, load_births
+df1 = DataFrame({'name':['ZhangFei', 'GuanYu', 'a', 'b', 'c'], 'data1':range(5)})
+pysqldf = lambda sql: sqldf(sql, globals())
+sql = &quot;select * from df1 where name ='ZhangFei'&quot;
+print pysqldf(sql)
+</code></pre><p>运行结果：</p><pre><code>   data1      name
+0      0  ZhangFei
+</code></pre><p>上面这个例子中，我们是对“name='ZhangFei”“的行进行了输出。当然你会看到我们用到了lambda，lambda在python中算是使用频率很高的，那lambda是用来做什么的呢？它实际上是用来定义一个匿名函数的，具体的使用形式为：</p><pre><code> lambda argument_list: expression
+</code></pre><p>这里argument_list是参数列表，expression是关于参数的表达式，会根据expression表达式计算结果进行输出返回。</p><p>在上面的代码中，我们定义了：</p><pre><code>pysqldf = lambda sql: sqldf(sql, globals())
+</code></pre><p>在这个例子里，输入的参数是sql，返回的结果是sqldf对sql的运行结果，当然sqldf中也输入了globals全局参数，因为在sql中有对全局参数df1的使用。</p><h2>总结</h2><p>和NumPy一样，Pandas有两个非常重要的数据结构：Series和DataFrame。使用Pandas可以直接从csv或xlsx等文件中导入数据，以及最终输出到excel表中。</p><p>我重点介绍了数据清洗中的操作，当然Pandas中同样提供了多种数据统计的函数。</p><p>最后我们介绍了如何将数据表进行合并，以及在Pandas中使用SQL对数据表更方便地进行操作。</p><p>Pandas包与NumPy工具库配合使用可以发挥巨大的威力，正是有了Pandas工具，Python做数据挖掘才具有优势。</p><p><img src="https://static001.geekbang.org/resource/image/74/cd/74884960677548b08acdc919c13460cd.jpg" alt=""></p><p>我们来回顾一下今天的内容，在Pandas中，最主要的数据结构是什么？它都提供了哪些函数，可以帮我们做数据清洗？你可以自己描述一下吗？</p><h2>练习题</h2><p>对于下表的数据，请使用Pandas中的DataFrame进行创建，并对数据进行清洗。同时新增一列“总和”计算每个人的三科成绩之和。</p><p><img src="https://static001.geekbang.org/resource/image/25/80/25b34b3f6227a945500074e05ea49e80.png" alt=""><br>
+欢迎在评论区与我分享你的答案。</p><p>如果你觉着这篇文章有价值，欢迎点击“请朋友读”，把这篇文章分享给你的朋友或者同事。</p><p><img src="https://static001.geekbang.org/resource/image/48/96/48cb89aa8c4858bbc18df3b3ac414496.jpg" alt=""></p></div></div></div><div data-v-87ffcada="" class="article-comments"><h2 data-v-87ffcada=""><span data-v-87ffcada="">精选留言</span></h2><ul data-v-87ffcada="">            <li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/af/a9/e24380a0.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">何楚</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>19</span></a></div>
+	</div>
+	<div class="bd">#!&#47;usr&#47;bin&#47;env python3<br># -*- coding: utf-8 -*-<br><br>import pandas as pd<br><br>data = {&#39;Chinese&#39;: [66, 95, 93, 90, 80, 80], &#39;English&#39;: [65, 85, 92, 88, 90, 90],<br>        &#39;Math&#39;: [None, 98, 96, 77, 90, 90]}<br>df = pd.DataFrame(data, index=[&#39;张飞&#39;, &#39;关羽&#39;, &#39;赵云&#39;, &#39;黄忠&#39;, &#39;典韦&#39;, &#39;典韦&#39;],<br>                  columns=[&#39;English&#39;, &#39;Math&#39;, &#39;Chinese&#39;])<br># 去除重复行<br>df = df.drop_duplicates()<br># 列名重新排序<br>cols = [&#39;Chinese&#39;, &#39;English&#39;, &#39;Math&#39;]<br>df = df.filter(cols, axis=1)<br># 列名改为中文<br>df.rename(columns={&#39;Chinese&#39;: &#39;语文&#39;, &#39;English&#39;: &#39;英语&#39;,<br>                   &#39;Math&#39;: &#39;数学&#39;}, inplace=True)<br><br><br>def total_score(df):<br>    df[&#39;总分&#39;] = df[&#39;语文&#39;] + df[&#39;英语&#39;] + df[&#39;数学&#39;]<br>    return df<br><br><br># 求成绩的和，用老师讲的 apply 方法<br>df = df.apply(total_score, axis=1)<br># 或者可以用这个方法求和<br># df[&#39;总分&#39;] = df[&#39;语文&#39;] + df[&#39;英语&#39;] + df[&#39;数学&#39;]<br># 按照总分排序，从高到低，此时有缺失值<br>df.sort_values([&#39;总分&#39;], ascending=[False], inplace=True)<br># 打印显示成绩单信息，张飞有空值<br>print(df.isnull().sum())<br>print(df.describe())<br>print(df)<br><br># 使用数学成绩均值填充张飞同学的缺失值<br>df[&#39;数学&#39;].fillna(df[&#39;数学&#39;].mean(), inplace=True)<br># 再次求成绩的和并打印显示成绩单情况<br>df = df.apply(total_score, axis=1)<br>print(df.isnull().sum())<br>print(df.describe())<br>print(df)<br></div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">整理的不错，终于看到张飞的数学成绩 按照平均值来补全的了</p> <p class="reply-time">2018-12-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a1/f4/5e562863.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">自导自演</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>18</span></a></div>
+	</div>
+	<div class="bd">老师能换3.x版本的吗？一堆2.x问题一直卡着好难受。</div> <span class="time">2018-12-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/b4/e4/7c16516d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">大萌</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>7</span></a></div>
+	</div>
+	<div class="bd">另外推荐一个链接：https:&#47;&#47;www.cnblogs.com&#47;nxld&#47;p&#47;6756492.html<br>很实用，里面记载了许多python常使用的方法</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/6f/20/53cb569d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">daydreamer</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>4</span></a></div>
+	</div>
+	<div class="bd">&quot;&quot;&quot;<br>Pandas中有Series和DataFrame两种重要的数据结构。<br>    Series：是一个定长的字典序列。有两个基本属性：index，values<br>    DataFrame：类似于数据库表的一种数据结构。我们甚至可以像操作数据库表那样对DataFrame数据进行<br>    连接，合并，查询等等<br>    常用DataFrame进行数据清晰：用到的发方法有:<br>        去重删除：drop()，drop_duplicates(),rename()<br>        去空格：strip(),lstrip(),rstrip()<br>        变换大小写：upper(),lower(),title()<br>        改变数据格式：astype()<br>        查找空值：lsnull<br>        apply<br><br><br>&quot;&quot;&quot;<br>from pandas import DataFrame<br><br># Scores of students<br>scores = {&#39;Chinese&#39;: [66, 95, 95, 90, 80, 80],<br>          &#39;English&#39;: [65, 85, 92, 80, 90, 90],<br>          &#39;Math&#39;: [None, 98, 96, 77, 90, 90],<br>          &#39;Total&#39;: [None, None, None, None, None, None]}<br>df = DataFrame(scores, index=[&#39;Zhang Fei&#39;, &#39;Guan Yu&#39;, &#39;Zhao Yun&#39;, &#39;Huang Zhong&#39;, &#39;Dian Wei&#39;,&#39;Dian Wei&#39;],)<br><br># Data ckeaning.<br># remove the duplicated record.<br>df = df.drop_duplicates()<br># print(df)<br><br># Calculate the total scores.<br>df[&#39;Total&#39;] = df.sum(axis=1)<br>print(df.describe())</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">df[&#39;Total&#39;] = df.sum(axis=1) 这个求和写的还是挺简洁的</p> <p class="reply-time">2018-12-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/f9/ce/d6bc5691.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">吴舒成</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>4</span></a></div>
+	</div>
+	<div class="bd">大家以后放代码时能不能写明自己的软件环境啊，方便交流啊</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a9/32/eb71b457.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Grandia_Z</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">照着老师写 df2 = df2.drop(columns=[&#39;Chinese&#39;]) 这行代码后,返回结果是:<br>TypeError                                 Traceback (most recent call last)<br>&lt;ipython-input-25-8116650c61ac&gt; in &lt;module&gt;()<br>----&gt; 1 df2 = df2.drop(columns=[&#39;Chinese&#39;])<br><br>TypeError: drop() got an unexpected keyword argument &#39;columns&#39;<br><br>这个什么意思<br></div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">我运行没有问题，是正确的。我使用的是py2.7版本，另外你在开头引用了 DataFrame和pandas工具包了么<br>你可以联系编辑，加微信群，我帮你看下</p> <p class="reply-time">2018-12-24</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/b4/e4/7c16516d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">大萌</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">Pandas最主要的两个数据结构：Series，DataFrame<br>Series提供：index,values,map<br>DataFrame常用的函数：<br>- describe()  统计性描述<br>- drop_duplicates() 删除重复行<br>- rename(columns=...) 更名<br>- dropna()  删除具有空的行<br>- isnull()  判断空值<br>- fillna() 填充空值 <br>- apply()  应用函数<br>- merge() 合并df<br>- value_counts() 统计某列的各类型个数<br>- read_excel() to_excel() 读取和保存excel<br>- set_index() 设置索引<br>- cut 分组<br><br>代码，工具jupyter notebook：<br>import pandas as pd<br>from pandas import DataFrame,Series<br>import numpy as np<br><br>grades = {&#39;Chinese&#39;:[66,95,95,90,80,80],&#39;English&#39;:[65,85,92,88,90,90],&#39;Math&#39;:[np.nan,98,96,77,90,90]} #定义成绩字典<br>df1 = DataFrame(grades,index=[&#39;zhangfei&#39;,&#39;guanyu&#39;,&#39;zhaoyun&#39;,&#39;huangzhong&#39;,&#39;machao&#39;,&#39;machao&#39;]) #创建DataFrame<br><br>df1.describe()<br>df1.isnull().any() #查看哪一列有空值<br><br>df1.dropna(inplace=True) #去除空值<br>df1.drop_duplicates(inplace=True)  #去除重复值<br>df1.rename(columns={&#39;Chinese&#39;:&#39;YuWen&#39;,&#39;English&#39;:&#39;YingYu&#39;,&#39;Math&#39;:&#39;ShuXue&#39;},inplace=True) #更名<br><br>df1[&#39;ZongFen&#39;] = df1.YingYu+df1.YuWen+df1.ShuXue #计算总分<br>df1</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/28/9c/73e76b19.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">姜戈</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd"># -*- coding: utf-8 -*-<br>import pandas as pd<br>from pandas import Series, DataFrame<br><br>data={&#39;语文&#39;:[66, 95, 95, 90, 80, 80],&#39;英语&#39;:[65, 85, 92, 88, 90,90], &#39;数学&#39;:[&#39;&#39;, 98, 96, 77, 90, 90]}<br>df1 = DataFrame(data, index=[&#39;张飞&#39;, &#39;关羽&#39;, &#39;赵云&#39;,&#39;刘备&#39;,&#39;典韦&#39;,&#39;典韦&#39;], columns=[&#39;语文&#39;,&#39;英语&#39;,&#39;数学&#39;])<br>print df1<br>df1 = df1.drop_duplicates()<br>print df1<br><br>df = df1.replace(to_replace=&#39;&#39;, value=0)<br><br>print df<br><br>df[&#39;总计&#39;]=df[&#39;语文&#39;]+df[&#39;英语&#39;]+df[&#39;数学&#39;]<br>df.replace(to_replace=0, value=&#39;&#39;, inplace=True)<br>print df</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">整理的OK，基本上清洗的过程都会把重复的行去掉。针对张飞的数学成绩，既可以按照0统计，也可以按照其他人的平均值来统计（考虑可能是统计缺失，而非真正为0）</p> <p class="reply-time">2018-12-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/0c/0f/93d1c8eb.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">mickey</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">#!&#47;usr&#47;bin&#47;python<br># vim: set fileencoding:utf-8<br>&#39;&#39;&#39;<br>1.对于下表的数据，请使用Pandas中的DataFrame进行创建，并对数据进行清洗。<br>2.同时新增一列“总和”计算每个人的三科成绩之和。<br>&#39;&#39;&#39;<br>import pandas as pd<br>from pandas import DataFrame<br><br># 导入成绩<br>data = pd.read_excel(u&#39;成绩表.xlsx&#39;)<br>df = DataFrame(data)<br>print df<br><br><br># 求和，并增加一列“总和”<br>def addtotal(df):<br>    df[u&#39;总和&#39;] = df[u&#39;语文&#39;] + df[u&#39;英语&#39;] + df[u&#39;数学&#39;]<br>    return df<br><br><br># 清洗为空的数据<br>df1 = df.dropna()<br><br># 清洗重复的数据<br>df1 = df1.drop_duplicates()<br><br># 生成新数据结构<br>df1= df1.apply(addtotal, axis=1)<br>print(df1)</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">简洁，整理的不错<br>其实还有一种清洗方法，即针对张飞的情况，数学成绩可以进行补全，比如用其他人的数学成绩平均值</p> <p class="reply-time">2018-12-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">龟仙人</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">老师你好，你好像没有在哪里明确说明自己的环境是python2.7的，结果大家的使用环境大多数是3.0的，多多少少会引发一些问题。还有请问，微信群怎么加？</div> <span class="time">2019-01-27</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/61/f6/5e99c406.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">七彩星云</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">df2[&#39;Chinese&#39;].astype(&#39;str&#39;) ＃这种写法貌似不行，如果是原始类型是int，再次map调用str.strip 方法的时候会出错，<br>改成赋值形式就行了df2[&#39;Chinese&#39;] ＝df2[&#39;Chinese&#39;].astype(&#39;str&#39;) </div> <span class="time">2019-01-04</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/2f/00/eaf03870.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">tjcslx</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">#!&#47;usr&#47;bin&#47;env python<br># coding: utf-8<br># 使用Jupyter Notebook进行脚本编写<br><br>import pandas as pd<br>import numpy as np<br>from pandas import DataFrame<br>from pandasql import sqldf, load_meat, load_births<br><br># 创建数据集并进行数据清洗：清除重复的行；<br># 录入数值时，空值用None或np.nan；defaultValues为字段为空时的默认值，姓名字段默认为“无姓名”，成绩字段默认为0<br># 分别使用drop_duplicates和fillna方法进行去重复值及空值填充<br>data = {&#39;Name&#39;: [&#39;张飞&#39;, &#39;关羽&#39;, &#39;赵云&#39;, &#39;黄忠&#39;, &#39;典韦&#39;, &#39;典韦&#39;], &#39;Chinese&#39;: [66, 95, 95, 90, 80, 80], &#39;English&#39;: [65, 85, 92, 88, 90, 90], &#39;Maths&#39;: [None, 98, 96, 77, 90, 90]}<br>df = DataFrame(data, columns=[&#39;Name&#39;, &#39;Chinese&#39;, &#39;English&#39;, &#39;Maths&#39;])<br>defaultValues = {&#39;Name&#39;: &#39;无姓名&#39;, &#39;Chinese&#39;: 0, &#39;English&#39;: 0, &#39;Maths&#39;: 0}<br>df = df.drop_duplicates()<br># 按照默认值进行填充<br>df = df.fillna(defaultValues)<br># 使用其他学生的平均值对空值进行填充<br># df[&#39;Maths&#39;].fillna(df[&#39;Maths&#39;].mean(), inplace=True)<br><br># 使用Pandas SQL进行排序语句编写<br>pysqldf = lambda sql: sqldf(sql, globals())<br>sql = &quot;select *, Chinese + English + Maths as Total from df order by Chinese + English + Maths desc&quot;<br>print(pysqldf(sql))</div> <span class="time">2018-12-31</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/59/94/b94b5995.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">自然</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">def sum(df):<br>    df[u&#39;总和&#39;] = (df[u&#39;语文&#39;]+df[u&#39;英语&#39;]+ df[u&#39;数学&#39;]) <br>    return df<br>df1 = df1.apply(sum, axis=1)</div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://thirdwx.qlogo.cn/mmopen/vi_32/udMLnLDPB9N7lxZDNicqrLW1GWCNTBnrAf7bh1Gnh4uw80H9Nu8g89sh3ltpibbPTXlibIEjRICTjcDQ1zQ9uzDJg/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">lingmacker</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">def exercise():<br>    # 1. 对于下表的数据，请使用Pandas中的DataFrame进行创建，并对数据进行清洗。<br>    # 2. 同时新增一列“总和”计算每个人的三科成绩之和。<br><br>    # 列名使用了中文，打印需要列对其的话，则需要设置这两个参数<br>    pd.set_option(&#39;display.unicode.ambiguous_as_wide&#39;, True)<br>    pd.set_option(&#39;display.unicode.east_asian_width&#39;, True)<br><br>    data = {&quot;姓名&quot;: [&quot;张飞&quot;, &quot;关羽&quot;, &quot;赵云&quot;, &quot;黄忠&quot;, &quot;典韦&quot;, &quot;典韦&quot;],<br>            &quot;语文&quot;: [66, 95, 95, 90, 80, 80],<br>            &quot;英语&quot;: [65, 85, 92, 88, 90, 90],<br>            &quot;数学&quot;: [None, 98, 96, 77, 90, 90]}<br>    <br>    score_table = pd.DataFrame(data, columns=[&quot;姓名&quot;, &quot;语文&quot;, &quot;英语&quot;, &quot;数学&quot;])<br>    print(score_table, &quot;\n&quot;)<br><br>    # 除去重复行<br>    score_table.drop_duplicates(inplace=True)<br>    print(score_table, &quot;\n&quot;)<br><br>    # 添加 总分 列<br>    score_table.fillna(0, inplace=True)  # 将NaN替换为0<br>    score_table[&quot;总分&quot;] = score_table[&quot;语文&quot;] + score_table[&quot;英语&quot;] + score_table[&quot;数学&quot;]<br>    print(score_table)</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">整理的不错，清洗张飞的数学成绩的时候，没有唯一答案。也可以用其他人的数学成绩平均值进行补全</p> <p class="reply-time">2018-12-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">是我的海</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br>from pandas import  Series,DataFrame<br>data={&#39;语文&#39;:[66,95,95,90,80,80],&#39;英语&#39;:[65,85,92,88,90,90],&#39;数学&#39;:[None,98,96,77,90,90]}<br>df=DataFrame(data,index=[&#39;张飞&#39;,&#39;关羽&#39;,&#39;赵云&#39;,&#39;黄忠&#39;,&#39;典韦&#39;,&#39;典韦&#39;],columns=[&#39;语文&#39;,&#39;英语&#39;,&#39;数学&#39;])<br>df=df.drop_duplicates()<br>df=df.fillna(0)<br>def plus(df):<br>    df[&#39;成绩综合&#39;]=df[u&#39;语文&#39;]+df[u&#39;英语&#39;]+df[u&#39;数学&#39;]<br>    return df<br>df=df.apply(plus,axis=1)<br>print(df)<br><br>额，感觉我的代码好简单。关于数学那个空值的处理，我感觉有很多种方法，这里用了最简单的一种。</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a4/3c/6d0a0cc8.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">nrvna</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br><br>data = {&#39;Chinese&#39;:[66,95,95,90,80,80],&#39;English&#39;:[65,85,92,88,90,90],&#39;Math&#39;:[None,98,96,77,90,90]}<br>df = pd.DataFrame(data, index=[&#39;ZhangFei&#39;, &#39;GuanYu&#39;, &#39;ZhaoYun&#39;, &#39;HuangZhong&#39;, &#39;DianWei&#39;, &#39;DianWei&#39;])<br>print(df)<br><br># Delete extra lines，Replace null with 0， Add new column for total<br>df = df.drop_duplicates()<br>df = df.where(df.notnull(),0)<br># None will change &#39;Math&#39; column to float, so that we need to clean it back.<br># [[]] is a DataFrame<br>df[[&#39;Math&#39;]] = df[[&#39;Math&#39;]].astype(int)<br><br>&#39;&#39;&#39;<br>Method 1: Directly<br>&#39;&#39;&#39;<br># df[&#39;Total&#39;] = df[&#39;Chinese&#39;] + df[&#39;English&#39;] + df[&#39;Math&#39;]<br># print(df)<br><br>&#39;&#39;&#39;<br>Method 2: apply a function<br>&#39;&#39;&#39;<br>def add_column(df):<br>    df[&#39;Total&#39;] = df[&#39;Chinese&#39;] + df[&#39;English&#39;] + df[&#39;Math&#39;]<br>    return df<br>df = df.apply(add_column,axis=1)<br>print(df)</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/8d/d0/34e6a27d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Dull</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">使用Pyhon3.7+Pycharm编写，最后使用sort_value.()方法对总成绩进行降序排序。<br># -*- coding: utf-8 -*-<br>import pandas as pd<br>from pandas import Series, DataFrame<br>data = {&#39;Chinese&#39;: [66, 95, 95, 90,80,80],&#39;English&#39;: [65, 85, 92, 88, 90,90],&#39;Math&#39;: [None, 98, 96, 77, 90,90]}<br>df = DataFrame(data,index=[&#39;张飞&#39;,&#39;关羽&#39;,&#39;赵云&#39;,&#39;黄忠&#39;,&#39;典韦&#39;,&#39;典韦&#39;],columns=[&#39;Chinese&#39;,&#39;English&#39;,&#39;Math&#39;])<br>print(df)<br>df = df.drop_duplicates()<br>df.rename(columns = {&#39;Chinese&#39;:&#39;语文&#39;,&#39;English&#39;:&#39;英语&#39;,&#39;Math&#39;:&#39;数学&#39;}, inplace = True)<br>df[&#39;数学&#39;].fillna(df[&#39;数学&#39;].mean(),inplace=True)  #df.fillna(df.mean())好像也可以<br>def new(df):<br>	df[&#39;总分&#39;] = (df[&#39;语文&#39;]+df[&#39;数学&#39;]+df[&#39;英语&#39;])<br>	return df<br>df = df.apply(new,axis=1)<br>print(df)<br>df1 = df.sort_values(by=[&#39;总分&#39;],ascending=False)<br>print(df1)</div> <span class="time">2019-02-13</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/7d/05/4bad0c7c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">王彬成</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">1、在pandas中，最主要的数据结构是Series和DataFrame<br>Series: 是个定长的字典序列。俩个基本属性：index和values<br>DataFrame：类似于数据库表，包括行索引和列索引。<br>2、对于DataFrame数据清洗的函数<br>1）删除不必要的列或行：drop（）<br>df=df.drop(columns=[&#39;Math&#39;]<br>df=df.drop(index=[&#39;ZhangFei&#39;]<br>2）重命名列名columns：rename<br>rename(columns=new_names, inplace=True)<br>3）去重复的行 dtop_duplicates()<br>4）格式问题<br>4.1 更改数据格式 astype()<br>4.2 删除数据间的空格 strip(), lstrip(), rstrip()<br>4.3 大小写转换 upper(), lower(), title()<br>df.columns= df.columns.str.upper() ## 全部大写<br>4.4 查找空值 df.isnull(), df.isnull().any()<br>5）使用apply函数进行‘大写转换’、数值处理、新增列<br><br>————————————————————<br>代码呈现<br>## 作业代码：对数据进行清洗，新增一列总和<br>import pandas as pd<br>from pandas import DataFrame<br><br>data={&#39;语文&#39;:[66,95,95,90,80,80],&#39;英语&#39;:[65,85,92,88,90,90],&#39;数学&#39;:[None,98,96,77,90,90]}<br>df=DataFrame(data,index=[&#39;张飞&#39;,&#39;关羽&#39;,&#39;赵云&#39;,&#39;黄忠&#39;,&#39;典韦&#39;,&#39;典韦&#39;],columns=[&#39;语文&#39;,&#39;英语&#39;,&#39;数学&#39;])<br><br>## 删除重复行<br>df=df.drop_duplicates()<br><br>## 查找缺失值缺失值<br>print(df.isnull())<br><br>## 利用平均值补充‘张飞’的缺失值<br>df[&#39;数学&#39;].fillna(df[&#39;数学&#39;].mean(),inplace=True)<br><br>## 新增一列‘总分’<br>df[&#39;总分&#39;]=df[&#39;语文&#39;]+df[&#39;英语&#39;]+df[&#39;数学&#39;]<br><br>## 按照总分排序，从高到低，输出<br>df.sort_values([&#39;总分&#39;],ascending=False,inplace=True)<br><br><br>## 输出最终结果<br>print(df)<br>print(df.describe())<br><br><br></div> <span class="time">2019-01-31</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJnryDfaYkQh7mTgVIQqk4vdeuY2oa82w0yxOVNfsz4qfSMqEqPFE9gKFvlhS53xY6YOrib86Z6vPA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Lambert</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br>from pandas import DataFrame<br>data = {&#39;语文&#39;:[66,95,95,90,80,80],&#39;英语&#39;:[65,85,92,88,90,90],&#39;数学&#39;:[None,98,96,77,90,90]}<br>df1 = DataFrame(data)<br>df2 = DataFrame(data,index=[&#39;张飞&#39;, &#39;关羽&#39;,&#39;赵云&#39;, &#39;黄忠&#39;, &#39;典韦&#39;, &#39;典韦&#39;],<br>                                 columns=[&#39;语文&#39;,&#39;英语&#39;,&#39;数学&#39;] )<br>df2 = df2.drop_duplicates()<br>df2[&#39;数学&#39;].fillna(df2[&#39;数学&#39;].mean(), inplace=True)<br>def add(df2):<br>    df2[&#39;总和&#39;] = (df2[u&#39;语文&#39;] + df2[u&#39;英语&#39;] + df2[u&#39;数学&#39;])<br>    return df2<br>df3 = df2.apply(add, axis=1,args=())<br>print(df3)</div> <span class="time">2019-01-22</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTLfibmKDlXhXnU0JiaDKG8JcqtjiafA4Ktyiaic34VTLpY80rXovJbtq27NTtWtNjUWAL5O9ic6NKVbbLtg/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Mickey</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">在存入excel的时候，写score.to_excel(&#39;data.xlsx&#39;)时报错No module named &#39;openpyxl&#39; 。<br>根据知道安装了openpyxl, 然后怎么运行存入excel的操作呢？能否详细说明下？</div> <span class="time">2019-01-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/15/23/47/6c2a60ee.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Sniper</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">交作业（python3）：<br>import pandas as pd<br>from pandas import Series, DataFrame<br>data = {&#39;Chinese&#39;: [66, 95, 95, 90, 80, 80],&#39;English&#39;: [65, 85, 92, 88, 90, 90],&#39;Math&#39;: [None, 98, 96, 77, 90, 90]}<br>df1= DataFrame(data)<br>df2 = DataFrame(data, index=[&#39;ZhangFei&#39;, &#39;GuanYu&#39;, &#39;ZhaoYun&#39;, &#39;HuangZhong&#39;, &#39;DianWei&#39;, &#39;DianWei&#39;],<br>                columns=[&#39;Chinese&#39;, &#39;English&#39;, &#39;Math&#39;])<br><br># print (df2)<br># 对数据去重<br>df2 = df2.drop_duplicates()<br># 用平均值填充张飞数学成绩<br>df3 = df2.isnull() # 对每个坐标判断是否为空且返回dataframe<br># 返回columns列表<br>a = df2.columns<br>a = list(a)<br># 返回index列表<br>b = df2.index<br>b = list(b)<br># 对空值用均值填充<br>for course in a:<br>    course_average = df2[course].mean()<br>    for name in b:<br>        if df3.loc[name, course]:<br>            df2.loc[name, course] = course_average<br>        else:<br>            pass<br><br># 添加求和列<br>def plus(df):<br>    df[&#39;total&#39;] = df[&#39;Chinese&#39;] + df[&#39;Math&#39;] + df[&#39;English&#39;]<br>    return df<br>plus(df2)<br>df2 = df2.apply(plus,axis=1)<br><br>print(df2)<br></div> <span class="time">2019-01-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">柚子</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">df = pd.DataFrame({&#39;name&#39;[&#39;zhangfei&#39;,&#39;gaunyu&#39;,&#39;zhaoyun&#39;,&#39;huangzhong&#39;,&#39;dianwei&#39;,&#39;dianwei&#39;],<br>                               &#39;chinese&#39;:[66,95,95,90,80,80],<br>                               &#39;english&#39;:[65,85,92,88,90,90],<br>                               &#39;math&#39;:[None,98,96,77,90,90]})<br>df = df.drop_duplicates()  #去除重复值<br>df = df.fillna(0)                 #空值填充，可以用0或者数学成绩的平均值<br>df[&#39;total&#39;] = df[&#39;chinese&#39;] + df[&#39;english&#39;] + df[&#39;math&#39;]<br>df</div> <span class="time">2019-01-18</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/f3/3b/99faed32.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">胖陶</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import numpy as np<br>from pandas import DataFrame<br>data={&#39;yuwen&#39;:[66,95,95,90,80,80],&#39;yingyu&#39;:[65,85,92,88,90,90],&#39;shuxue&#39;:[np.nan,98,96,77,90,90]}<br>df=DataFrame(data,index=[&#39;zhangfei&#39;,&#39;guanyu&#39;,&#39;zhaoyun&#39;,&#39;huangzhong&#39;,&#39;dianwei&#39;,&#39;dianwei&#39;],columns=[&#39;yuwen&#39;,&#39;yingyu&#39;,&#39;shuxue&#39;])<br>df.drop_duplicates()<br>df[&#39;shuxue&#39;]=df[&#39;shuxue&#39;].fillna(df[&#39;shuxue&#39;].mean())<br>df[&#39;sum&#39;]=df[&#39;yuwen&#39;]+df[&#39;yingyu&#39;]+df[&#39;shuxue&#39;]<br>df.rename(columns={&#39;yuwen&#39;:&#39;语文&#39;,&#39;yingyu&#39;:&#39;英语&#39;,&#39;shuxue&#39;:&#39;数学&#39;,&#39;sum&#39;:&#39;总和&#39;},inplace=True)<br></div> <span class="time">2019-01-16</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/f3/3b/99faed32.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">胖陶</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">删除列那边的代码会报错啊。。。。df2 = df2.drop([&#39;Chinese&#39;],axis=1)<br></div> <span class="time">2019-01-15</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/8d/8a/ec29ca4a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">马克图布</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">#!&#47;usr&#47;bin&#47;env python3<br># -*- coding: utf-8 -*-<br><br>from pandas import DataFrame<br><br>data = {u&#39;语文&#39;: [66, 95, 95, 90, 80, 80], u&#39;英语&#39;: [65, 85, 92, 88, 90, 90], u&#39;数学&#39;: [None, 98, 96, 77, 90, 90]}<br>name = [u&#39;张飞&#39;, u&#39;关羽&#39;, u&#39;赵云&#39;, u&#39;黄忠&#39;, u&#39;典韦&#39;, u&#39;典韦&#39;]<br><br>df1 = DataFrame(data, index=name)<br><br># Drop duplicated data<br>df1 = df1.drop_duplicates()<br><br># Fill the NaN with average grade<br>df1.fillna(value=df1[u&#39;数学&#39;].mean(), inplace=True)<br><br># Calculate the total grade<br>df1[u&#39;总分&#39;] = df1.sum(axis=1)<br><br>print(df1)<br>print(df1.describe())<br><br>---<br>老师，想问一下，如果在文件开头的 shebang 中已经指定了 `# -*- coding: utf-8 -*-` 的编码方式，在代码中还需要在每一个中文字符串前加上 u 吗？</div> <span class="time">2019-01-14</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/cc/f3/5e4b0315.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">追梦小乐</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，缺省值在真实工作中一般是怎么处理的？做题的时候我的第一反应就是给缺失值补充0，不过我看到有用平均值的，这里面有什么讲究的吗？</div> <span class="time">2019-01-11</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">夏小爱</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd"># &#47;usr&#47;bin&#47;env python2.7<br># -*- coding:utf-8 -*-<br><br>from pandas import DataFrame<br>import numpy as np<br><br>data = np.array([[66, 95, 95, 90, 80, 80], [65, 85, 92, 88, 90, 90], [None, 98, 96, 77, 90, 90]])<br>df = DataFrame(data.T, index=[&quot;张飞&quot;, &quot;关羽&quot;, &quot;赵云&quot;, &quot;黄忠&quot;, &quot;典韦&quot;, &quot;典韦&quot;], columns=[&quot;语文&quot;, &quot;英语&quot;, &quot;数学&quot;])<br>print df<br>df[&quot;数学&quot;].fillna(df[&quot;数学&quot;].mean().astype(int), inplace=True)<br>df = df.drop_duplicates()<br>df[&quot;总分&quot;] = df.sum(axis=1)<br>print df<br>df.describe()<br>print df.loc[&quot;张飞&quot;]</div> <span class="time">2019-01-11</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/c7/a3/1e2f9f5a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">圆圆的大食客</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br>from pandas import Series, DataFrame<br>data = {&#39;Chinese&#39;: [66, 95, 93, 90, 80, 80],&#39;English&#39;: [65, 85, 92, 88, 90, 90],&#39;Math&#39;: [None, 98, 96, 77, 90, 90]}<br>df1= DataFrame(data)<br>df2 = DataFrame(data, index=[&#39;ZhangFei&#39;, &#39;GuanYu&#39;, &#39;ZhaoYun&#39;, &#39;HuangZhong&#39;, &#39;DianWei&#39;, &#39;Dianwei&#39;], columns=[&#39;Chinese&#39;, &#39;English&#39;, &#39;Math&#39;])<br>df2 = df2.drop_duplicates()<br>print (df2.isnull())  #Find out null <br>df2 = df2.fillna(df2.mean()) #Fill null with average<br>df2[&#39;Sum&#39;] = df2.apply(lambda x: x.sum(), axis=1 ) #add column &#39;Sum&#39; to sum grades<br>print (df2)</div> <span class="time">2019-01-10</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/2f/e2/58ae492c.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">小熊猫</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br>from pandas import DataFrame<br><br>data = {&#39;Chinese&#39;:[66, 95, 95, 90, 80, 80], &#39;English&#39;:[65, 85, 92, 88, 90, 90], <br>        &#39;Math&#39;:[None, 98, 96, 77, 90, 90]}<br>df = DataFrame(data, index=[&#39;zhangfei&#39;, &#39;guanyu&#39;, &#39;zhaoyun&#39;, &#39;huangzhong&#39;, &#39;dianwei&#39;, &#39;dianwei&#39;], <br>                columns=[&#39;Chinese&#39;, &#39;English&#39;, &#39;Math&#39;])<br># 清除重复行dianwei<br>df = df.drop_duplicates()<br># 行名、列名改成中文 df.rename(index={&#39;zhangfei&#39;:&#39;张飞&#39;, &#39;guanyu&#39;:&#39;关羽&#39;, &#39;zhaoyun&#39;:&#39;赵云&#39;, &#39;huangzhong&#39;:&#39;黄忠&#39;, &#39;dianwei&#39;:&#39;典韦&#39;}, columns={&#39;Chinese&#39;:&#39;语文&#39;, &#39;English&#39;:&#39;英语&#39;, &#39;Math&#39;:&#39;数学&#39;}, inplace=True)<br># 填充缺省值<br>df[&#39;数学&#39;].fillna(df[&#39;数学&#39;].mean(), inplace=True)<br># 新增一列“总分”，然后排序<br>df[&#39;总分&#39;] = df.apply(func=lambda x:x[&#39;语文&#39;] + x[&#39;英语&#39;] + x[&#39;数学&#39;], axis=1)<br>df.sort_values(&#39;总分&#39;, ascending=False, inplace=True)</div> <span class="time">2019-01-09</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/26/11/cad94b1d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">黑小白白白</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请教老师，Python3中DataFrame如何对列名是中文的数据进行操作呢。</div> <span class="time">2019-01-09</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/21/2f/85a3c897.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">孙有能希</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">data = {&#39;Chinese&#39;: [66, 95, 95, 90, 80, 80], &#39;English&#39;:[65, 85, 92, 88, 90, 90], &#39;Math&#39;:[None, 98, 96, 77, 90, 90]}<br>df = DataFrame(data, index=[&#39;ZhangFei&#39;, &#39;GuanYu&#39;, &#39;ZhaoYun&#39;, &#39;HuangZhong&#39;, &#39;Dianwei&#39;, &#39;Dianwei&#39;], columns=[&#39;Chinese&#39;, &#39;English&#39;, &#39;Math&#39;])<br>print(df)<br><br>df = df.drop_duplicates()<br>df = df.fillna(df.mean())<br><br>df[&#39;All&#39;] = df[&#39;Chinese&#39;] + df[&#39;English&#39;] + df[&#39;Math&#39;]<br>print(df)</div> <span class="time">2019-01-09</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/ab/83/185cb0c9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">外星人</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br>from pandas import Series, DataFrame<br>from pandasql import sqldf, load_meat, load_births<br><br># 对数据进行清洗。同时新增一列“总和”计算每个人的三科成绩之和<br><br>score = DataFrame(pd.read_excel(&#39;E:&#47;item_python&#47;test&#47;pandas&#47;exercise1.xlsx&#39;))<br>print(score)<br><br>score = score.drop_duplicates()  #去重<br><br>default = {&#39;姓名&#39;:&#39;无名氏&#39;,&#39;语文&#39;:0,&#39;英语&#39;:0,&#39;数学&#39;:0}<br>#score[&#39;数学&#39;].fillna(0,inplace=True) #补空值<br>score = score.fillna(default)<br>print(score)<br><br>def plus(df):<br>    df[&#39;总和&#39;] = df[&#39;语文&#39;]+df[&#39;英语&#39;]+df[&#39;数学&#39;]<br>    return df<br>score = score.apply(plus, axis=1)  #求和<br>print(score)</div> <span class="time">2019-01-09</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83erBSoNm28CNCYpvytDbhfSYpgCo6T9vuzKkSoflr3sX8VucMz8ykrichKDY9vVoMVomUIakXSQq9icw/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">xfoolin</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">一、 <br><br>在Pandas 有两个数据结构，分别是 Series 和 DataFrame。<br><br>DataFrame 提供的数据清洗函数是： <br><br>- 删除 drop,<br>- 删除重复行 drop_duplicates<br>- 重命名列名 rename<br>- 格式转换 astype<br>- 去除空格 strip<br>- 大小写转换（upper,lower,title）<br>- 查找空值 isnull 和 isnull().any()<br>- 使用 apply函数来嵌套其他函数实现更多要求<br><br>二、<br>import pandas as pd<br>from pandas import DataFrame<br>scores = DataFrame({&#39;姓名&#39;:[&#39;张飞&#39;,&#39;关羽&#39;,&#39;赵云&#39;,&#39;黄忠&#39;,&#39;典韦&#39;,&#39;典韦&#39;],<br>                    &#39;语文&#39;:[66,95,95,90,80,80],<br>                    &#39;英语&#39;:[65,85,92,88,90,90],<br>                    &#39;数学&#39;:[None,98,96,77,90,90]<br>                    })<br>print(scores)<br>scores = scores.drop_duplicates()<br>print(scores.isnull().any())<br>scores = scores.fillna(0)<br>scores[&#39;总和&#39;] = scores.sum(axis = 1)<br>print(scores)</div> <span class="time">2019-01-07</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/40/79/b8dbf66a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">灵灵</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd"># -- coding: utf-8 -<br><br>import numpy as np<br>import pandas as pd<br>from pandas import Series,DataFrame<br>from numpy import nan as NaN<br><br>date = DataFrame({&#39;姓名&#39;:[&#39;张飞&#39;,&#39;关羽&#39;,&#39;赵云&#39;,&#39;黄忠&#39;,&#39;典韦&#39;,&#39;典韦&#39;],&#39;语文&#39;:[66,95,95,90,80,80],&#39;英语&#39;:[65,85,92,88,90,90],&#39;数学&#39;:[NaN,98,96,77,90,90]})<br>print (date)<br><br>df1 = date.drop_duplicates()<br>print (df1)<br><br>df2 = df1.copy()<br>df2[&#39;数学&#39;].fillna(df2[&#39;数学&#39;].mean(), inplace=True)<br><br>print (df2)<br><br>def totaiscore(df2):<br>    df2[&#39;总分&#39;]=df2[&#39;语文&#39;]+df2[&#39;英语&#39;]+df2[&#39;数学&#39;]<br>    return df2<br><br>print (totaiscore(df2))<br></div> <span class="time">2019-01-07</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/8a/37/92b98544.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">吾儿滨滨</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">第五讲笔记<br>https:&#47;&#47;mubu.com&#47;doc&#47;3QadR_xU7v</div> <span class="time">2019-01-07</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/5a/76/3f8dcda6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">陈亦凡</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">https:&#47;&#47;github.com&#47;26huitailang&#47;python-of-data-analysis&#47;blob&#47;master&#47;geek-time&#47;ch05-pandas.ipynb<br><br>👆上面是我用jupyter写的，可以在线查看，参考了其他同学平均值补全的方法。</div> <span class="time">2019-01-06</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a7/f0/e3212f18.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">胡</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">__author__ = &#39;Administrator&#39;<br><br>import pandas  as pd<br>from pandas import DataFrame<br>from pandasql  import sqldf<br>data={&#39;语文&#39;:[66,95,95,90,80,80],&#39;英语&#39;:[65,85,92,88,90,90],&#39;数学&#39;:[None,98,96,77,90,90]}<br>df1=pd.DataFrame(data,index=[&#39;张飞&#39;,&#39;关羽&#39;,&#39;赵云&#39;,&#39;黄忠&#39;,&#39;典韦&#39;,&#39;典韦&#39;],columns=[&#39;英语&#39;, &#39;数学&#39;, &#39;语文&#39;])<br>print(df1)<br>df1=df1.drop_duplicates()#去重<br>print(df1)<br>print(df1.isnull())#显示那边有空值<br><br>df1[&#39;数学&#39;].fillna(df1[&#39;数学&#39;].mean(), inplace=True)<br><br>print(df1)<br><br>df1[&#39;总分&#39;] = df1[&#39;语文&#39;] + df1[&#39;英语&#39;] + df1[&#39;数学&#39;]#这样操作就会插入新的一列<br><br>print(df1)</div> <span class="time">2019-01-06</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/b1/fc/8503c08a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">易平</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">#作业创建成绩数据表，并新增一列总和<br>data2={&#39;姓名&#39;:[&#39;张飞&#39;,&#39;关羽&#39;,&#39;赵云&#39;,&#39;黄忠&#39;,&#39;典韦&#39;,&#39;典韦&#39;],&#39;语文&#39;:[66,95,95,90,80,80],&#39;英语&#39;:[65,85,92,88,90,90],&#39;数学&#39;:[None,98,96,77,90,90]}<br>df8=pd.DataFrame(data2)<br><br>#去除重复<br>df9=df8.drop_duplicates()<br><br>#排查空值和用0分代替空值<br>df9.isnull().any()<br>#补全张飞的数学成绩<br>df9=df9.fillna(0)<br><br><br><br>#求和<br>def count_score(df):<br>    df[&#39;总分&#39;]=df[&#39;语文&#39;]+df[&#39;英语&#39;]+df[&#39;数学&#39;]<br>    return df<br>    <br>df9=df9.apply(count_score,axis=1)<br><br>print(df9)</div> <span class="time">2019-01-05</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/cb/07/e34220d6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">李沛欣</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">今天的看完了，有点儿吃力，哈哈。pandas的关键在于数据清洗功能和载入现成数据的功能。它主要的两个数据结构是series 和dataframe，主要的函数，有重命名，增删，去重，大小写等等。但是看到后面关于左啊右啊的，就蒙圈了。</div> <span class="time">2019-01-04</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">了解前面的就算是了解了pandas的核心。后面是关于一些数据库的查询操作，你可以重点对前面的两个数据结构，还有主要函数多一些操作。这些在python中使用频率算是比较高的</p> <p class="reply-time">2019-01-11</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a9/fc/6d7df2b9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">瑞</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br>from pandas import Series,DataFrame<br>data={&#39;name&#39;:[&#39;张飞&#39;,&#39;关羽&#39;,&#39;赵云&#39;,&#39;黄忠&#39;,&#39;典韦&#39;,&#39;典韦&#39;],<br>      &#39;Chinese&#39;:[66,95,95,90,80,80],&#39;English&#39;:[65,85,92,88,90,90],&#39;Math&#39;:[None,98,96,77,90,90],<br>     &#39;total&#39;:[0,0,0,0,0,0]}<br>df=DataFrame(data,columns=[&#39;name&#39;,&#39;Chinese&#39;,&#39;English&#39;,&#39;Math&#39;,&#39;total&#39;])<br># print(df)<br>df.rename(columns={&#39;name&#39;:&#39;姓名&#39;,&#39;Chinese&#39;:&#39;语文&#39;,&#39;English&#39;:&#39;英语&#39;,&#39;Math&#39;:&#39;数学&#39;,&#39;total&#39;:&#39;总分&#39;},inplace=True)<br># print (df)<br>df=df.drop_duplicates()<br>df=df.fillna(0)<br>print (df)<br><br>def total_df(df):<br>    df[&#39;总分&#39;]=df[&#39;语文&#39;]+df[&#39;英语&#39;]+df[&#39;数学&#39;]<br>    return df<br><br>df.apply(total_df,axis=1)</div> <span class="time">2019-01-03</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">张飞的数学在做清洗的时候会发现为空，可以用平均值的方式先补充上</p> <p class="reply-time">2019-01-11</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a9/fc/6d7df2b9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">瑞</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">我也是这个问题，用的python3，df2[&#39;English&#39;]=df2[&#39;English&#39;].map(str.strip)这个也有问题<br>df2 = df2.drop(columns=[&#39;Chinese&#39;]) 这行代码后,返回结果是:<br>TypeError Traceback (most recent call last)<br>&lt;ipython-input-25-8116650c61ac&gt; in &lt;module&gt;()<br>----&gt; 1 df2 = df2.drop(columns=[&#39;Chinese&#39;])<br><br>TypeError: drop() got an unexpected keyword argument &#39;columns&#39;</div> <span class="time">2019-01-02</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a9/fc/6d7df2b9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">瑞</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">python3 <br>df2=df2.drop(index=[&#39;zhangfei&#39;]) 报错</div> <span class="time">2019-01-02</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a2/f3/801c2561.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">I.L</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br>data = {&#39;姓名&#39;: [&#39;张飞&#39;, &#39;关羽&#39;, &#39;赵云&#39;, &#39;黄忠&#39;, &#39;典韦&#39;, &#39;典韦&#39;],<br>        &#39;语文&#39;: [66, 95, 95, 90, 80, 80],<br>        &#39;英语&#39;: [65, 85, 92, 88, 90, 90],<br>        &#39;数学&#39;: [None,98, 96, 77, 90, 90]}<br>data_table = pd.DataFrame(data)<br>data_table = data_table.drop_duplicates()<br>data_table[&#39;数学&#39;].fillna(data_table[&#39;数学&#39;].mean(), inplace=True)<br>data_table[&#39;总和&#39;] = data_table[&#39;英语&#39;] + data_table[&#39;语文&#39;] + data_table[&#39;数学&#39;]<br>data_table<br>#注意点：<br>#Dataframe中的apply函数类似于map函数<br>#在apply例子中：<br>#df1.apply(plus, axis=1, args=(2,3,))<br>#可以在apply函数的args参数中传递对应函数（plus）的参数<br>#inner left right outer就像SQL中的inner left right full<br>#其中通过SQL方式对Dataframe进行查询的方式很棒，之前没有了解过<br><br>#正如热评中的做法，数据的清洗过程需要的不仅仅是删除，更多的应该是近似值填充<br></div> <span class="time">2019-01-01</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/2f/00/eaf03870.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">tjcslx</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">#!&#47;usr&#47;bin&#47;env python<br># coding: utf-8<br># 使用Jupyter Notebook进行脚本编写<br><br>import pandas as pd<br>import numpy as np<br>from pandas import DataFrame<br><br># 创建数据集并进行数据清洗：清除重复的行；<br># 录入数值时，空值用None或np.nan；defaultValues为字段为空时的默认值，姓名字段默认为“无姓名”，成绩字段默认为0<br># 分别使用drop_duplicates和fillna方法进行去重复值及空值填充<br>data = {&#39;Name&#39;: [&#39;张飞&#39;, &#39;关羽&#39;, &#39;赵云&#39;, &#39;黄忠&#39;, &#39;典韦&#39;, &#39;典韦&#39;], &#39;Chinese&#39;: [66, 95, 95, 90, 80, 80], &#39;English&#39;: [65, 85, 92, 88, 90, 90], &#39;Maths&#39;: [None, 98, 96, 77, 90, 90]}<br>df = DataFrame(data, columns=[&#39;Name&#39;, &#39;Chinese&#39;, &#39;English&#39;, &#39;Maths&#39;])<br>defaultValues = {&#39;Name&#39;: &#39;无姓名&#39;, &#39;Chinese&#39;: 0, &#39;English&#39;: 0, &#39;Maths&#39;: 0}<br>df = df.drop_duplicates()<br># 按照默认值进行填充<br>df = df.fillna(defaultValues)<br># 使用其他学生的平均值对空值进行填充<br># df[&#39;Maths&#39;].fillna(df[&#39;Maths&#39;].mean(), inplace=True)<br><br># 总和列的值等于语数外三列之和<br># 按照总和列倒序排列<br>df[&#39;总和&#39;] = df[&#39;Chinese&#39;] + df[&#39;English&#39;] + df[&#39;Maths&#39;]<br>print(df.sort_values(by=&#39;总和&#39;, ascending=False))</div> <span class="time">2018-12-31</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/b6/43/c7b2a6f9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">竹本先生</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br>from pandas import DataFrame<br><br>person = DataFrame(<br>	{<br>		&#39;语文&#39;: [66,65,95,90,80,80], <br>		&#39;英语&#39;: [65,85,92,88,90,90], <br>		&#39;数学&#39;: [None,98,96,77,90,90]<br>	}, <br>	index=[&#39;张飞&#39;,&#39;关羽&#39;,&#39;赵云&#39;,&#39;黄忠&#39;,&#39;典韦&#39;,&#39;典韦&#39;], <br>	columns=[&#39;语文&#39;,&#39;英语&#39;,&#39;数学&#39;]<br>)<br># ~ 删除重复行<br>person.drop_duplicates(inplace=True)<br><br># ~ 用数学平均分填充缺失数据<br>person[&#39;数学&#39;].fillna(person[&#39;数学&#39;].mean(), inplace=True)<br><br># ~ 计算总分<br>def sum_score(df):<br>	df[&#39;总分&#39;] = df[&#39;语文&#39;] + df[&#39;英语&#39;] + df[&#39;数学&#39;]<br>	return df<br><br>person = person.apply(sum_score, axis=1)<br><br>print(person)<br><br>运行结果如下：<br>      语文    英语     数学      总分<br>张飞  66.0  65.0  90.25  221.25<br>关羽  65.0  85.0  98.00  248.00<br>赵云  95.0  92.0  96.00  283.00<br>黄忠  90.0  88.0  77.00  255.00<br>典韦  80.0  90.0  90.00  260.00</div> <span class="time">2018-12-30</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/60/de/5c67895a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">周飞</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd"># -*- coding: utf-8 -*<br>import pandas as pd<br>import numpy as np<br>from pandas import Series, DataFrame<br>data = {&#39;chinese&#39;: [66, 95, 95,90, 80,80],&#39;english&#39;: [65, 85, 92, 88, 90,90],&#39;math&#39;: [ np.nan,98, 96, 77, 90,90]}<br>df2 = DataFrame(data, index=[&#39;zhangfei&#39;, &#39;guanyu&#39;, &#39;zhaoyun&#39;, &#39;huangzhong&#39;, &#39;dianwei&#39;,&#39;dianwei&#39;], columns=[&#39;chinese&#39;, &#39;english&#39;, &#39;math&#39;])<br>df2.drop_duplicates(inplace=True)<br>print (df2)<br>df2.rename(columns={&#39;chinese&#39;: &#39;语文&#39;, &#39;english&#39;: &#39;英语&#39;,&#39;math&#39;:&#39;数学&#39;},index={&#39;zhangfei&#39;: &#39;张飞&#39;, &#39;guanyu&#39;: &#39;关羽&#39;,&#39;zhaoyun&#39;:&#39;赵云&#39;,&#39;huangzhong&#39;:&#39;黄忠&#39;,&#39;dianwei&#39;:&#39;典韦&#39;}, inplace = True)<br>df2.isnull()<br>df2.loc[&#39;张飞&#39;,&#39;数学&#39;]=0<br>df2[&#39;总和&#39;] = df2[&#39;语文&#39;]+df2[&#39;英语&#39;]+df2[&#39;数学&#39;]<br><br>print (df2)</div> <span class="time">2018-12-29</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/67/23/16545faf.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">沐念邪</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">columns写中文出错</div> <span class="time">2018-12-29</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">代码前填写 # coding: utf-8<br>中文前添加 u<br>这两个你试试</p> <p class="reply-time">2019-01-02</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/d2/d1/6cb2904b.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">xyw pro</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br>from pandas import Series, DataFrame<br><br>data = {&#39;chinese&#39;:[66,95,95,90,80,80],&#39;english&#39;:[65,85,92,88,90,90],&#39;math&#39;:[None,98,96,77,90,90]}<br>df1 = pd.DataFrame(data,index=[&#39;zhangfei&#39;,&#39;guanyu&#39;,&#39;zhaoyun&#39;,&#39;dianwei&#39;,&#39;huangzhong&#39;,&#39;huangzhong&#39;])<br>#去除重复行<br>df1 = df1.drop_duplicates()<br><br># 列名重新排序<br>cols = [&#39;chinese&#39;, &#39;math&#39;, &#39;english&#39;]<br>df = df1.filter(cols, axis=1)<br><br>#列名改成中文<br>df1.rename(columns={&#39;chinese&#39;: &#39;语文&#39;, &#39;english&#39;: &#39;英语&#39;,<br>&#39;math&#39;: &#39;数学&#39;}, inplace=True)<br><br>#加总成绩<br>def total_score(df):<br>    df[u&#39;总成绩&#39;] = df[u&#39;语文&#39;]+df[u&#39;数学&#39;]+df[u&#39;英语&#39;]<br>    return df<br>df1 = df1.apply(total_score,axis=1)</div> <span class="time">2018-12-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/1OU8Yiaqnlicxqibd4fjXNPE3jD9DRFANWuyMjhNAONM6mBAUBw4BH4HLDCNNAI7vvkzIbY5iclNiclXgiciaOOeouVeA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">半夏</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请问 df[u&#39;语文&#39;] 和 df[&#39;语文&#39;] 有什么区别？ 这个u是做什么用的<br><br></div> <span class="time">2018-12-28</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/cb/81/57024c59.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">HxScript</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">环境是：在阿里云ECS搭建的jupyter notebook，环境一次配好就可以一直用了，不受设备的限制，随时随用。如果只是学python，学生党10块钱一个月的配置就够了，非常滴划算！<br><br>代码如下：<br>import pandas as pd<br>data = {&#39;语文&#39;: [66, 95, 95, 90, 90, 90],&#39;英语&#39;: [65, 85, 92, 88, 90,90],&#39;数学&#39;: [None, 98, 96, 77, 90,90]}<br>df = pd.DataFrame(data, index=[&#39;张飞&#39;, &#39;关羽&#39;, &#39;赵云&#39;, &#39;黄忠&#39;,&#39;典韦&#39;,&#39;典韦2&#39;], columns=[&#39;语文&#39;, &#39;英语&#39;, &#39;数学&#39;])<br># print(df)<br><br># 去重：要该行中，除了index外，其他列内容完全一致，才会被去重。<br>df = df.drop_duplicates()<br># print(df)<br><br><br>def total_socre(df):<br>    df[&#39;总分&#39;] = df[&#39;语文&#39;] + df[&#39;英语&#39;] + df[&#39;数学&#39;]<br>    return df<br><br><br>df = df.apply(total_socre, axis = 1)<br><br>df.sort_values([&#39;总分&#39;], ascending = [False], inplace = True)<br># print(df)<br><br># 处理NaN：<br># 方案1：直接删除<br>df1 = df.dropna()<br># print(df1)<br><br># 方案2：用均值替换<br># print(df.isnull())<br>df.fillna(df[&#39;数学&#39;].mean(), inplace = True)<br># print(df)<br>df = df.apply(total_socre, axis = 1)<br>df.sort_values([&#39;总分&#39;], ascending = [False], inplace = True)<br>print(df)</div> <span class="time">2018-12-27</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a5/ff/a46422a0.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">X</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">感谢老师，今天学到蛮多，对pandas的运用还需要靠大量的练习才能逐渐熟悉各个API<br>import pandas as pd<br>from pandas import Series, DataFrame<br>import numpy as np<br># 初始数据<br>data = {&#39;姓名&#39;:[&#39;张飞&#39;,&#39;关羽&#39;,&#39;赵云&#39;,&#39;黄忠&#39;,&#39;典韦&#39;,&#39;典韦&#39;],&#39;语文&#39;:[66,95,95,90,80,80],&#39;英语&#39;:[65,85,92,88,90,90],&#39;数学&#39;:[None,98,96,77,90,90]}<br># 装载data数据到DataFrame<br>df = DataFrame(data)<br>print(df)<br><br># 清除重复数据<br>df = df.drop_duplicates()<br>print(df)<br># 求和, 若有空值按0分计算<br>def sum_score(df):<br>    #替换NaN的数据为0分<br>    a = (0 if np.isnan(df[&#39;数学&#39;]) else df[&#39;数学&#39;])<br>    df[&#39;总和&#39;] = a + df[&#39;英语&#39;] + df[&#39;语文&#39;]<br>    return df<br><br># 新增一列总和<br>df = df.apply(sum_score, axis=1)<br>print(df)<br># 用数学平均值填充空值<br>df[&#39;数学&#39;].fillna(df[&#39;数学&#39;].mean(), inplace=True)<br>df = df.apply(sum_score, axis=1)<br>print(df)<br></div> <span class="time">2018-12-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/8e/6d/c68e07ef.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Chino</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">在贴代码之前首先问老师几个问题<br>第一个是 老师您说过 这里引用&quot;其中 axis=1 代表按照列为轴进行操作，axis=0 代表按照行为轴进行操作，args 是传递的两个参数，即 n=2, m=3，在 plus 函数中使用到了 n 和 m，从而生成新的 df&quot; <br>这里axis又蒙了 上一讲老师不是说axis=0的时候 代表竖着 也就是列 axis=1的时候 是横着 也就是行 是因为上一节是numpy 而这一节是pandas所以不一样吗 还是我理解错了<br>另外就是那个apply里 axis=0和axis=1这里有点不懂 为什么文章中的例子 (也就是求两个成绩乘n,m倍的那里 我改成axis=0就报错了 是为什么呢. (大概我把pandas DataFrame这里的axis理解好了就懂了?)<br><br>然后是作业代码<br>import pandas as pd<br>from pandas import DataFrame<br><br>data = {&#39;语文&#39;: [66,95,95,90,80,80], &#39;英语&#39;: [65,85,92,88,90,90], &#39;数学&#39;: [None,98,96,77,90,90]}<br><br>df1 = DataFrame(data,index=[&#39;张飞&#39;,&#39;关羽&#39;,&#39;赵云&#39;,&#39;黄忠&#39;,&#39;典韦&#39;,&#39;典韦&#39;])<br><br>df1 = df1.drop_duplicates()<br><br># print(df1.isnull())<br># print(df1.isnull().any())<br><br>df1.fillna(df1[&#39;数学&#39;].mean(),inplace=True)<br><br>df1[&#39;总计&#39;] = df1[&#39;语文&#39;] + df1[&#39;英语&#39;] + df1[&#39;数学&#39;]<br><br>print(df1)<br></div> <span class="time">2018-12-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/62/a5/43aa0c27.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Destroy、</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br>df = pd.read_csv(&#39;wzrycj.csv&#39;, encoding=&#39;gb2312&#39;)<br>df.info()<br>df = df.drop_duplicates()<br>df = df.copy()<br>for i in df[df[&#39;数学&#39;].isnull()].index:<br>    df.iloc[i, 3] = df[&#39;数学&#39;].mean()<br>def sumScore(df):<br>    df[&#39;total&#39;] = df[&#39;语文&#39;] + df[&#39;英语&#39;] + df[&#39;数学&#39;]<br>    return df<br>df = df.apply(sumScore, axis=1)<br>df<br>姓名	语文	英语	数学	total<br>0	张飞	66	65	90.25	221.25<br>1	关羽	95	85	98.00	278.00<br>2	赵云	95	92	96.00	283.00<br>3	黄忠	90	88	77.00	255.00<br>4	典韦	80	90	90.00	260.00<br>这个留言不支持markdown，写的代码很难看~~</div> <span class="time">2018-12-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">大灰狼</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师我看了几节讲python的课程，完全看不懂说的意思，是要去先学习下python的基础课程吗？</div> <span class="time">2018-12-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/95/62/04c5d06e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">土豆毛毛</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br>from pandas import Series, DataFrame<br><br>data = {&#39;Chinese&#39;: [66, 95, 95, 90, 80, 80], &#39;English&#39;: [65, 85, 92, 88, 90, 90], &#39;Math&#39;: [None, 98, 96, 77, 90, 90]}<br>df1 = DataFrame(data, index=[&#39;ZhangFei&#39;, &#39;GuanYu&#39;, &#39;ZhaoYun&#39;, &#39;HuangZhong&#39;, &#39;DianWei&#39;, &#39;DianWei&#39;], columns=[&#39;English&#39;, &#39;Math&#39;, &#39;Chinese&#39;])<br><br># Clean the data<br>df = df1.drop_duplicates()  # remove duplicated lines<br>df.rename(index={&#39;ZhangFei&#39;: &#39;张飞&#39;, &#39;GuanYu&#39;: &#39;关羽&#39;, &#39;ZhaoYun&#39;: &#39;赵云&#39;, &#39;HuangZhong&#39;: &#39;黄忠&#39;, &quot;DianWei&quot;: &#39;典韦&#39;}, inplace=True)<br><br>#print(df.describe())    # ouput corresponding statistic data<br><br><br># Function: add a new line<br>def addSum(df):<br>    df[&#39;Sum&#39;] = df[&#39;English&#39;] + df[&#39;Chinese&#39;] + df[&#39;Math&#39;]<br>    return df<br><br># Use the average mark of Math to fill the NaN value<br>df.fillna(df[&#39;Math&#39;].mean(), inplace=True)<br><br># call the function and add a line called &quot;Sum&quot;, pay attention to the value of axis<br>print(df.apply(addSum, axis=1))<br></div> <span class="time">2018-12-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a9/a7/de3ee890.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">拉我吃</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd"># coding: utf8<br>import pandas as pd<br><br>from pandas import Series, DataFrame<br>from pandasql import sqldf, load_meat, load_births<br><br>&quot;&quot;&quot;<br>对于下表的数据，请使用 Pandas 中的 DataFrame 进行创建，并对数据进行清洗。同时新增一列“总和”计算每个人的三科成绩之和。<br>&quot;&quot;&quot;<br><br>def total(df):<br>    df[u&#39;总和&#39;] = (df[u&#39;语文&#39;] + df[u&#39;英语&#39;] + df[u&#39;数学&#39;])<br>    return df<br><br><br># 导入并初始化数据到DataFrame中<br>df = pd.read_excel(&#39;Book.xlsx&#39;)<br><br># 消除重复行<br>df = df.drop_duplicates()<br><br># 添加并计算总成绩列<br>dfnew = df.apply(total, axis=1)<br><br># 排序<br>dfnew = dfnew.sort_values([u&#39;总和&#39;], ascending=False)<br><br># 输出<br>print(dfnew)<br></div> <span class="time">2018-12-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a1/bc/99c20923.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">汪汪汪</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br>import numpy as np<br>from pandas import Series, DataFrame<br># 1.创建表格数据<br>data = {&quot;语文&quot;:[66, 95, 95, 90, 80, 80],<br>        &quot;英语&quot;:[65, 85, 92, 88, 90, 90],<br>        &quot;数学&quot;:[None, 98, 96, 77, 90, 90]}<br>df = DataFrame(data,<br>               index=[&quot;张飞&quot;,&quot;关羽&quot;,&quot;赵云&quot;,&quot;黄忠&quot;,&quot;典韦&quot;,&quot;典韦&quot;],<br>               columns=[&quot;语文&quot;,&quot;英语&quot;,&quot;数学&quot;])<br>print(df)<br># 对数据进行清洗<br># 1) 删除重复数据（典韦）<br>df1 = df.drop_duplicates()<br># 2) 将空值NaN替换为0<br>df1.fillna(0, inplace=True)<br>print(df1)<br># 3) 新增一行，计算每个人的三科成绩之和<br>def total_score(df1):<br>    df1[u&quot;总分&quot;]=df1[u&quot;语文&quot;]+df1[u&quot;英语&quot;]+df1[u&quot;数学&quot;]<br>    return df1<br>df2 = df1.apply(total_score, axis=1)<br>print(df2)</div> <span class="time">2018-12-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/b3/d5/1ac75658.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Mingjie</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">我的代码<br>***************************<br>from pandas import Series, DataFrame<br>import re<br>from pandasql import sqldf, load_meat, load_births<br><br>data = { &#39;name&#39;:[&#39;张飞&#39;,&#39;关羽&#39;,&#39;赵云&#39;,&#39;黄忠&#39;,&#39;典韦&#39;,&#39;典韦&#39;] ,<br>         &#39;chinese&#39;: [66,95,95,90,80,80],&#39;english&#39;: [65,85,92,88,90,90],&#39;math&#39;: [None,98,96,77,90,90]}<br>df = DataFrame(data, columns=[&#39;name&#39;,&#39;english&#39;, &#39;chinese&#39;, &#39;math&#39;])<br><br>print(&quot;预览\n&quot;,df)<br><br>#添加一列为总成绩并求和<br>def plus(df):<br>    #df[&#39;total&#39;] = (df[u&#39;Chinese&#39;]+df[u&#39;English&#39;]+df[u&#39;Math&#39;])<br>    return df<br><br>#添加一列 ‘total’，并计算求和<br>df[&#39;total&#39;] = df.sum(axis=1)<br><br>#首字母大写转换<br>df.columns = df.columns.str.title()<br><br>#去除空值的行<br>#df = df.dropna()<br><br># 查找空值<br>print(&quot;查找空值\n&quot;,df.isnull())<br><br># 查找空值 并 将空值用平均值填充<br>none_series = df.isnull().any()<br>col_name = re.findall(r&quot;&#39;(.+?)&#39;&quot;,str(none_series[none_series== True].index))<br>df[col_name[0]].fillna(df[col_name[0]].mean(), inplace=True)<br><br># 去除重复行<br>df = df.drop_duplicates()<br><br>#按照总分排序<br>df.sort_values([&#39;Total&#39;], ascending=[False], inplace=True)<br><br>print(&quot;数据清洗后\n&quot;,df)<br><br>print(&quot;统计数据\n&quot;,df.describe())</div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/d9/78/ed5a1922.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">怀念列侬</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">from pandas import Series, DataFrame<br>import numpy as np<br><br>data = {&#39;Chinese&#39;: [66, 95, 93, 90, 80, 80], &#39;English&#39;: [65, 85, 92, 88, 90, 90], &#39;Math&#39;: [None, 98, 96, 77, 90, 90]}<br>df = DataFrame(data, index=[&#39;张飞&#39;, &#39;关羽&#39;, &#39;赵云&#39;, &#39;黄忠&#39;, &#39;典韦&#39;, &#39;典韦&#39;], columns=[&#39;Chinese&#39;, &#39;English&#39;, &#39;Math&#39;])<br>df = df.drop_duplicates()<br>df.rename(columns={&#39;Chinese&#39;: &#39;语文&#39;, &#39;English&#39;: &#39;英语&#39;, &#39;Math&#39;: &#39;数学&#39;}, inplace = True)<br>print df.describe().round()<br><br>df[&#39;总和&#39;] = np.where(df[&#39;语文&#39;].isnull(), 0, df[&#39;语文&#39;]) + np.where(df[&#39;英语&#39;].isnull(), 0, df[&#39;英语&#39;]) + np.where(df[&#39;数学&#39;].isnull(), 0, df[&#39;数学&#39;])<br>print df</div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/60/00/3dbaf430.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">1e-43</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br>data = {&#39;Chinese&#39;:[66,95,95,90,80,80],&#39;English&#39;:[65,85,92,88,90,90],&#39;Math&#39;:[None,98,96,77,90,90]}<br>df1=pd.DataFrame(data,index=[&#39;zhangfie&#39;,&#39;guanyu&#39;,&#39;zhaoyun&#39;,&#39;huangzhong&#39;,&#39;dianwei&#39;,&#39;dianwwei&#39;],columns=[&#39;Chinese&#39;, &#39;English&#39; ,&#39;Math&#39;])<br>df2=df1.drop_duplicates()<br>df2.insert(3,&#39;zonghe&#39;,df2.sum(axis=1))</div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/aa/b1/52d2871f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">轨迹</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">pandas的dataframe基本上就是关系数据库的表，pandas对比表有什么优势</div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">不能忘记的笑容</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，请问，用apply定义函数的时候，为什么要加u，u代表什么意思，例如：<br>def plus(df):<br>    df[&#39;total&#39;] = (df[u&#39;chinese&#39;]+df[u&#39;english&#39;]+df[u&#39;math&#39;])<br>    return df</div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/02/82/abed70a0.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">北方</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">#!&#47;usr&#47;bin&#47;env python<br># -*- coding:utf8 -*-<br># __author__ = &#39;北方姆Q&#39;<br># __datetime__ = 2018&#47;12&#47;25 10:36<br><br><br>import pandas as pd<br><br><br>data = {<br>    &#39; Chinese&#39;: [66, 95, 93, 90, 80, 80],<br>    &#39;English  &#39;: [65, 85, 92, 88, 90, 90],<br>    &#39;  Math  &#39;: [None, 98, 96, 77, 90, 90]<br>}<br>df = pd.DataFrame(data, index=[&#39;ZhangFei&#39;, &#39;GuanYu&#39;, &#39;ZhaoYun&#39;, &#39;HuangZhong&#39;, &#39;DianWei&#39;, &#39;DianWei&#39;])<br><br># 去重行<br>df = df.drop_duplicates()<br><br># 列名去空格<br>df.columns = df.columns.str.strip()<br><br># 列名转化<br>df.rename(columns={<br>    &#39;Chinese&#39;: &#39;语文&#39;,<br>    &#39;English&#39;:  &#39;英语&#39;,<br>    &#39;Math&#39;:  &#39;数学&#39;<br>}, inplace=True)<br><br># 补充缺考数据<br>df[&#39;数学&#39;].fillna(0, inplace=True)<br><br># 添加总分列<br>df[&#39;Total&#39;] = df.sum(axis=1)<br><br>print(df)<br>print(&quot;===========================&quot;)<br>print(df.describe())<br></div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/51/e8/5a942071.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">chochinlu</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">from pandas import DataFrame<br><br>scores = {<br>    &#39;Chinese&#39;: [66, 95, 95, 90, 80, 80],<br>    &#39;English&#39;: [65, 85, 92, 88, 90, 90],<br>    &#39;Math&#39;: [None, 98, 96, 77, 90, 90]<br>}<br><br>df = DataFrame(scores, index=[&#39;张飞&#39;, &#39;关羽&#39;, &#39;赵云&#39;, &#39;黄忠&#39;, &#39;典韦&#39;, &#39;典韦&#39;])<br><br># clean data<br>df2 = df.drop_duplicates()<br>df2 = df2.replace([None], 0)<br>df2[&#39;Math&#39;] = df2.astype(int)<br><br>def addSum(df):<br>    df[&#39;Sum&#39;] = df[&#39;Chinese&#39;] + df[&#39;English&#39;] + df[&#39;Math&#39;]<br>    return df<br><br>print(df2.apply(addSum, axis=1))</div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/ibrIw5sOVgfnH3JjKcYHcT5bbJUoaCST3anibeKrtbZLMtdO7t1ZmE3ZW2cgqs8dmDIdKMQag9MnXP5OgoMXqFeg/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">CNxxxxx</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br>from pandas import Series, DataFrame<br>score = DataFrame(pd.read_excel(&#39;testdata.xlsx&#39;))<br><br><br>#score = score.dropna()<br># print(score)<br>#替换空值<br>score.fillna(score[&#39;music&#39;].mean(), inplace=True)<br>score = score.drop_duplicates()<br>print(score)<br><br>#添加一列<br>def addTotalColumn(df):<br>    df[&#39;total&#39;] = df.sum(axis=1)<br>    return df<br><br><br>score = addTotalColumn(score)<br>print(score)<br>score.to_excel(&#39;pd_practice_result.xlsx&#39;)<br>#抄袭了同学们的idea</div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a7/9e/b580616f.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Gerard</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，您好！我数据的导入和输出代码运行不通，在这个工程目录下创建了一个excel表，然后还是显示没有这个文件，麻烦老师看到了解答一下</div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/b0/74/5e8b277b.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Jie</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br>from pandas import DataFrame<br><br>#写入数据<br>df1 = DataFrame(pd.read_excel(&#39;score_chinese.xlsx&#39;))<br><br>#删除重复行<br>df1 = df1.drop_duplicates()<br>#删除含有空值的行<br>df1 = df1.dropna(axis = 0,how = &#39;any&#39;)<br><br>#计算总分<br>def total(df):<br>	df[u&#39;总分&#39;] = df[u&#39;语文&#39;] + df[u&#39;英语&#39;] + df[u&#39;数学&#39;]<br>	return df<br><br>df1 = df1.apply(total,axis =1)<br>print (df1)</div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a1/49/a787ddaf.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">吴晓岚 jim wu</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import numpy as np<br>import pandas as pd<br>from pandas import Series, DataFrame<br><br>data = {&#39;Chinese&#39;:[66,95,95,90,80,80], &#39;English&#39;:[65,85,92,88,90,90], &#39;Math&#39;:[ None,98,96,77,90,90]}<br>df2 = DataFrame(data,index=[&#39;zhangfei&#39;,&#39;Guanyu&#39;,&#39;zhaoyun&#39;,&#39;huangzhong&#39;,&#39;dianwei&#39;,&#39;dianwei&#39;])<br>print(df2)<br><br>df3 = df2.drop_duplicates(df2)<br><br>df3.fillna(df3[&#39;Math&#39;].mean(),inplace=True)<br>df3[&#39;total&#39;] = df3[&#39;Chinese&#39;] +df3[&#39;English&#39;] +df3[&#39;Math&#39;]<br>df3</div> <span class="time">2018-12-25</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/ce/db/bb1821b3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">王      慈</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd"># python 2.7<br># IMPORT<br>import numpy as np<br>import pandas as pd<br><br># 构造 DataFrame<br>df = pd.DataFrame({u&#39;语文&#39;: [66, 95, 95, 90, 80, 80], u&#39;英语&#39;: [65, 85, 92, 88, 90, 90], u&#39;数学&#39;: [np.nan, 98, 96, 77, 90, 90]}, index=[u&#39;张飞&#39;, u&#39;关羽&#39;, u&#39;赵云&#39;, u&#39;黄忠&#39;, u&#39;典韦&#39;, u&#39;典韦&#39;], columns=[u&#39;语文&#39;, u&#39;英语&#39;, u&#39;数学&#39;])<br># df.index.name = u&#39;姓名&#39;<br><br># 去重<br>df.drop_duplicates(inplace=True)<br><br># 均值填充空值 (略显不合理, 请指教)<br>df[u&#39;数学&#39;].fillna(df[u&#39;数学&#39;].mean(), inplace=True)<br><br># 求成绩总和<br>df[u&#39;总和&#39;] = df.sum(axis=1)<br><br># 输出结果<br>print(df)</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/e5/43/7bc7cfe3.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">跳跳</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br>import pandas from Series,DataFrame<br>data={&#39;chinses&#39;:[66,95,95,90,80,80],&#39;English&#39;:[65,85,92,88,90,90],&#39;math&#39;:[,98,96,77,90,90]}<br>df=DataFrame(data,indax=[&#39;zhangfei&#39;,&#39;guanyu&#39;,&#39;zhaoyun&#39;,&#39;huangzhong&#39;,&#39;diewei&#39;,&#39;diewei&#39;],columns=[&#39;chinese&#39;,&#39;english&#39;,&#39;math&#39;])<br>#判断是否有空值,0替换空值<br>df.isnull()<br>df=df.fillna(0,inplace=True)<br>#查看一下统计值<br>print df.describe()<br>#去掉重复值<br>df=df.drop_duplicates()<br>def totalscore(df):<br>    df[&#39;totalscore&#39;]=df[&#39;chinese&#39;]+df[&#39;English&#39;]+df[&#39;math&#39;]<br>    return df<br>df1=df1.apply(totalscore,axis=1)<br>print df1</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://thirdwx.qlogo.cn/mmopen/vi_32/wJphZ3HcvhjVUyTWCIsCugzfQY5NAy6VJ0XoPLibDlcHWMswFmFe678zd0lUjFETia80NQhyQcVnGDlKgKPcRGyw/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">JingZ</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd"># Spider(Python 3.7)<br><br># 创建表格数据<br>data = {&#39;语文&#39;:[65,95,95,90,80,80],&#39;英语&#39;:[65,85,92,88,90,90],&#39;数学&#39;:[&#39;&#39;,98,96,77,90,90]}<br>df = DataFrame(data,index=[&#39;张飞&#39;,&#39;关羽&#39;,&#39;赵云&#39;,&#39;黄忠&#39;,&#39;典韦&#39;,&#39;典韦&#39;],columns = [&#39;语文&#39;,&#39;英语&#39;,&#39;数学&#39;])<br>print(df)<br><br># 数据清洗<br>df = df.drop_duplicates()<br>df = df.replace(to_replace = &#39;&#39;,value=0)<br>print(df)<br><br>#新增“总和”<br>df[&#39;总和&#39;]=df[&#39;语文&#39;]+df[&#39;英语&#39;]+df[&#39;数学&#39;]<br>print(df)<br><br>#打印结果<br>df.replace(to_replace =0,value =&#39;&#39;,inplace = True)<br>print(df)</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/fe/16/aac4d7f2.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">kyle</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">今日总结：<br>https:&#47;&#47;mubu.com&#47;doc&#47;tfLtTByI50</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍写总结的同学，另外也可以把总结的文字贴过来</p> <p class="reply-time">2018-12-24</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a2/c8/7ca5d825.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">斌</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">pandasql真的好用.</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">是的 省去很多事 </p> <p class="reply-time">2018-12-24</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/9f/9d/67a33381.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Lin_嘉杰</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">from pandas import DataFrame<br>data = {&#39;chinese&#39;:[66,95,95,90,80,80],&#39;english&#39;:[65,85,92,88,90,90],&#39;math&#39;:[None,98,96,77,90,90]}<br>mark = DataFrame(data, index=[&#39;张飞&#39;,&#39;关羽&#39;,&#39;赵云&#39;,&#39;黄忠&#39;,&#39;典韦&#39;,&#39;典韦&#39;])<br># print(mark)<br># 清洗重复行<br>mark = mark.drop_duplicates()<br># 将为空的数据填充为0<br>mark = mark.fillna(0)<br>mark.rename(columns={&#39;chinese&#39;:&#39;语文&#39;,&#39;english&#39;:&#39;英语&#39;,&#39;math&#39;:&#39;数学&#39;}, inplace=True)<br>def add(mark):<br>    mark[&#39;总分&#39;] = mark[&#39;语文&#39;] + mark[&#39;英语&#39;] + mark[&#39;数学&#39;]<br>    return mark<br>mark = mark.apply(add, axis=1)<br>print(mark)</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/0c/0f/93d1c8eb.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">mickey</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">#!&#47;usr&#47;bin&#47;python<br># vim: set fileencoding:utf-8<br>import pandas as pd<br>from pandas import DataFrame<br><br># 导入成绩<br>data = pd.read_excel(u&#39;成绩表.xlsx&#39;)<br>df = DataFrame(data)<br>print df<br><br><br># 求和，并增加一列“总和”<br>def addtotal(df):<br>    df[u&#39;总和&#39;] = df[u&#39;语文&#39;] + df[u&#39;英语&#39;] + df[u&#39;数学&#39;]<br>    return df<br><br><br># 清洗为空的数据<br>df1 = df.dropna()<br><br># 清洗重复的数据<br>df1 = df1.drop_duplicates()<br><br># 生成新数据结构<br>df1= df1.apply(addtotal, axis=1)<br>print(df1)</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/a5/33/7bec77e1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Jbin</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师您好：<br>以下为今日练习，其中有个问题：数学列不知为何会自动增加一位小数，望方便时可以解答疑惑。<br># coding=utf-8<br>from pandas import DataFrame<br>data = {&#39;姓名&#39;: [&#39;张飞&#39;, &#39;关羽&#39;, &#39;赵云&#39;, &#39;黄忠&#39;, &#39;典韦&#39;, &#39;典韦&#39;], &#39;语文&#39;: [66, 95, 95, 90, 80, 80],<br>		&#39;英语&#39;: [65, 85, 92, 88, 90, 90], &#39;数学&#39;: [None, 98, 96, 77, 90, 90]}<br><br>df1 = DataFrame(data)<br>df1 = df1.fillna(0) #将NaN填充0<br>df1 = df1.drop_duplicates() #删除重复行<br><br>def plus(df):<br>	df[&#39;总分&#39;] = df[&#39;语文&#39;] + df[&#39;数学&#39;] + df[&#39;英语&#39;]<br>	return df<br>df1 = df1.apply(plus,axis=1) #添加总分列<br><br>print(df1)<br></div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/39/bb/12bd370d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">frazer</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">这就是传说中的数据清洗，好高大上的概念<br></div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">其实也是一些细节操作，根本目标就是让数据更规整</p> <p class="reply-time">2018-12-24</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/b8/54/618b7aee.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">狸猫假面</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">说起来pandas可以用pivot_table来构建数据透视表，请问老师有什么方法可以讲输出的透视表存储到文件中，例如excel中么？很多时候自己做的数据结果只能在jupyter notebook中看，感觉不太方便</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://wx.qlogo.cn/mmopen/vi_32/BI2zhwEjXmAoYpxRVebsyibRb5NmNGHD64HdzeCm5m4icDlkAv0fupfTpABs8e73RTwLBfDLMup4U3O5ibsynruKA/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">yaoyao7417</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import pandas as pd<br>score = {&#39;chinese&#39;:[66,95,95,90,80,80],&#39;english&#39;:[65,85,92,88,90,90],&#39;math&#39;:[0,98,96,77,90,90]}<br>df1 = pd.DataFrame(score,index=[&#39;ZhangFei&#39;,&#39;GuanYu&#39;,&#39;ZhaoYun&#39;,&#39;HuangZhong&#39;,&#39;DianWei&#39;,&#39;DianWei&#39;])<br>df1 = df1.drop_duplicates()<br>df2 = df1[&#39;chinese&#39;] + df1[&#39;english&#39;] + df1[&#39;math&#39;]<br>df2 = pd.DataFrame(df2)<br>df3 = pd.merge(df1.T,df2.T,how=&#39;outer&#39;)<br>df3.rename(index={0:&#39;chinese&#39;,1:&#39;english&#39;,2:&#39;math&#39;,3:&#39;total&#39;}).T<br>不太清楚张飞数学为空怎么整</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/ab/5d/430ed3b6.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">从未在此</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">import  pandas as pd<br>data＝pd.DataFrame({&#39;姓名&#39;:[&#39;张飞&#39;,&#39;吕布&#39;,&#39;典韦&#39;,&#39;典韦],<br>                                       &#39;语文&#39;:[10,20,30,30],<br>                                       &#39;数学&#39;:[,50,60,60]}<br>data.drop_duplicates()<br>data[&#39;数学&#39;].isnull()=data[&#39;数学&#39;].mean()<br>data[&#39;总和&#39;]=data.apply(lambda  x:x.sum(),axis＝1)<br>手机打字太麻烦了。就少写一点。<br>还有那个统计函数那张图，标准差应该是std,老师写成str了<br></div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/f7/91/ffc93dec.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Key.</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">Pandas中最重要是数据结构是Series和DataFrame，Series是基于字典的数据结构，构成数据列(index-value)，而DataFrame是由相同索引的Series构成的数据库表。Pandas库相关的主要用途为数据清洗，数据统计，数据表连接，以及用pandasql操作数据表！数据清洗的方法比如有drop(),columns(),drop_duplicates(),astype(),strip(),isnull(),apply(),upper(),lower(),title()等等</div> <span class="time">2018-12-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li></ul></div></div></div></div><div id="translate-man-app" class="content-3WfBL_0" style="background-color: rgb(255, 255, 255); display: none;"><div data-v-ea0bd11e="" class="outputBox-qe9A4_0"><div data-v-ea0bd11e="" class="outputBox-3oESn_0"><span data-v-ea0bd11e="" class="outputBox-13Ovx_0"></span></div><div data-v-ea0bd11e="" class="outputBox-1GLb__0"><div data-v-ea0bd11e="" class="outputBox-onVZH_0"><img src="chrome-extension://fapgabkkfcaejckbfmfcdgnfefbmlion/static/sound.svg"            class="icon-tprjJ_0"></div></div><div data-v-ea0bd11e="" class="outputBox-2sJgr_0"></div><div data-v-ea0bd11e="" class="outputBox-17RAm_0" style="display: none;"><div data-v-ea0bd11e=""></div></div></div></div><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({        showProcessingMessages: false,        messageStyle: "none",        tex2jax: {          inlineMath: [['$','$'], ['\\(','\\)']],          displayMath: [ ["$$","$$"] ],          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'a']        }      });      MathJax.Hub.Register.MessageHook("End Process", function (message) {        var eve = new Event('mathjaxfini')        window.dispatchEvent(eve)      })</script></body></html>

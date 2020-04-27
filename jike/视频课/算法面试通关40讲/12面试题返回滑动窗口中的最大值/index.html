@@ -1,0 +1,481 @@
+<html class="cye-disabled cye-lm"><head><meta charset="utf-8"><meta name="Keywords" content="极客时间,极客邦,极客邦科技,极客邦控股,极客时间App,专栏订阅,极客新闻,二叉树,极客Live,QCon,左耳听风,AI技术内参,大航海时代,陈皓,徐飞,洪亮劼,霍泰稳,池建强,Selina,Gary,InfoQ,极客搜索"><meta name="description" content="极客时间是极客邦科技出品的一款 IT 内容知识服务 App，内容包含专栏订阅、极客新闻、热点专题、直播、视频和音频等多形式的知识内容，并设有陈皓专栏、徐飞专栏、洪亮劼专栏等专栏供订阅。"><link rel="apple-touch-icon" sizes="180x180" href="http://static001.geekbang.org/static/icon/time/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="http://static001.geekbang.org/static/icon/time/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="http://static001.geekbang.org/static/icon/time/favicon-16x16.png"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="format-detection" content="telephone=no"><title>12 | 面试题：返回滑动窗口中的最大值</title><link href="https://static001.geekbang.org/static/time/css/app.b230db929e53af87acd535637f5011b8.css" rel="stylesheet"><style type="text/css">        @font-face {            font-family: player-font;            src: url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.eot");            src: url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.eot?#iefix") format("embedded-opentype"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.woff") format("woff"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.ttf") format("truetype"), url("//at.alicdn.com/t/font_509397_9fpjwjp73uqsemi.svg#player-font") format("svg")        }        .player-font {            font-family: player-font !important;            font-size: 16px;            font-style: normal;            -webkit-font-smoothing: antialiased;            -webkit-text-stroke-width: .2px;            -moz-osx-font-smoothing: grayscale        }        .vplayer {            position: relative;            overflow: hidden        }        .vplayer,        .vplayer video {            width: 100%        }        .vplayer .title {            position: absolute;            top: 1rem;            left: 1rem;            right: 1rem;            color: #fff;            font-weight: 400;            font-size: .875rem;            word-break: break-all;            display: -webkit-box;            overflow: hidden;            text-overflow: ellipsis;            -webkit-box-orient: vertical;            -webkit-line-clamp: 1        }        .vplayer .finish-control,        .vplayer .loading {            position: absolute;            top: 0;            left: 0;            background: rgba(0, 0, 0, .5);            color: #fff;            width: 100%;            height: 100%;            z-index: 2;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center        }        .vplayer .finish-control h3,        .vplayer .loading h3 {            position: absolute;            color: #fff;            top: 1rem;            left: 50%;            font-size: 1rem;            font-weight: 400;            -webkit-transform: translate(-50%);            transform: translate(-50%)        }        .vplayer .finish-control p,        .vplayer .loading p {            cursor: pointer;            max-height: 6rem;            text-align: center        }        .vplayer .finish-control .cancel-next,        .vplayer .loading .cancel-next {            margin-left: 4rem        }        .vplayer .finish-control .cancel-next .icon-cancel-next,        .vplayer .loading .cancel-next .icon-cancel-next {            height: 4rem;            line-height: 4rem;            cursor: pointer;            font-size: 3.5rem        }        .vplayer .finish-control .cancel-next .icon-cancel-next i,        .vplayer .loading .cancel-next .icon-cancel-next i {            position: absolute;            top: 0;            left: 0;            margin-left: 8px        }        .vplayer .finish-control .icon-replay,        .vplayer .loading .icon-replay {            height: 4rem;            cursor: pointer;            line-height: 4rem;            font-size: 3rem        }        .vplayer .finish-control {            background: #000        }        .vplayer .no-wifi {            width: 70%;            position: absolute;            left: 50%;            top: 50%;            padding: 1rem;            background: rgba(0, 0, 0, .8);            -webkit-transform: translate(-50%, -50%);            transform: translate(-50%, -50%);            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: vertical;            -webkit-box-direction: normal;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            z-index: 3        }        .vplayer .no-wifi p {            line-height: 1.5rem;            margin: 0 auto;            width: 60%;            color: #fff;            font-size: 1rem;            text-align: center        }        .vplayer .no-wifi p span {            font-size: .875rem        }        .vplayer .no-wifi div {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            margin-top: 1rem        }        .vplayer .no-wifi div a {            color: #fff;            background: #ff5a05;            padding: .3rem .5rem        }        .vplayer .no-wifi div a:last-child {            margin-left: 1rem        }        .vplayer .buy {            position: absolute;            z-index: 4;            top: 0;            left: 0;            width: 100%;            height: 100%;            color: #fff;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: vertical;            -webkit-box-direction: normal;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            background: #000        }        .vplayer .buy p {            text-align: center        }        .vplayer .buy p span {            color: #ff5a05        }        .vplayer .buy .btn {            margin-top: 1rem;            color: #fff;            background: #ff5a05;            padding: .3rem 1.5rem        }        .android .dplayer .dplayer-controller .dplayer-icons .dplayer-full,        .dplayer-setting-item.dplayer-setting-loop {            display: none        }</style><style type="text/css">        .MathJax_Display {            overflow: auto        }        .poster {            position: fixed;            left: -10000px;            top: -10000px;            overflow: hidden;            padding: 1rem;            background: #ececec        }        .richcontent-pre-copy {            font-size: 13px;            color: #888;            position: absolute;            right: 1em;            top: .2em;            cursor: pointer;            -webkit-user-select: none;            -moz-user-select: none;            -ms-user-select: none;            user-select: none        }        .richcontent-pre-copy .iconfont {            font-size: 12px;            margin-right: .2em        }</style><style type="text/css">        .bottom {            width: 100%;            background-color: #f5f5f5;            position: fixed;            bottom: 0;            left: 0;            z-index: 10        }        .bottom,        .bottom .bottom-wrapper {            height: 67px;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row        }        .bottom .bottom-wrapper {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            padding-left: 20px;            padding-right: 20px;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between        }        .bottom .bottom-wrapper a {            height: 48px;            line-height: 51px;            -webkit-box-sizing: border-box;            box-sizing: border-box        }</style><style type="text/css">        .breadcrumb {            padding: 30px 0;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -ms-flex-wrap: wrap;            flex-wrap: wrap;            background: #fff        }        .breadcrumb a.title {            color: #e57c39;            font-size: 15px;            font-weight: 400        }        .breadcrumb span.title {            color: #888;            font-size: 15px;            font-weight: 400        }        .breadcrumb .split {            color: #ccc;            font-size: 10px;            margin-right: 5px        }</style><style type="text/css">        .course-detail[data-v-4e11b9bf] {            max-width: 46.25rem;            margin: 0 auto;            background: #f5f5f5        }        .course-detail .course-main[data-v-4e11b9bf] {            background-color: #fff;            width: 100%;            z-index: 10;            top: 0;            left: 0        }        .course-detail .course-info[data-v-4e11b9bf] {            background: #fff;            cursor: pointer        }        .course-detail .course-info .course-info-top[data-v-4e11b9bf] {            padding: 1rem 0 .4rem .78125rem;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .course-detail .course-info .course-info-top h1[data-v-4e11b9bf] {            font-size: 1.03125rem;            font-weight: 400;            text-align: justify-content        }        .course-detail .course-info .course-info-top i[data-v-4e11b9bf] {            font-weight: 400;            width: 40px;            padding-right: .78125rem;            -ms-flex-negative: 0;            flex-shrink: 0;            text-align: right;            color: #dadada        }        .course-detail .course-info .course-info-bottom[data-v-4e11b9bf] {            padding: 0 54px .5rem .78125rem;            border-bottom: 1px solid #e8e8e8;            color: #888;            font-size: .78125rem        }        .course-detail .course-info .course-info-bottom .icon-course-play[data-v-4e11b9bf] {            color: #d9d9d9;            font-size: .75rem        }        .course-detail .video-list[data-v-4e11b9bf] {            background: #fff;            width: 100%;            overflow: hidden;            overflow: auto;            -webkit-overflow-scrolling: touch        }        .course-detail .video-list ul[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            padding: .875rem 0        }        .course-detail .video-list ul li[data-v-4e11b9bf] {            margin-left: .71875rem;            position: relative;            border: 1px solid #e8e8e8;            border-radius: 3px;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            height: 4.0625rem;            overflow: hidden;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            font-size: .78125rem;            -ms-flex-negative: 0;            flex-shrink: 0;            line-height: 1rem;            -webkit-transition: border .5s ease;            transition: border .5s ease        }        .course-detail .video-list ul li img[data-v-4e11b9bf] {            width: 1.78125rem;            height: .84375rem;            position: absolute;            top: 0;            left: 0        }        .course-detail .video-list ul li a[data-v-4e11b9bf] {            -webkit-transition: color .5s ease;            transition: color .5s ease;            padding: 0 .5rem        }        .course-detail .video-list ul li a[data-v-4e11b9bf]:link,        .course-detail .video-list ul li a[data-v-4e11b9bf]:visited {            color: #353535        }        .course-detail .video-list ul li.on[data-v-4e11b9bf] {            border-color: #ff5a05        }        .course-detail .video-list ul li.on a[data-v-4e11b9bf]:link,        .course-detail .video-list ul li.on a[data-v-4e11b9bf]:visited {            color: #ff5a05        }        .article-title[data-v-4e11b9bf] {            color: #353535;            font-weight: 400;            line-height: 1.65rem;            font-size: 1.34375rem        }        .article-info[data-v-4e11b9bf] {            color: #888;            font-size: .9375rem;            margin-top: 1.0625rem        }        .article-content[data-v-4e11b9bf] {            margin-top: 1.0625rem        }        .audio-player[data-v-4e11b9bf] {            width: 100%;            margin: 20px 0        }        .content-box[data-v-4e11b9bf] {            padding: 1px 1.3125rem;            background-color: #fff;            margin-top: .46875rem        }        .to-comment[data-v-4e11b9bf] {            overflow: hidden;            padding-top: 20px;            margin: 0 1.3125rem -10px        }        .to-comment a.button-primary[data-v-4e11b9bf] {            float: right;            height: 20px;            font-size: 12px;            line-height: 20px;            padding: 4px 8px;            cursor: pointer        }        .extra[data-v-4e11b9bf] {            margin-top: .46875rem;            margin-bottom: 67px;            background: #fff;            position: relative        }        .extra .video-comment-box[data-v-4e11b9bf] {            position: absolute;            width: 100%;            top: 0;            left: 0;            z-index: 3;            -webkit-box-sizing: border-box;            box-sizing: border-box;            background: #fff;            padding-left: 1rem;            padding-right: 1rem;            padding-top: .5rem        }        .extra .video-comment-box h3[data-v-4e11b9bf] {            color: #353535;            font-size: .875rem;            line-height: 2rem;            font-weight: 400        }        .extra .comments[data-v-4e11b9bf] {            margin: 0 1.3125rem;            padding-bottom: 50px        }        .extra .comments h2[data-v-4e11b9bf] {            text-align: center;            color: #888;            position: relative;            z-index: 1;            margin-bottom: 14px        }        .extra .comments h2[data-v-4e11b9bf]:before {            border-top: 1px dotted #e8e8e8;            content: "";            position: absolute;            top: 50%;            left: 0;            width: 100%;            z-index: -1        }        .extra .comments h2 span[data-v-4e11b9bf] {            font-size: 15.25px;            font-weight: 400;            padding: 16px 1rem;            background: #fff;            display: inline-block        }        .extra .comments .no-comment[data-v-4e11b9bf] {            text-align: center        }        .extra .comments .no-comment i.icon-cat[data-v-4e11b9bf] {            color: #f5f5f5;            font-size: 100px;            line-height: 1.2;            margin-right: 12px        }        .extra .comments .no-comment .no-comment-text[data-v-4e11b9bf] {            color: #e8e8e8;            font-size: 12.5px;            line-height: 1.6        }        .bottom[data-v-4e11b9bf] {            position: fixed;            bottom: 0;            left: 0;            width: 100%;            height: 67px;            background: #fff;            background-color: #f5f5f5;            z-index: 10        }        .bottom .buy-join[data-v-4e11b9bf],        .bottom[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center        }        .bottom .buy-join[data-v-4e11b9bf] {            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            height: 48px;            line-height: 48px        }        .bottom .buy-join span[data-v-4e11b9bf] {            line-height: 48px;            margin-left: 5px;            color: hsla(0, 0%, 100%, .5);            font-size: 11px;            text-decoration: line-through        }        .bottom .button-cancel[data-v-4e11b9bf] {            height: 51px;            line-height: 51px        }        .bottom-control[data-v-4e11b9bf],        .bottom-sub[data-v-4e11b9bf] {            width: 100%;            -webkit-box-orient: horizontal;            -ms-flex-direction: row;            flex-direction: row;            -ms-flex-pack: distribute;            justify-content: space-around;            -webkit-box-sizing: border-box;            box-sizing: border-box;            padding: 0 1.3125rem        }        .bottom-control .item[data-v-4e11b9bf],        .bottom-control[data-v-4e11b9bf],        .bottom-sub .item[data-v-4e11b9bf],        .bottom-sub[data-v-4e11b9bf] {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-direction: normal        }        .bottom-control .item[data-v-4e11b9bf],        .bottom-sub .item[data-v-4e11b9bf] {            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1;            -webkit-box-orient: vertical;            -ms-flex-direction: column;            flex-direction: column;            -webkit-box-pack: center;            -ms-flex-pack: center;            justify-content: center;            cursor: pointer        }        .bottom-control .item i[data-v-4e11b9bf],        .bottom-sub .item i[data-v-4e11b9bf] {            color: #353535;            font-size: 1.125rem;            line-height: 1.5rem        }        .bottom-control .item span[data-v-4e11b9bf],        .bottom-sub .item span[data-v-4e11b9bf] {            color: #888;            font-size: 11px        }        .button-subscribe[data-v-4e11b9bf] {            -webkit-box-flex: 1;            -ms-flex: 1;            flex: 1;            height: 69px;            color: #fff;            font-size: 15.25px;            text-align: center;            background-color: #ff5a05;            line-height: 69px;            border-radius: 5px        }        .article-sub-bottom[data-v-4e11b9bf] {            z-index: 2        }        @media only screen and (device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3) {            .bottom[data-v-4e11b9bf],            .comments[data-v-4e11b9bf] {                padding-bottom: 34px            }        }        @media (max-width:769px) {            .course-detail .breadcrumb[data-v-4e11b9bf] {                padding: 10px            }        }        @media screen and (min-width:768px) {            .extra .comments[data-v-4e11b9bf],            .to-comment[data-v-4e11b9bf] {                margin: 0 0 -10px            }        }</style><style type="text/css">        .mobile-tips {            width: 100%;            height: 51px;            background: rgba(0, 0, 0, .8);            position: fixed;            top: 0;            left: 0;            z-index: 20;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-sizing: border-box;            box-sizing: border-box;            padding: 0 12px;            -webkit-transition: opacity .35s;            transition: opacity .35s;            opacity: 0;            pointer-events: none        }        .mobile-tips.istop {            opacity: 1;            pointer-events: auto        }        .mobile-tips .mobile-tips-info {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            -webkit-box-pack: start;            -ms-flex-pack: start;            justify-content: flex-start        }        .mobile-tips .mobile-tips-info i {            width: 36px;            height: 36px;            background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAABECAYAAAA4E5OyAAAL30lEQVR4Ae2bBXTbStOG/VGZmVJM6lCZmZnplJmZmZkZ/o+Z4TIzM2O5aW+bimWZY8H7jxTnNvax2xQcnnOerHhm351R1rJsO3/+fG2i7uXLlxsGAoE9ABQUETMM42NFUfqZ/Q/qUMtmrqSnpyfquv4Giqb5yRaTDvVMUWxXrlxpRGK8i6JtAa/XO94Uxaaq6mEUm2nczZs3k2wAXLCs2Cg5jttQbNlvsrfDBCk2W96MhA7d54Qm34R662uoNz6z0Jjz0J0sDL/LPKhwC6J7HMi48g7crx6B8qcJkA6kQNzTGNJuk4ZBGkHa0wTSwVQ4/zkH3nd/aQlmBHyFRxCVRt3z1GY49iVB3l0f8kE7lJPtoPyyF5Rf9QnSN5Nf9oXTanvDcaoD5EOJdE4DKEdaw/vWOcoepuAKogppcP1pOqTtcZD3xUM51x3K//WhtncmZ7PoFXk5iMM6pycc+5vSterC/dwu6F5HwRHE0FR4XjgCeUt9KHsT4DxDnTxt0jNID4vgcoRtwfXw4+g6Fvsoa7Y3RMbXz+Z/QTSXSCXRBdK6KlBOdIVyqhe13e9Cj/vfR9d0nuwGeWN1uP+1DIau5k9BAuwViGvqQt6RAMfJ3pCPdoPjoegedbt17RO9IO9KhONQNxgZ3vwlSEb6hUwxdtop4B6QD3cN0iWM0G2OO9vD6BKhDT2OzrV8SXtSIe9tTaJ48ocgqsxAWlELjm2UGUdoVA91zhkHTaJuJ3J4jcPkc1cKHPs7AYaet4LoaoAyIx7i5oaQKXXlA50gRaUjpP0drWPkg7S+pwXE9XEQV9WAsKoWhJXVIa2sCXFdHKTdzcxj6NjOEa9pbdufbdvBrpC22eH808K8FcTxx2UQVlTNDGhfR6JDWEtkrR/oTG178OvqUoc7wP3kHmR8/yY0Pg2ag4Em34aafh7+z56G8pfl4JfVhLCmNsS9bc1zw65tLYdCMYira8L/9Ut5I4jv4kfgZ5eAtJeC23N35P1dIK1vBOXIYAQuvgtDC9w7+9wOeN/+CwneANLaOLpG53v72dcJwtKqMHyu3BVENwxIWztQyjc0R5toH529HSEsqw7f6799wCm/AuXsVKujJP49/NG+zXZ4/rs1dwXxfPIcZUdpKwBxR9sotLNGTVhUDeq1z/Gw5n76JPhZpchnO/PaUf2aMfELK5GQjtwRxDAMiDt7QFhNqbytLdEmBDGr3UlizC0P9frXeFTmevwIhFmlrWuTj6iI6xLge/lc7gjiT78Mfk6FTOdbiK0mrX9sRbPdTiO4tBb8Hz2BR23yyekQF1YlH+2zfGYjGA8NlLw+BdC12Aviev4cxFllIJtibG4dmY2pUE5OQCxM8/vAzakFeZ09un+KTZxfBeqNr2MriK5p4Dd0hLiiEaQNrSKzqQ2ldSVo4i3Eypyv/gXC1NLU+TYRYmhpteLaRLifPBBbQQIiA35mNQjrm0NY1yIya5KgnJiEWJrq94NbYoewKiF6HOtbwHFoeGwF8V36BPyUshDWNo9AC6vl5lSF75NnEEszCPk3KyHMqBA1DrMVlzeFkeGLnSDuj54GN6kUZQE5XN0MPBFsg8vNwU4sCZW/gVib+70nwE8oBX5Nlu9wmlM2V4UmM7ETxPnS78BOLQNuVTNwq7NIvdMS/KLG1qjE2ryXvwQ7uRL5TDb9R4ShDNK467ETRHnqBAlSjgRJjczKJIjr2ltT81ibn7kBblpN8pkYNR5mWnmo6RdjKMiTx8FPLgd+JWXCiuykZLbLswRRkVPTiYDbef+CsDfBTq1JPu2RYyHYqeURSPsqhiXz7C/BTSgNblky+BBSgiSBn98I+n08wZJe+Qe4YVXu+1mGJ+08mIlVyKedSI4IO6kcZcil2AnievNfYMf9AsLS5BB4q02y4Eb9HKqQszmIVxbAjCoJaUZjGOr9lZnrk1fAjSlp+eRD4shaJqZUgSalx04Q75dvgh31U3BLqOOLg4Qts2N+Ad8Xr+NephoGuPX9wJHA0qZu91VmBiH+fT/YkT8L+o8MP7chDL8ndoJkpF8FO7okuEV2IjEyM2rAcXYx7mXyU78F08dG5ZcIaU2n+xIkYADshn5gp1SKHsfiRBK6R2wnZprfC3ZqbXIYTw5DnN9ZX5IIdvjPoDklRDM3z+D2WOrMnLp0nv2+BVG++5RKrTSd2zToP5Iodrj+tDH2H+6kc8vATawAbmFiZBZR2UyoAMeZJVFKBWCWdgZL9c8tSaFzmkK8D0ECBLO6D7ixpiDJUeNgp9ZA4Nt3Yi+I96u3wQy2gTWdLrBHxhwhOsZ34bPw2ofw37NgBtisGmfn28HMj4e4umOOBDEI6aV/gxtE5y+kc7P8zQ/zT7HxMxvAUDNiL4ie4Qc3oTq4eY3BUSARWUCCzIqjwH+KgCwgy1xpF8EM/Bntq2cdYx07Lx7SqpwJolz+HuzQMuCn16LzSdDI/ml7U7j/vCX3HiEqf9sLfvjPIVBQ/Dw7+PlBaFkgeJOFyeAnVabyqmPde1QA7JKO4EaVgLAwhY7JOj4B0sq7C2IQzqsk5mgaiPHlwS9K+dGnkN0/YcbEjSljTtlzTxDV5QAz9GeZWUId4uZHgWqcHV8O3JL24I4uADuhCnXGHnrMvCYkSIeoghiE8u3HYIbQdaz7TnJ0fyYL4qEcnZ77X0Mo/zkGhmqZNVN3bkIm84LMzQZlCju1FtjRpcxUpv32kP3M3CYQV0QXRNMNpE9PBWv6WpRM54T6CPE9PxHMqFLQJSb3BdFVFey4GuCm1qaAqJNzEh4IZnYTCMvv/vlH/Ou+TPHnJYKdHX6+BS1TDNPi4HnseN59c5dx6wqYHjYKMp6g0Z+VQC1BbdTl8G0zG99TkIDPC2Z0FbBT69J54deMJ0xBmkLaMDTvv+x2v/I3MP1JlLmJFFjTsA5HIUQQypBl7e75X0Z+7LQ1s2XnJZnnhkLb+GkNzGl6/ngdwvmPg2D72qwaZufEmx0NtlnL2QUJbs88jmgMMQeCqH4/zW6rm/ej4PXiM9v5SeAmx0Hjf8hfL8y4/ncCXG8bmLnxYOYkEE0yoXsEa7V3YIkf981uRCXTLmfzkFf/DaYn+Zhvz/Rh/oeb0hi6mJ4/X6nymOVDorBT48yaDtY3MdNsw5iZ1VKGLM2ZIFogQFlSmzKiJtjpDei8ztAVIX+/dJdx/TzEGSnghpUAT6LwVOMcddxiZpBZ2ZjRGFIOBTHN+enrYFNKwP3LtQCMgvFapqHrcD/9S3CDK4IbUwHc7AQiKEw4M0mQZff32FGT2IL54q7mkuH+7zGIUxuBHfoLcFPrkTDZxcgURJxtv/8PYgVJkAyfF3r2jFED8H/9NpznlkGcmwJ+WGlwQ0uAG18N3JSakGZRyehazq8f/Fq14AgiceCOrYSbvR2xyjWZQ8b5D+F9/Z/w0H8njb2eYyHEWzehPPUHU+SCVTJe+kCW3t4G/tgCKN9+Ap/bjfsdUyP4uNAtyxA+fRPpR+ZBWj7QFKNg3kMC7A2wCTZw5txhcjzYXZMgvPh3OM5/DiebDo/XB59mwK9q8Psz4KV1t0OGkv4DpG8+Bvf8X3F76zgwU+xgaZbq3LaoEPwawiFAGFsHwogS4EaWBdfPBnZoWTAT4sDObgZmcWcwK/uANVnSFczsFmAmNQAzrLw1++WGlwI7siQ8v9lUeH4vo/k8cGwdDn7YL8CZD3RmNQY3tS74idXBjasEbkx5C95cnlAd/NQ64Gc2Aj8vERw9jPa/+IfC+Ysq13+OgutlAz8tDtwce+R5iclsO9gZDSHOaw017dvC/ROzjFuXoWweDI4+IXOTa5kTthDYyZQdk+rC+6+DgK4Xjd/cWcJc+wauP22BNC8VwuiKEKc1gGPbMPhe+gN0l1xoJmb3b7oOzcFD97nz4Uy12LRiQUKSVX/bRn8+QbFZ5nQ6J9ocDscwAP4iXyua9vj58+fjbeYfr9e7ytxWhEvls7S0tOakRWOb+YeId7vdcw3DEItgZjxx7dq1ZqRBE6KRKUiD4Er89evXWwUCgTMkDFvYdTBvoHTPmEz9TsgSg6j///oXgzKZqkEyAAAAAElFTkSuQmCC);            background-position: 0 0;            background-repeat: no-repeat;            background-size: contain;            border-radius: 7px        }        .mobile-tips .mobile-tips-info h2 {            font-size: 15px;            color: #fff;            font-weight: 400;            margin-left: 6px        }        .mobile-tips .mobile-tips-info h2 span {            font-size: 11px        }        .mobile-tips a {            width: 72px;            height: 31px;            text-align: center;            border: 1px solid #ff5a05;            border-radius: 3px;            font-size: 13px;            color: #ff5a05;            line-height: 31px        }</style><style type="text/css">        .comment-item {            list-style-position: inside;            width: 100%;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            margin-bottom: 1rem        }        .comment-item a {            border-bottom: none        }        .comment-item .avatar {            width: 2.625rem;            height: 2.625rem;            -ms-flex-negative: 0;            flex-shrink: 0;            border-radius: 50%        }        .comment-item .info {            margin-left: .5rem;            -webkit-box-flex: 1;            -ms-flex-positive: 1;            flex-grow: 1        }        .comment-item .info .hd {            width: 100%;            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-pack: justify;            -ms-flex-pack: justify;            justify-content: space-between;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .comment-item .info .hd .username {            color: #888;            font-size: 15.25px;            font-weight: 400;            line-height: 1.2        }        .comment-item .info .hd .control {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center        }        .comment-item .info .hd .control .btn-share {            color: #888;            font-size: .75rem;            margin-right: 1rem        }        .comment-item .info .hd .control .btn-praise {            display: -webkit-box;            display: -ms-flexbox;            display: flex;            -webkit-box-orient: horizontal;            -webkit-box-direction: normal;            -ms-flex-direction: row;            flex-direction: row;            -webkit-box-align: center;            -ms-flex-align: center;            align-items: center;            font-size: 15.25px;            text-decoration: none        }        .comment-item .info .hd .control .btn-praise i {            color: #888;            display: inline-block;            font-size: .75rem;            margin-right: .3rem;            margin-top: -.01rem        }        .comment-item .info .hd .control .btn-praise i.on,        .comment-item .info .hd .control .btn-praise span {            color: #ff5a05        }        .comment-item .info .bd {            color: #353535;            font-size: 15.25px;            font-weight: 400;            white-space: normal;            word-break: break-all;            line-height: 1.6        }        .comment-item .info .time {            color: #888;            font-size: 9px;            line-height: 1        }        .comment-item .info .reply .reply-hd {            font-size: 15.25px        }        .comment-item .info .reply .reply-hd span {            margin-left: -12px;            color: #888;            font-weight: 400        }        .comment-item .info .reply .reply-hd i {            color: #ff5a05;            font-size: 15.25px        }        .comment-item .info .reply .reply-content {            color: #353535;            font-size: 15.25px;            font-weight: 400;            white-space: normal;            word-break: break-all        }        .comment-item .info .reply .reply-time {            color: #888;            font-size: 9px        }</style></head><body style=""><div id="app"><div data-v-4e11b9bf="" class="course-detail"><div class="breadcrumb breadcrumb"><span><a href="#" class="title router-link-active">讲堂</a><span class="split iconfont"></span></span><span><span class="title">12 | 面试题：返回滑动窗口中的最大值</span></span></div><div data-v-4e11b9bf="" class="course-main main" style="position: relative;"><div data-v-4e11b9bf="" class="vplayer" id ="DplayerCont" style="height: 416.25px;"><h2 class="title">                        12 | 面试题：返回滑动窗口中的最大值</h2></div></div><div data-v-4e11b9bf="" class="course-info" style="margin-top: 0px;"><div data-v-4e11b9bf="" class="course-info-top"><h1 data-v-4e11b9bf="" class="course-title"></h1><i data-v-4e11b9bf="" class="iconfont"></i></div></div><div data-v-4e11b9bf=""><div data-v-4e11b9bf="" class="content-box"><div data-v-4e11b9bf="" id="article-content" class="typo common-content"><div class="text">                            <h1>课件下载地址</h1><p><a href="https://github.com/geektime-geekbang/algorithm-1">https://github.com/geektime-geekbang/algorithm-1</a></p><h1>返回滑动窗口中的最大值</h1><ul>
+<li>英文版：<a href="https://leetcode.com/problems/sliding-window-maximum/">https://leetcode.com/problems/sliding-window-maximum/</a></li>
+<li>中文版：<a href="https://leetcode-cn.com/problems/sliding-window-maximum/">https://leetcode-cn.com/problems/sliding-window-maximum/</a></li>
+</ul><h1>额外福利</h1><p>听了本节课，你有什么收获呢？检验学习成果最好的方式莫过于输出和分享，欢迎进入“算法面试交流群”，和覃超老师及更多同学们交流算法面试的学习心得，还能实时掌握大厂求职的最新动态，优先获得内推机会哦。</p><p>由于申请人数太多，进群免费但设置了一道小门槛，欢迎你添加小莫微信（imonica1010）/备用小助手大宝（geektime004)了解进群规则。</p><!-- [[[read_end]]] --></div></div></div></div><div data-v-4e11b9bf="" class="extra" style="margin-bottom: 1rem;"><div data-v-4e11b9bf="" class="comments"><h2 data-v-4e11b9bf=""><span data-v-4e11b9bf="">精选留言</span></h2><ul>                        <li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/4f/9d/72461b25.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">子青</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>11</span></a></div>
+	</div>
+	<div class="bd">看一个数组：1，3，1，2，0，5 window也设为3。会移动到这步：deque：[3,1,2]，再下一步变为：[1,2,0] 此时deque中第一个元素（也就是最大元素）是1而不是2！</div> <span class="time">2018-10-15</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">2进入window的时候，会把前面的那个1先顶出window.</p> <p class="reply-time">2018-10-17</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/12/51/47/6875debd.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">预见</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>5</span></a></div>
+	</div>
+	<div class="bd">和 子青 同学同样的问题<br> [1,3,1,2,0,5]  k=3, 第一次队列元素为[3,1]返回3，第二次为[3,1,2]，返回3，第三次[1,2,0] 返回1，而不是2。 老师说的2入队列的时候会把1挤出去，是怎么做到的呢？难道每次将新增元素与队列所有元素进行比较吗？</div> <span class="time">2018-10-21</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">kris37</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>3</span></a></div>
+	</div>
+	<div class="bd">使用双端队列实现的时候双端队列里存储的 数组索引，而不是元素，这样才能实现 O(n) 的时间复杂度</div> <span class="time">2018-10-19</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/8a/ed/0fed07ae.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">冰梨icePear🍐</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">我的理解一种算法比另外种在当前环境下更优一定是有地方解决了前一种算法的哪里做的无用功，这个例子里deque是不是就是避免了堆中需要重排的这部分无用功从而优化了性能？有一点不理解的地方为什么用deque，我看并没有从右边出列的情况，使用普通的队列为什么不行呢？</div> <span class="time">2018-10-22</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">这是一个很好的问题。首先为什么用deque，就是因为在插入的时候，需要从 window 左边移除元素，而下标出了 window 之后，需要用右侧移除。回到你前半部分的理解：算法更优是因为有地方解决了前一种算法做的无用功，这个正确：这里我们不需要用堆去维护window里k个元素的大小顺序，只需要记录最大值，所以用heap有点杀鸡用牛刀的意思。</p> <p class="reply-time">2018-11-01</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/da/1f/290758b1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">L*Z*田</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">老师，有一种情况，<br>［6，4，5，3，2，1］，k=3，<br>当3入队时，6出队，因为4和5都比3大，所以需要重新判断窗口中哪个数值最大，这部分的时间复杂度是不是忘记算了？</div> <span class="time">2018-10-18</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">4在5被加入的时候就已经出去。由于每个元素只在window里呆一次，所以操作window的复杂度不和循环进行嵌套了。</p> <p class="reply-time">2018-10-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/2b/10/449087ff.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">周军5656</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">deque没有维护第二大数字，当最大值移除后，是否要重新算最大值?</div> <span class="time">2018-10-13</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">对的，需要的。只是按照我们开始的算法，最大数出去之后，剩下的第二个数就是window-k里的最大数。</p> <p class="reply-time">2018-10-14</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/48/bf/a9c9b1a1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">杨松宝</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>2</span></a></div>
+	</div>
+	<div class="bd">每个元素进队列后，是需要判断是否要干掉前面的数的吧，这个时间不用算吗？</div> <span class="time">2018-10-11</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">这个判断的时间是常数时间，不会在里面嵌套O(n)的时间，因为在全部循环操作中，每个元素都只进入k window一次</p> <p class="reply-time">2018-10-11</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/f5/dd/da479e12.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">李世奇</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">新元素进入window要从右侧元素开始比较，不能从左侧比较。   <br> var maxSlidingWindow = function (nums, k) {<br>      const window = [];<br>      const result = [];<br>      for (let i = 0; i &lt; nums.length; i++) {<br>        if (i - window[0] &gt; k - 1) {<br>          window.shift();<br>        }<br>        let j = window.length - 1;<br>        while (j &gt;= 0 &amp;&amp; nums[window[j]] &lt;= nums[i]) {<br>          j--;<br>          window.pop();<br>        }<br>        window.push(i);<br>        if (i &gt;= k - 1) {<br>          result.push(nums[window[0]]);<br>        }<br>      }<br>      return result;<br>    };</div> <span class="time">2019-01-27</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/d1/9a/0c0a2f8b.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">滕士波</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">看了半天终于明白了，这个题目的关键在于队列里面存储的是下标而不是元素值，这样可以解决窗口滑动的问题.  写了一个java版本的实现.<br>public static ArrayList&lt;Integer&gt; kSlidingMax2(int k,int []a){<br>        ArrayList&lt;Integer&gt; result = new ArrayList&lt;&gt;();<br>        Queue&lt;Integer&gt; queue = new LinkedBlockingQueue&lt;&gt;(k);<br>        queue.add(0); &#47;&#47;将数据第一个元素先放入队列.<br>        for(int i=1;i&lt;a.length;i++){<br>            &#47;&#47;判断最大元素是否超出滑动窗口,若超出则将最大元素移出队列.<br>            &#47;&#47;可以保证队列内的元素始终小于等于k个. 这个才是整个算法的关键<br>            &#47;&#47;注意队列里面放的是元素的下表而不是元素的值.<br>            if(queue.peek()&lt;i-k+1){<br>                queue.remove();<br>            }<br>            &#47;&#47;新的元素要a[i]要入队，入队之前先清除比a[x]小的元素<br>            Iterator&lt;Integer&gt; it = queue.iterator();<br>            while (it.hasNext()){<br>                if(a[it.next()]&lt;a[i]){<br>                    it.remove();<br>                }<br>            }<br>            queue.add(i);<br><br>            if(i&gt;=k-1){<br>                result.add(a[queue.peek()]);<br>            }<br>        }<br>        return result;<br>    }</div> <span class="time">2019-01-24</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/f2/48/d5b30171.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">凤梨酥</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>1</span></a></div>
+	</div>
+	<div class="bd">懂了，队列的元素已经按照从大到小自然排列了，所以每个入队的元素只有被后来者比较一次的机会，所以内循环可以不算做时间复杂度n</div> <span class="time">2019-01-18</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/48/75/02b4366a.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">乘坐Tornado的线程魔法师</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">第二种解法(双端队列)每次for循环内部的while循环需要逐个比较，个人认为实际时间复杂度为O(k*n)，进而为O(n)。不过当k为很大的数时，logk*n远小于k*n。则第一种算法(最大堆)实际操作起来用时更少，不确定这样想是否正确，请指正。 </div> <span class="time">2019-02-07</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/f5/dd/da479e12.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">李世奇</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">第二个解法有问题，[1,3,1,2,0,5]这种case过不了</div> <span class="time">2019-01-27</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/65/21/135efc41.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">黃威</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">请问maxheap的方法中，window向右移时，最左元素如何去除的呢？heap不是只能去除顶点吗？</div> <span class="time">2019-01-13</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/86/1e/100b4132.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">石头</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">&#47;**<br> * 解法一. MaxHeap<br> * a.维护 heap  (log k)<br> * b. max -&gt; top (O(1))<br> * 最终 time (N*logk)<br> *<br> * 解法二. Queue -&gt; deque(双端队列) 下面用的是解法二<br> * a.入队列<br> * b.维护<br> * 最终 time O(n)<br> *<br> * 解法二 java 思路<br> * 遍历 数组<br> *    第一步 循环 将超出当前window 的元素移除<br> *    第二步 循环 将当前window 内小于比较值的队尾元素移除 直至当前window为空 或者 window内的值比待插入值小<br> *    第三步 插入当前值的索引在队列中<br> *    第四步 判断当前索引是否已经大于 window的大小 如果大于 则开始插入队首元素到 结果数组中<br> * 返回结果<br> * @author stone<br> * @date 2019&#47;1&#47;11&#47;011 10:16<br> **&#47;<br>public class SlidingWindowMaximum {<br><br>    public int[] maxSlidingWindow(int[] nums, int k) {<br><br>        if (nums == null || k &lt;= 0) {<br>            return new int[0];<br>        }<br><br>        int[] result = new int[nums.length - k + 1];<br>        int resultIndex = 0;<br>        Deque&lt;Integer&gt; q = new LinkedList&lt;Integer&gt;();<br>        for (int i = 0; i &lt; nums.length; i++) {<br>            &#47;&#47; 超过范围的元素移除<br>            while (!q.isEmpty() &amp;&amp; q.peek() &lt; i - k + 1 ) {<br>                q.poll();<br>            }<br>            &#47;&#47; 队列尾部小于 当前值的 元素移除，依次循环<br>            while (!q.isEmpty() &amp;&amp; nums[q.peekLast()] &lt; nums[i]) {<br>                q.pollLast();<br>            }<br>            q.offerLast(i);<br>            &#47;&#47;<br>            if (i &gt;= k - 1) {<br>                result[resultIndex++] = nums[q.peek()];<br>            }<br>        }<br>        return result;<br>    }<br><br>    public static void main(String[] args) {<br>&#47;&#47;        int[] arr = {1, 3, -1, -3, 5, 3, 6, 7};<br>&#47;&#47;        int k = 3;<br>        int[] arr = {1,-1};<br>        int k = 1;<br>        SlidingWindowMaximum slidingWindowMaximum = new SlidingWindowMaximum();<br>        int[] result = slidingWindowMaximum.maxSlidingWindow(arr, k);<br>        for (int item : result) {<br>            System.out.println(item);<br>        }<br>    }<br>}</div> <span class="time">2019-01-11</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/61/55/827069af.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">缱绻</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">Java版本<br>class Solution {<br>    public int[] maxSlidingWindow(int[] a, int k) {		<br>		if (a == null || k &lt;= 0) {<br>			return new int[0];<br>		}<br>		int n = a.length;<br>		int[] r = new int[n-k+1];<br>		int ri = 0;<br>		&#47;&#47; store index<br>		Deque&lt;Integer&gt; q = new ArrayDeque&lt;&gt;();<br>		for (int i = 0; i &lt; a.length; i++) {<br>			&#47;&#47; remove numbers out of range k<br>			while (!q.isEmpty() &amp;&amp; q.peek() &lt; i - k + 1) {<br>				q.poll();<br>			}<br>			&#47;&#47; remove smaller numbers in k range as they are useless<br>			while (!q.isEmpty() &amp;&amp; a[q.peekLast()] &lt; a[i]) {<br>				q.pollLast();<br>			}<br>			&#47;&#47; q contains index... r contains content<br>			q.offer(i);<br>			if (i &gt;= k - 1) {<br>				r[ri++] = a[q.peek()];<br>			}<br>		}<br>		return r;<br>	}<br>}</div> <span class="time">2019-01-09</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/9d/a4/5d2b5aed.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">雷朝建</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">我在写此类算法题时候，使用的是JS语言， 所以直接编写如下的代码：<br>var maxSlidingWindow = function(nums, k) {<br>  if (nums.length === 0) return nums;<br>  const r = [];<br>  for (let i = k; i &lt;= nums.length; i++) {<br>    r.push(Math.max(...nums.slice(i - k, i)));<br>  }<br>  return r;<br>};<br>我当时还特别疑惑为什么此题的难度为hard。<br><br>编程语言有时候会限制个人的思维， 前端的代码没有遇到过复杂的数据结构， 导致一些思路根本打不开，这也是我需要克服的一点。</div> <span class="time">2019-01-06</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">好的总结和回顾！ 👍🏻</p> <p class="reply-time">2019-01-22</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83epzwbJGbUmgEC77J6QY6A5pLPdPbw7sqk4DcsHK8qPw7OiaiaMD7pjzb8uHlkY5uLZRibWVvPDDAgM5A/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">mersa</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师白板说的双端队列和代码实现的不是一样的。代码的while是每次用数组的最后一个元素去和当前比较，一次循环结束以后，最多2个元素(不管k多大)，即此次最大值[0]和当前值[1]。我这里说说我的想法，不知道对不对。其实这就是一道普通题。第一组k个数，求最大值。就是一个for循环，时间复杂度O(k)。后面窗口移动就是进入的值和当前的最大值比较，这个就是O(1)的复杂度，剩下N-k个数。也就是说O(k)+O(1*(n-k))=O(n)。当然了代码不一定有老师这个精简</div> <span class="time">2018-12-31</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/3b/ec/ac9a5924.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Derek</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">GO语言版本实现：<br><br>func maxSlidingWindow(nums []int, k int) []int {<br>    if len(nums) == 0 {<br>        return nil<br>    }<br>    window := list.New()<br>    var ret []int<br>    for i, v := range nums {<br>        if i &gt;= k &amp;&amp; window.Front().Value.(int) &lt;= i-k {<br>            window.Remove(window.Front())<br>        }<br>        for window.Len() &gt; 0 &amp;&amp; nums[window.Back().Value.(int)] &lt;= v {<br>            window.Remove(window.Back())<br>        }<br>        window.PushBack(i)<br>        if i &gt;= k-1 {<br>            ret = append(ret, nums[window.Front().Value.(int)])<br>        }<br>    }<br>    return ret<br>}</div> <span class="time">2018-12-20</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍🏻👍🏻</p> <p class="reply-time">2018-12-24</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/43/ba/b5154c79.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">泉</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">暴利解法，测试性能快于引用双端队列<br>public int[] maxSlidingWindow(int[] nums, int k) {<br>        if(nums == null || nums.length == 0){<br>            return new int[0];<br>        }<br>        if(nums.length&lt;k){<br>            return new int[0];<br>        }<br>        int length = nums.length;<br>        int res [] = new int[length-k+1];<br>        int max = 0;<br>        int j ,index;<br>        &#47;&#47;变量nums<br>        for (int i = 0; i &lt; length-k+1; i++) {<br>            &#47;&#47;一次遍历k次<br>            j=0;<br>            index = i;<br>            &#47;&#47;给max 赋予初始值<br>            max = nums[i];<br>            while (j&lt;k){<br>                if(nums[index]&gt;max){<br>                    max = nums[index];<br>                }<br>                j++;<br>                index++;<br>                if(index&gt;=length){<br>                    break;<br>                }<br><br>            }<br>            res[i] = max;<br><br>        }<br>        return res;<br>    }</div> <span class="time">2018-12-20</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/5e/61/cced9864.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">songyy</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">第一种用优先队列的方法的时间复杂度需要再审核一下？常见的二叉堆的实现方法都是 array，而 array 里面除了删除末尾元素时间复杂度都是O(n)，因为包含了元素的位移。LeetCode 上的讨论区也指出这种方法的实际复杂度是 O(nk) 而不是 O(nlogk)。</div> <span class="time">2018-12-18</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">我们可以假设我们用的heap是严格的logN的复杂度。因为这题不是要考我们手搓优先队列。</p> <p class="reply-time">2018-12-24</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/14/05/79/10e19742.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">fiveone.lwq</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">感觉有点问题啊 [1,3,1,2,0,5] 3  当遇到2怎么处理   也就是312的时候 2该怎么放</div> <span class="time">2018-12-17</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">2把它前面的1干掉，自己贴在3后面。</p> <p class="reply-time">2018-12-24</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/d6/02/dfcf14be.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">...</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">提供一个仿写的Go语言版本：<br>import &quot;container&#47;list&quot;<br><br>func maxSlidingWindow(nums []int, k int) (result []int) {<br>	if len(nums) == 0 {<br>		return<br>	}<br>	window := list.New()<br>	for i, x := range nums {<br>		if i &gt;= k &amp;&amp; window.Front().Value.(int) &lt;= i-k { &#47;&#47; 移除头元素<br>			window.Remove(window.Front())<br>		}<br>		for window.Len() &gt; 0 &amp;&amp; nums[window.Back().Value.(int)] &lt;= x { &#47;&#47; 移除尾元素<br>			window.Remove(window.Back())<br>		}<br>		window.PushBack(i)<br>		if i &gt;= k-1 {<br>			result = append(result, nums[window.Front().Value.(int)])<br>		}<br>	}<br>	return<br>}</div> <span class="time">2018-12-16</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/fd/c2/48a62712.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Mr.W</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">&#47;**<br> * 上一个窗口和下一个窗口有重合部分，所以重合部分需要再进行二次比较，<br> * 只需要比较上一个窗口的最大值和下一个窗口最后一个值即可<br> * [1,3,-1]<br> *   [3,-1,-3]<br> *&#47;<br>public int[] maxSlidingWindow(int[] nums, int k) {<br>        if (nums == null || nums.length &lt;= 0 || k &lt;= 0) {<br>            return new int[0];<br>        }<br><br>        int length = nums.length;<br>        int[] result = new int[length - k + 1];<br><br>        &#47;&#47;最大值索引<br>        int index = 0;<br>        &#47;&#47;最大值<br>        int max = nums[0];<br><br>        &#47;&#47;找到第一个窗口最大值<br>        for (int i = 0; i &lt; k; i++) {<br>            if (nums[i] &gt;= max) {<br>                max = nums[i];<br>                index = i;<br>            }<br>        }<br>        result[0] = max;<br><br>        &#47;&#47;遍历当前窗口，确定当前窗口最大值<br>        int tmp = 1, l = k - 1, s = 0;<br><br>        while (tmp &lt; result.length) {<br>            s++;<br>            l++;<br>            &#47;&#47;如果上一个区间的最大值在当前区间内，只需要比较上一个区间的最大值和当前区间的最后一个值，记录并更新max和index<br>            if (index &gt;= s) {<br>                &#47;&#47;该最大值为当前区间最后一个，更新index及max<br>                if (nums[l] &gt;= nums[index]) {<br>                    index = l;<br>                    result[tmp] = nums[l];<br>                } <br>                &#47;&#47;最大值不变，记录max、不更新，index不变<br>                else {<br>                    result[tmp] = nums[index];<br>                }<br>            }<br>            &#47;&#47;上一个区间的最大值不在当前区间内，比较当前区间最后一个值和上一个区间的最大值，<br>            &#47;&#47; 如果当前区间最后一个值大于上个区间最大值，说明该值为当前区间最大值，否则找出最大值，记录下标和值<br>            else {<br>                &#47;&#47;该最大值为当前区间最后一个，更新index及max<br>                if (nums[l] &gt;= nums[index]) {<br>                    index = l;<br>                    result[tmp] = nums[l];<br>                } <br>                &#47;&#47;找出当前区间最大值，更新并记录max和index<br>                else {<br>                    index = l;<br>                    result[tmp] = nums[l];<br>                    for (int i = s; i &lt; l; i++) {<br>                        if (nums[i] &gt; result[tmp]) {<br>                            result[tmp] = nums[i];<br>                            index = i;<br>                        }<br>                    }<br>                }<br>            }<br>            tmp++;<br>        }<br>        return result;<br><br>    }</div> <span class="time">2018-12-15</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/b6/f1/a14fbf9d.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Cwift</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">写了个C++版本的：<br><br>vector&lt;int&gt; maxSlidingWindow(vector&lt;int&gt;&amp; nums, int k) {<br>        vector&lt;int&gt; res;<br>        deque&lt;int&gt; window;<br>        if (nums.empty() ) return res;<br>        for(int i = 0;i&lt; nums.size();i++){<br>            if(i &gt;=k &amp;&amp; window.front() &lt;= (i - k)){<br>                window.pop_front();<br>            }<br>            while(!window.empty() &amp;&amp; nums[window.back()] &lt;= nums[i])<br>                window.pop_back();<br>            window.push_back(i);<br>            if(i &gt;= (k - 1)) res.push_back(nums[window.front()]);<br>        }<br>        return res;<br>    }</div> <span class="time">2018-12-14</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">👍🏻👍🏻👍🏻</p> <p class="reply-time">2018-12-24</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/09/42/b7a406c9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Hurt</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师 两个 循环了 为什么时间复杂度是 On 的呢  没看懂这里老师</div> <span class="time">2018-12-11</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">好问题。因为两层循环每层并不是跑满 o(n)。虽然是两层循环，但是从最后效果看，每个元素只被放入和拿出window一次，所以还是线性的时间复杂度。</p> <p class="reply-time">2018-12-12</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Don</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">time complexity for PQ solution, should be O(NK), I think remove(object) takes O(K). remove max&#47;min, takes O(logK)</div> <span class="time">2018-12-07</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/76/4e/928a5dbb.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">better man</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">回复 子青和预见，数组：1，3，1，2，0，5 window也设为3。个人理解，当deque：[3,1,2]时，会把前面的那个1先顶出window，即[3,  ,2],接下来移动窗口，[   2,0],最大元素是2,接着移动[2,0,5]就变成了[     5],最大值为5.不知道理解对不对，希望老师和朋友们留言。</div> <span class="time">2018-11-17</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">对的。新元素x进来之后，所以在window里的比x小的都会被移出去了。</p> <p class="reply-time">2018-11-25</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/dmUHUQtsNA2m9XeRoyolj6cE9VNVcVx6OIxcgiaDLBdIwiaYgZkxnu59wCqYxX7cJ44toNtRVDqCKAf2ibhibTDsnQ/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">jksj</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">希望可以出一些java版的解法，Thanks♪(･ω･)ﾉ</div> <span class="time">2018-11-17</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/9d/5e/02e4e89e.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">天天天蓝</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">自己写了一个python版本的:<br>import Queue<br>class KthLargest(object):<br><br>    def __init__(self, k, nums):<br>        &quot;&quot;&quot;<br>        :type k: int<br>        :type nums: List[int]<br>        &quot;&quot;&quot;<br>        self.k = k<br>        self.q = Queue.PriorityQueue(self.k)<br>        for i in nums:<br>            self.add(i)<br>            <br>    def add(self, val):<br>        &quot;&quot;&quot;<br>        :type val: int<br>        :rtype: int<br>        &quot;&quot;&quot;<br>        x = None<br>        if not self.q.full():<br>            self.q.put(val)<br>            x = self.q.get()<br>        else:<br>            x = self.q.get()<br>            if x &lt; val:<br>                self.q.put(val)<br>                x = self.q.get()<br><br>        self.q.put(x)<br>        return x<br><br>提交之后发现了一个人写的特别好的，发出来大家看一下：<br>class KthLargest(object):<br>    import heapq<br>    def __init__(self, k, nums):<br>        &quot;&quot;&quot;<br>        :type k: int<br>        :type nums: List[int]<br>        &quot;&quot;&quot;<br>        self.nums = nums<br>        self.k = k<br>        heapq.heapify(self.nums)<br>        while len(self.nums) &gt; k:<br>            heapq.heappop(self.nums)<br><br>    def add(self, val):<br>        &quot;&quot;&quot;<br>        :type val: int<br>        :rtype: int<br>        &quot;&quot;&quot;<br>        if len(self.nums) &lt; self.k:<br>            heapq.heappush(self.nums, val)<br>        elif val &gt; self.nums[0]:<br>            heapq.heapreplace(self.nums, val)<br>        <br>        return self.nums[0]</div> <span class="time">2018-11-04</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/e1/0e/2912db26.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">无梦何以展翅</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，能给一个最大堆最小堆的快速写法吗，这个不熟悉，希望您能给予帮助</div> <span class="time">2018-11-02</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/48/2e/458dc1fb.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">包包</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">第二种方法其实维护过window只会有三种情况: [max], [max, other], [max, other, less_other]. 所以每次其实跟window[0]比较就可以吧(第三种挪动后max出去了). 但其实怎么维护没有太听明白，所以我每次进新元素都要和window[0]进行比较？然后大于相当于就是清空当前的window只留新元素，小于的话继续比较然后清除比新元素小的</div> <span class="time">2018-10-31</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="http://thirdwx.qlogo.cn/mmopen/vi_32/HaclWxrn1Qcs2tiak21GL30n21zbAmDEz2Buxpceyz7rbaV0bfRgbDV4vYqCJibf51QNHDdNnCohQgI2lgsJE4FQ/132" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">dancers</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，期待后面能多出一些javascript语言的写法，谢谢啦！</div> <span class="time">2018-10-27</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">panda</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">回复预见同学的：<br>[3,1]时2进来前会从右到左判断对面里的元素是不是比2小，即1-&gt;3的顺序，然后从右边出队。所以2进来后队列只剩[3,2]两个元素了</div> <span class="time">2018-10-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/09/42/b7a406c9.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">Hurt</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师你说 只要比X老 就移除  如果有很多个和X相等的  会不会超出 窗口啊</div> <span class="time">2018-10-26</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">堕落天使</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd"> 看了老师的讲解，还是有些疑问，望老师解答。比如一个数组：[1,4,2,1,3,0,5] window设为4。<br> 第一步为：[4,2,1]，下一步3进来，那么是变成[4,2,1,3]，还是变成[4,3]呢？<br> 如果是[4,2,1,3],那么当再下一步0进来的时候，还需要遍历队列找出最大值，这个时间复杂度是O(K)。<br> 如果是[4,3]，那么3进来时是否需要与之前的元素一一比较？如果需要的话，时间复杂度还是O(K)。不需要的话又怎么做到[4,3]呢？</div> <span class="time">2018-10-23</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/bb/36/d37cfd73.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">liming</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">期待更新</div> <span class="time">2018-10-21</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/43/24/3f9f7c70.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">zixuan</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">    def maxSlidingWindow(self, nums, k):<br>        &quot;&quot;&quot;<br>        :type nums: List[int]<br>        :type k: int<br>        :rtype: List[int]<br>        &quot;&quot;&quot;<br>        result = list()<br>        candidates = list()<br>        <br>        for i in range(len(nums)):<br>            if candidates and (i - candidates[0]) &gt;= k:<br>                candidates.pop(0)     <br>            while candidates and (nums[i] &gt;= nums[candidates[-1]]):<br>                candidates.pop()        <br>            candidates.append(i) <br>            <br>            if i &gt;= k-1:<br>                result.append(nums[candidates[0]])<br>            <br>        return result</div> <span class="time">2018-10-21</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">AI089</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">时间复杂度的问题可以这样分析：<br>1.当一个新元素加入窗口的时候，会进行若干次比较，且踢出若干个比他小的元素<br>2.因为1的原因，所以在新元素还没加进来之前，窗口里的元素相当于是排序的<br>3.因为2所以若干次比较中只有一次失败的比较，因为再往前比没有意义，越前面越大.<br>4.因为一个元素最多被踢出窗口一次，把成功的比较平摊到元素上，也就是n个。不成功的比较平摊到窗口的移动上也是n<br></div> <span class="time">2018-10-21</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/10/da/1f/290758b1.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">L*Z*田</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">老师，有一种情况，<br>［6，4，5，3，2，1］，k=3，<br>当3入队时，6出队，因为4和5都比3大，所以需要重新判断窗口中哪个数值最大，这部分的时间复杂度是不是忘记算了？</div> <span class="time">2018-10-18</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">没有，关键是要理解：每个元素只过window一次，所以总体上它没有把o(n)的复杂度嵌套在外层的循环里。</p> <p class="reply-time">2018-10-19</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/0f/5e/61/cced9864.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">songyy</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">说这个的：不使用任何数据结构：直接记录最大的值，当当前值小于或等于最大值的时候输出最大值；当当前值大于最大值的时候替换最大值，然后再输出最大值。<br><br>反例是：[6,5,4,3,2,1], k = 3<br>应该输出：[6,5,4,3]<br>如果替换的时候重新寻找最大值，那么复杂度是O(Nk)</div> <span class="time">2018-10-16</span>
+	<div class="reply">
+	
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/13/46/fa/2dbc4d99.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">岳</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">在K比较大时，优先队列还是有优势的吧，比如K为9999；<br>另外我觉得采用优先队列的方法中，未必要将window外的旧元素马上移除掉，可以改为取最大值时判断下标是否在window内，不在则移除取重新取最大值。</div> <span class="time">2018-10-12</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">即使k比较大，每个元素只经过window一次，所以不会因为k的大小而增加复杂度。<br><br>对于优先队列你建议的这种做法也是可行的。不过复杂度上从平均情况来看没有提升。</p> <p class="reply-time">2018-10-14</p>
+	</div>
+</div>
+</li><li data-v-87ffcada="" class="comment-item"><img src="https://static001.geekbang.org/account/avatar/00/11/7a/21/a33cc944.jpg" class="avatar">
+<div class="info">
+	<div class="hd"><span class="username">熊出没</span>
+	<div class="control">
+		 <a href="javascript:;" class="btn-praise"><i class="iconfont"></i> <span>0</span></a></div>
+	</div>
+	<div class="bd">5进入时-1、-3推出的判断不循环么？</div> <span class="time">2018-10-11</span>
+	<div class="reply">
+	<div class="reply-hd"><i class="iconfont"></i> <span>作者回复</span></div> 
+	<p class="reply-content">对的，有一个没循环。但是这个循环体会保证所有元素每个都仅仅只访问一次。</p> <p class="reply-time">2018-10-12</p>
+	</div>
+</div>
+</li></ul></div></div><div data-v-4e11b9bf=""></div></div></div><link href="https://cdn.bootcss.com/dplayer/1.25.0/DPlayer.min.css" rel="stylesheet"><script src="https://cdn.bootcss.com/hls.js/0.10.1/hls.min.js"></script><script src="https://cdn.bootcss.com/dplayer/1.25.0/DPlayer.min.js"></script><script>            const dp = new DPlayer({                container: document.getElementById('DplayerCont'),                video: {                    url: 'https://res001.geekbang.org/media/video/a4/51/a4f578bd56671421ab91f0a591559d51/hd/hd.m3u8',                    type: 'hls'                }            });</script></body></html>
